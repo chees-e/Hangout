@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">M6Frontend</string>
+    <string name="add_event_caption">Event Name</string>
+    <string name="location_caption">Location</string>
+    <string name="description_caption">Event Description</string>
+    <string name="add_users_caption">Add Users</string>
+    <string name="start_datetime_caption">Start Time</string>
+    <string name="end_datetime_caption">End Time</string>
+    <string name="add_event_btn_caption">Add Event</string>
+    <string name="date_hint">Date</string>
+    <string name="time_hint">Time</string>
 </resources>
