@@ -16,16 +16,28 @@
  * Event name and description can be handled elsewhere, as the scheduler does not
  * yet directly interface with a database.
  * 
- * "Design 1" events are represented as a tuple (id, start, length), where id is
- * an integer, and start and length are Dates.
+ * "Design 1" events are represented as a tuple (id, start, end), where id is
+ * an integer, and start and end are Dates.
 */
 class Event{
-	constructor(id, start, length){
+	constructor(id, start, end){
 		this.id = id;
 		this.start = start;
-		this.length = length;
+		this.end = end;
 		if (new.target === Event) {
 			Object.freeze(this);
+		}
+	}
+	equals(other){
+		if ((other === null) || !(other instanceof Event)){
+			return false;
+		} else if ((this.start === null) || (this.end === null)
+				|| (other.start === null) || (other.end === null)) {
+			return false; // Invalid events cannot be equal
+		} else {
+			return (this.id === other.id) 
+				&& (this.start.getTime() === other.start.getTime())
+				&& (this.end.getTime() === other.end.getTime());
 		}
 	}
 }
@@ -80,6 +92,14 @@ const TSLength = 10;
  */
 const dayLength = 24 * 60 * 60 / TSLength;
 
+/* getTimeslot: Get time slot number from date. Only takes into account
+ * time of day, according to the local time zone.
+ */
+function getTimeslot(date){
+	var minutes = date.getHours() * 60 + date.getMinutes();
+	return Math.floor(minutes / TSLength);
+}
+
 class EventImpl{
 	constructor(){
 		this.id = 0;
@@ -93,5 +113,41 @@ class EventImpl{
 	}
 	// Import single event into time slot table
 	importEvent(event){
+		var startSlot = getTimeslot(event.start);
+		var endSlot = getTimeslot(event.end);
+		for (var i = startSlot; i < endSlot; i++){
+			this.timeslots[i] = event.id;
+		}
+	}
+	// Check if EventImpl other is a subset of this
+	attends(other){
+		if (!(other instanceof EventImpl)){
+			return false;
+		}
+		for (var i = 0; i < dayLength; i++){
+			if ((other.timeslots[i] !== null)
+			&& (other.timeslots[i] !== this.timeslots[i])){
+				return false;
+			}
+		}
+		return true;
+	}
+	// Equality operator
+	equals(other){
+		if (!(other instanceof EventImpl)){
+			return false;
+		}
+		for (var i = 0; i < dayLength; i++){
+			if (this.timeslots[i] === null){
+				if (other.timeslots[i] !== null){
+					return false;
+				}
+			} else if (this.timeslots[i] !== other.timeslots[i]){
+				return false;
+			}
+		}
+		return true;
 	}
 }
+
+module.exports = { Event, User, EventImpl };
