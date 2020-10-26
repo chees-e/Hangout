@@ -16,12 +16,17 @@
  * Event name and description can be handled elsewhere, as the scheduler does not
  * yet directly interface with a database.
  * 
- * "Design 1" events are represented as a tuple (id, start, end), where id is
- * an integer, and start and end are Dates.
+ * "Design 1" events are represented as a tuple (id, name, desc, start, end),
+ * where id is an integer, name and desc are strings, and start and end are Dates.
+ * 
+ * name and desc should be entirely determined by id, so they are not compared
+ * in equals
 */
 class Event{
-	constructor(id, start, end){
+	constructor(id, name, desc, start, end){
 		this.id = id;
+		this.name = name;
+		this.desc = desc;
 		this.start = start;
 		this.end = end;
 		if (new.target === Event) {
@@ -31,8 +36,8 @@ class Event{
 	equals(other){
 		if ((other === null) || !(other instanceof Event)){
 			return false;
-		} else if ((this.start === null) || (this.end === null)
-				|| (other.start === null) || (other.end === null)) {
+		} else if (!((this.start instanceof Date) && (this.end instanceof Date)
+				 && (other.start instanceof Date) && (other.end instanceof Date))) {
 			return false; // Invalid events cannot be equal
 		} else {
 			return (this.id === other.id) 
@@ -101,8 +106,8 @@ function getTimeslot(date){
 }
 
 class EventImpl{
-	constructor(){
-		this.id = 0;
+	constructor(id){
+		this.id = id;
 		this.timeslots = Array(dayLength).fill(null);
 	}
 	// Import User with table of events 
@@ -138,15 +143,23 @@ class EventImpl{
 			return false;
 		}
 		for (var i = 0; i < dayLength; i++){
-			if (this.timeslots[i] === null){
-				if (other.timeslots[i] !== null){
-					return false;
-				}
-			} else if (this.timeslots[i] !== other.timeslots[i]){
+			if (this.timeslots[i] !== other.timeslots[i]){
 				return false;
 			}
 		}
 		return true;
+	}
+	// Check if other can be added to this
+	conflicts(other){
+		if (!(other instanceof EventImpl)){
+			return true;
+		}
+		for (var i = 0; i < dayLength; i++){
+			if ((other.timeslots[i] !== null) && (this.timeslots[i] !== null)){
+				return true;
+			}
+		}
+		return false;
 	}
 }
 
