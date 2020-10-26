@@ -8,9 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -23,12 +21,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
+
+// TODO: add user settings
+// TODO: add permission checks
 public class Profile extends AppCompatActivity {
     private Button signOutButton;
     private Button chatButton;
-    private Button eventButton;
+    private Button createEventButton;
     private TextView email;
-    private Button button;
+    private Button findEventButton;
     final static String TAG = "Profile";
 
     @Override
@@ -63,12 +64,21 @@ public class Profile extends AppCompatActivity {
             }
         });
 
-        eventButton = findViewById(R.id.eventButton);
-        eventButton.setOnClickListener(new View.OnClickListener() {
+        createEventButton = findViewById(R.id.eventButton);
+        createEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent addEventIntent = new Intent(Profile.this, AddEventActivity.class);
                 startActivity(addEventIntent);
+            }
+        });
+
+        findEventButton = findViewById(R.id.find_events_button);
+        findEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent findEventIntent = new Intent(Profile.this, FindEventActivity.class);
+                startActivity(findEventIntent);
             }
         });
 
