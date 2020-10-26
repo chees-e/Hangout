@@ -27,11 +27,20 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
 
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -51,6 +60,7 @@ import java.util.List;
 // TODO: improve location selector (maps integration?)
 public class AddEventActivity extends AppCompatActivity {
     private final String TAG = "AddEventActivity";
+    private static int AUTOCOMPLETE_REQUEST_CODE = 1;
     private EditText eventName;
     private EditText locationName;
     private EditText descriptionName;
@@ -65,7 +75,6 @@ public class AddEventActivity extends AppCompatActivity {
 
     private Button addEventButton;
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +84,7 @@ public class AddEventActivity extends AppCompatActivity {
         eventName = findViewById(R.id.editTextEvent);
 
         locationName = findViewById(R.id.editTextLocation);
+        locationName.setInputType(InputType.TYPE_NULL);
 
         descriptionName = findViewById(R.id.editTextEventDescription);
 
@@ -92,11 +102,24 @@ public class AddEventActivity extends AppCompatActivity {
 
 
         // gets location
+        Places.initialize(getApplicationContext(), "AIzaSyDSs9dhmEDSx0JH6e_slWAD3-P1l5F6-YY");
+        PlacesClient placesClient = Places.createClient(this);
+        locationName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
+
+                // Start the autocomplete intent.
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
+                        .build(getApplicationContext());
+                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+            }
+        });
 
         // gets start date
-        startDate.setOnTouchListener(new View.OnTouchListener() {
+        startDate.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
                 int day = calendar.get(Calendar.DAY_OF_WEEK);
                 int month = calendar.get(Calendar.MONTH);
@@ -110,18 +133,18 @@ public class AddEventActivity extends AppCompatActivity {
                             }
                         }, year, month, day);
                 datePicker.show();
-                return true;
+
             }
         });
 
         // gets start time
-        startTime.setOnTouchListener(new View.OnTouchListener() {
+        startTime.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
-                TimePickerDialog timePicker = new TimePickerDialog(AddEventActivity.this,
+                timePicker = new TimePickerDialog(AddEventActivity.this,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -129,15 +152,15 @@ public class AddEventActivity extends AppCompatActivity {
                             }
                         }, hour, minute, true);
                 timePicker.show();
-                return true;
+
             }
 
         });
 
         // gets end date
-        endDate.setOnTouchListener( new View.OnTouchListener() {
+        endDate.setOnClickListener( new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
                 int day = calendar.get(Calendar.DAY_OF_WEEK);
                 int month = calendar.get(Calendar.MONTH);
@@ -151,18 +174,18 @@ public class AddEventActivity extends AppCompatActivity {
                             }
                         }, year, month, day);
                 datePicker.show();
-                return true;
+
             }
         });
 
         // gets end time
-        endTime.setOnTouchListener(new View.OnTouchListener() {
+        endTime.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
-                TimePickerDialog timePicker = new TimePickerDialog(AddEventActivity.this,
+                timePicker = new TimePickerDialog(AddEventActivity.this,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -170,7 +193,7 @@ public class AddEventActivity extends AppCompatActivity {
                             }
                         }, hour, minute, true);
                 timePicker.show();
-                return true;
+
             }
         });
 
@@ -203,11 +226,11 @@ public class AddEventActivity extends AppCompatActivity {
                 }
 
                 RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
-                String url = "";
+                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/";
                 
-                String jsonObject = null;
+               String jsonString = null;
                 try {
-                     jsonObject = new JSONObject()
+                     jsonString = new JSONObject()
                             .put("id", currentUser.getUid())
                             .put("name", eventName.getText())
                             .put("desc", descriptionName.getText())
@@ -218,35 +241,51 @@ public class AddEventActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                final String finalJsonObject = jsonObject;
-                StringRequest postRequest = new StringRequest(Request.Method.POST, url,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                // response
-                                Log.d("Response", response);
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                // error
-                                Log.d("Error.Response", error.getMessage());
-                            }
-                        }
-                ) {
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(jsonString);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
                     @Override
-                    public byte[] getBody() {
-                        String json = finalJsonObject; // TODO: add json
-                        return json.getBytes();
+                    public void onResponse(JSONObject response) {
+                        //TODO: handle success
+                        Log.d(TAG, "Event add successful");
                     }
-                };
-                requestQueue.add(postRequest);
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        //TODO: handle failure
+                        Log.e(TAG, "Event add failed");
+                    }
+                });
+                requestQueue.add(jsonRequest);
                 requestQueue.start();
                 finish();
             }
 
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                locationName.setText(place.getAddress());
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                // TODO: Handle the error.
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i(TAG, status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private boolean isEmpty (EditText text) {
