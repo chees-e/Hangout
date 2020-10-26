@@ -5,11 +5,12 @@ var scheduler = require("./scheduler.js");
 var assert = require("assert");
 
 function testAddEvent(){
-	var start1 = new Date(2020, 10, 24, 10, 45);
-	var end1 = new Date(2020, 10, 24, 13, 50);
 	var sched = new scheduler.Scheduler();
-	var ev = new eventlib.Event(sched.getNextID(), null, null, start1, end1);
-	var newID = sched.getNextID();
+
+	const start1 = new Date(2020, 10, 24, 10, 45);
+	const end1 = new Date(2020, 10, 24, 13, 50);
+	const ev = new eventlib.Event(sched.getNextID(), null, null, start1, end1);
+	const newID = sched.getNextID();
 
 	assert(ev.id !== newID);
 	const events1 = sched.getEvents();
@@ -30,4 +31,28 @@ function testAddEvent(){
 	assert(events2[0] === events3[0]);
 }
 
+function testAddEventToUser(){
+	var sched = new scheduler.Scheduler();
+
+	const start1 = new Date(2020, 10, 24, 10, 45);
+	const end1 = new Date(2020, 10, 24, 13, 50);
+	const start2 = new Date(2020, 10, 24, 15, 20);
+	const end2 = new Date(2020, 10, 24, 16, 30);
+	const EID = sched.getNextID();
+	const EID2 = sched.getNextID();
+	const UID = sched.getNextID();
+
+	var ev = new eventlib.Event(EID, null, null, start1, end1);
+	var ev2 = new eventlib.Event(EID2, null, null, start2, end2);
+	
+	sched.addEvent(ev);
+	sched.addEvent(ev2);
+	sched.addUser(UID);
+	
+	assert(sched.addEventToUser(UID, EID));
+	assert(!sched.addEventToUser(UID, EID));
+	assert(sched.addEventToUser(UID, EID2);
+}
+
 testAddEvent();
+testAddEventToUser();

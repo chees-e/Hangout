@@ -34,15 +34,15 @@ function testEventEquals(){
 }
 
 function testEventImpl(){
-	var start1 = new Date(2020, 10, 24, 10, 45);
-	var end1 = new Date(2020, 10, 24, 13, 50);
+	const start1 = new Date(2020, 10, 24, 10, 45);
+	const end1 = new Date(2020, 10, 24, 13, 50);
 
-	var start2 = new Date(2020, 10, 24, 15, 20);
-	var end2 = new Date(2020, 10, 24, 16, 30);
+	const start2 = new Date(2020, 10, 24, 15, 20);
+	const end2 = new Date(2020, 10, 24, 16, 30);
 	
-	var ev = new eventlib.Event(1, null, null, start1, end1);
-	var ev2 = new eventlib.Event(2, null, null, start1, end1);
-	var ev3 = new eventlib.Event(3, null, null, start2, end2);
+	const ev = new eventlib.Event(1, null, null, start1, end1);
+	const ev2 = new eventlib.Event(2, null, null, start1, end1);
+	const ev3 = new eventlib.Event(3, null, null, start2, end2);
 	
 	// Identical events
 	var evImpl = new eventlib.EventImpl(0);

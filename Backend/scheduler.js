@@ -54,6 +54,27 @@ class Scheduler{
 		}
 		return events;
 	}
+	/* addEventToUser()
+	 *  params:
+	 *   uid: user id
+	 *   eid: event id
+	 *  returns: true if the event was added, false otherwise
+	 * 
+	 * If there was a conflict, the user's data will not change and
+	 * addEventToUser() will return false
+	*/
+	addEventToUser(uid, eid){
+		if (!(this.events.hasOwnProperty(eid) && this.users.hasOwnProperty(uid))){
+			return false;
+		} else if (this.impls[uid].conflicts(this.impls[eid])){
+			return false;
+		} else {
+			const event = this.events[eid];
+			this.users[uid].addEvent(event);
+			this.impls[uid].importEvent(event);
+			return true;
+		}
+	}
 }
 
 module.exports = { Scheduler };
