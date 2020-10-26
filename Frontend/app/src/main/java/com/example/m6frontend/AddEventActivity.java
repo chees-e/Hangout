@@ -226,7 +226,7 @@ public class AddEventActivity extends AppCompatActivity {
                 }
 
                 RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
-                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/";
+                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/addEvent";
                 
                String jsonString = null;
                 try {
@@ -248,18 +248,19 @@ public class AddEventActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
+                final JSONObject finalJsonObject = jsonObject;
                 JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         //TODO: handle success
-                        Log.d(TAG, "Event add successful");
+                        Log.d(TAG, "success" + finalJsonObject.toString());
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
                         //TODO: handle failure
-                        Log.e(TAG, "Event add failed");
+                        Log.e(TAG, "failed" + finalJsonObject.toString());
                     }
                 });
                 requestQueue.add(jsonRequest);
