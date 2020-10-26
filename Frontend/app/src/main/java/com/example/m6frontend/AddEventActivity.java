@@ -27,6 +27,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.api.Status;
@@ -74,7 +75,6 @@ public class AddEventActivity extends AppCompatActivity {
 
     private Button addEventButton;
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,9 +117,9 @@ public class AddEventActivity extends AppCompatActivity {
         });
 
         // gets start date
-        startDate.setOnTouchListener(new View.OnTouchListener() {
+        startDate.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
                 int day = calendar.get(Calendar.DAY_OF_WEEK);
                 int month = calendar.get(Calendar.MONTH);
@@ -133,18 +133,18 @@ public class AddEventActivity extends AppCompatActivity {
                             }
                         }, year, month, day);
                 datePicker.show();
-                return true;
+
             }
         });
 
         // gets start time
-        startTime.setOnTouchListener(new View.OnTouchListener() {
+        startTime.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
-                TimePickerDialog timePicker = new TimePickerDialog(AddEventActivity.this,
+                timePicker = new TimePickerDialog(AddEventActivity.this,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -152,15 +152,15 @@ public class AddEventActivity extends AppCompatActivity {
                             }
                         }, hour, minute, true);
                 timePicker.show();
-                return true;
+
             }
 
         });
 
         // gets end date
-        endDate.setOnTouchListener(new View.OnTouchListener() {
+        endDate.setOnClickListener( new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
                 int day = calendar.get(Calendar.DAY_OF_WEEK);
                 int month = calendar.get(Calendar.MONTH);
@@ -174,18 +174,18 @@ public class AddEventActivity extends AppCompatActivity {
                             }
                         }, year, month, day);
                 datePicker.show();
-                return true;
+
             }
         });
 
         // gets end time
-        endTime.setOnTouchListener(new View.OnTouchListener() {
+        endTime.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
-                TimePickerDialog timePicker = new TimePickerDialog(AddEventActivity.this,
+                timePicker = new TimePickerDialog(AddEventActivity.this,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -193,7 +193,7 @@ public class AddEventActivity extends AppCompatActivity {
                             }
                         }, hour, minute, true);
                 timePicker.show();
-                return true;
+
             }
         });
 
@@ -203,11 +203,11 @@ public class AddEventActivity extends AppCompatActivity {
         addEventButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
                 FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
                 if (isEmpty(eventName) || isEmpty(locationName) || isEmpty(descriptionName) ||
-                    isEmpty(startDate) || isEmpty(startTime) || isEmpty(endDate) || isEmpty(endTime)) {
+                        isEmpty(startDate) || isEmpty(startTime) || isEmpty(endDate) || isEmpty(endTime)) {
                     Toast.makeText(AddEventActivity.this, "Please enter the required fields", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -225,61 +225,49 @@ public class AddEventActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                finish();
+                RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
+                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/";
+                
+               String jsonString = null;
+                try {
+                     jsonString = new JSONObject()
+                            .put("id", currentUser.getUid())
+                            .put("name", eventName.getText())
+                            .put("desc", descriptionName.getText())
+                            .put("start",startDate.getText() + "T" + startTime.getText())
+                            .put("end", endDate.getText() + "T" + endTime.getText())
+                            .toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
-            /* Server Code
-            RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
-            String url;
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(jsonString);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
-            @Override
-            public void onClick(View v) {
-                StringRequest postRequest = new StringRequest(Request.Method.POST, url,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                // response
-                                Log.d("Response", response);
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                // error
-                                Log.d("Error.Response", error.getMessage());
-                            }
-                        }
-                ) {
+                JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
                     @Override
-                    public byte[] getBody() {
-                        String json = ""; // TODO: add json
-                        return json.getBytes();
+                    public void onResponse(JSONObject response) {
+                        //TODO: handle success
+                        Log.d(TAG, "Event add successful");
                     }
-                };
-                requestQueue.add(postRequest);
-                requestQueue.start();
-
-                StringRequest getRequest = new StringRequest(Request.Method.GET, url,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                Toast.makeText(AddEventActivity.this, response, Toast.LENGTH_LONG);
-                            }
-                        }, new Response.ErrorListener() {
+                }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(AddEventActivity.this, "Event could not be created", Toast.LENGTH_LONG);
+                        error.printStackTrace();
+                        //TODO: handle failure
+                        Log.e(TAG, "Event add failed");
                     }
                 });
-                requestQueue.add(getRequest);
+                requestQueue.add(jsonRequest);
                 requestQueue.start();
+                finish();
             }
 
-
-
         });
-        */ }
-        });
-
     }
 
     @Override

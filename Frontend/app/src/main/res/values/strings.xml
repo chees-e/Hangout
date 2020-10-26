@@ -18,7 +18,6 @@
 
     <string-array name="event_name">
         <item>ID: </item>
-        <item>Name: </item>
         <item>Description: </item>
         <item>Start: </item>
         <item>End: </item>
