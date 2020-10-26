@@ -75,6 +75,18 @@ class Scheduler{
 			return true;
 		}
 	}
+	/* getUserEvents()
+	 *  params:
+	 *   uid: user id
+	 *  returns: array of events that the user attends
+	*/
+	getUserEvents(uid){
+		if (!this.users.hasOwnProperty(uid)){
+			return false;
+		} else {
+			return this.users[uid].getEvents();
+		}
+	}
 }
 
 module.exports = { Scheduler };

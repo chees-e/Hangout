@@ -69,6 +69,17 @@ class User{
 		this.events.push(event);
 		return true;
 	}
+	/* getEvents();
+	 * 
+	 * Returns: the events the user currently attends
+	*/
+	getEvents(){
+		var arrs = [];
+		for (var i = 0; i < this.events.length; i++){
+			arrs.push(this.events[i]);
+		}
+		return arrs;
+	}
 	/* getProfile();
 	 * 
 	 * Params: none
