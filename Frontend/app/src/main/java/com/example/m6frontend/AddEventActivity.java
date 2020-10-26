@@ -135,7 +135,7 @@ public class AddEventActivity extends AppCompatActivity {
         });
 
         // gets end date
-        endDate.setOnTouchListener(new View.OnTouchListener() {
+        endDate.setOnTouchListener( new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 final Calendar calendar = Calendar.getInstance();
@@ -180,11 +180,11 @@ public class AddEventActivity extends AppCompatActivity {
         addEventButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
                 FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
                 if (isEmpty(eventName) || isEmpty(locationName) || isEmpty(descriptionName) ||
-                    isEmpty(startDate) || isEmpty(startTime) || isEmpty(endDate) || isEmpty(endTime)) {
+                        isEmpty(startDate) || isEmpty(startTime) || isEmpty(endDate) || isEmpty(endTime)) {
                     Toast.makeText(AddEventActivity.this, "Please enter the required fields", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -202,14 +202,23 @@ public class AddEventActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                finish();
+                RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
+                String url = "";
+                
+                String jsonObject = null;
+                try {
+                     jsonObject = new JSONObject()
+                            .put("id", currentUser.getUid())
+                            .put("name", eventName.getText())
+                            .put("desc", descriptionName.getText())
+                            .put("start",startDate.getText() + "T" + startTime.getText())
+                            .put("end", endDate.getText() + "T" + endTime.getText())
+                            .toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
-            /* Server Code
-            RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
-            String url;
-
-            @Override
-            public void onClick(View v) {
+                final String finalJsonObject = jsonObject;
                 StringRequest postRequest = new StringRequest(Request.Method.POST, url,
                         new Response.Listener<String>() {
                             @Override
@@ -228,35 +237,16 @@ public class AddEventActivity extends AppCompatActivity {
                 ) {
                     @Override
                     public byte[] getBody() {
-                        String json = ""; // TODO: add json
+                        String json = finalJsonObject; // TODO: add json
                         return json.getBytes();
                     }
                 };
                 requestQueue.add(postRequest);
                 requestQueue.start();
-
-                StringRequest getRequest = new StringRequest(Request.Method.GET, url,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                Toast.makeText(AddEventActivity.this, response, Toast.LENGTH_LONG);
-                            }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(AddEventActivity.this, "Event could not be created", Toast.LENGTH_LONG);
-                    }
-                });
-                requestQueue.add(getRequest);
-                requestQueue.start();
+                finish();
             }
 
-
-
         });
-        */ }
-        });
-
     }
 
     private boolean isEmpty (EditText text) {
