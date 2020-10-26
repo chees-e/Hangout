@@ -44,6 +44,7 @@ import java.util.Calendar;
 import java.util.List;
 
 
+
 // TODO: implement adding additional users
 // TODO: check if users are valid
 // TODO: fix tap responsiveness of time/date selectors
@@ -90,6 +91,7 @@ public class AddEventActivity extends AppCompatActivity {
         endTime.setInputType(InputType.TYPE_NULL);
 
 
+        // gets location
 
         // gets start date
         startDate.setOnTouchListener(new View.OnTouchListener() {
@@ -201,53 +203,6 @@ public class AddEventActivity extends AppCompatActivity {
                 }
 
                 finish();
-
-                /* Server Code
-            RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
-            String url;
-            @Override
-            public void onClick(View v) {
-                StringRequest postRequest = new StringRequest(Request.Method.POST, url,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                // response
-                                Log.d("Response", response);
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                // error
-                                Log.d("Error.Response", error.getMessage());
-                            }
-                        }
-                ) {
-                    @Override
-                    public byte[] getBody() {
-                        String json = ""; // TODO: add json
-                        return json.getBytes();
-                    }
-                };
-                requestQueue.add(postRequest);
-                requestQueue.start();
-                StringRequest getRequest = new StringRequest(Request.Method.GET, url,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                Toast.makeText(AddEventActivity.this, response, Toast.LENGTH_LONG);
-                            }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(AddEventActivity.this, "Event could not be created", Toast.LENGTH_LONG);
-                    }
-                });
-                requestQueue.add(getRequest);
-                requestQueue.start();
-            }
-        });
-        */
 
             /* Server Code
             RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);

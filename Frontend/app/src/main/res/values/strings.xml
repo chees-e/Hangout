@@ -12,4 +12,15 @@
     <string name="time_hint">Time</string>
     <string name="token_prefix">Token: %s</string>
     <string name="handle_notification_now">Test Notification</string>
+    <string name="GOOGLE_MAPS_API_KEY">AIzaSyBwKcrvMLzD8eFovzT0IrWvtxsy4lqF_ug</string>
+    <string name="find_event_caption">Find Events</string>
+    <string name="event_name">Event: </string>
+
+    <string-array name="event_name">
+        <item>ID: </item>
+        <item>Name: </item>
+        <item>Description: </item>
+        <item>Start: </item>
+        <item>End: </item>
+    </string-array>
 </resources>
