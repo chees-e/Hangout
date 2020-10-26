@@ -32,7 +32,7 @@ public class FindEventActivity extends AppCompatActivity {
     int numEvents;
     // TODO: allow user to change this value
     int numStartEvents = 1;
-    String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/";
+    String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
     RequestQueue queue;
 
     String eventName = "";

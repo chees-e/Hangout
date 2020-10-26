@@ -226,30 +226,17 @@ public class AddEventActivity extends AppCompatActivity {
                 }
 
                 RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
-                //This is a temporary thing for M6, I (shawn) will come back to this
-                //Oh forgot that string addition works ohwell fix it later I guess
-                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/addEvent"
-                        .concat("?name=")
-                        .concat(eventName.toString())
-                        .concat("&id=")
-                        .concat(currentUser.getUid())
-                        .concat("&desc=")
-                        .concat(descriptionName.toString())
-                        .concat("&start=")
-                        .concat(startDate.getText() + "T" + startTime.getText())
-                        .concat("&end=")
-                        .concat(endDate.getText() + "T" + endTime.getText());
-
+                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/addEvent";
+                
                String jsonString = null;
                 try {
-                     /*jsonString = new JSONObject()
+                     jsonString = new JSONObject()
                             .put("id", currentUser.getUid())
                             .put("name", eventName.getText())
                             .put("desc", descriptionName.getText())
                             .put("start",startDate.getText() + "T" + startTime.getText())
                             .put("end", endDate.getText() + "T" + endTime.getText())
-                            .toString();*/
-                    jsonString = new JSONObject().put("msg", "0").toString();
+                            .toString();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -261,18 +248,19 @@ public class AddEventActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, jsonObject, new Response.Listener<JSONObject>() {
+                final JSONObject finalJsonObject = jsonObject;
+                JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         //TODO: handle success
-                        Log.d(TAG, "Event add successful");
+                        Log.d(TAG, "success" + finalJsonObject.toString());
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
                         //TODO: handle failure
-                        Log.e(TAG, "Event add failed, response: " + error.toString());
+                        Log.e(TAG, "failed" + finalJsonObject.toString());
                     }
                 });
                 requestQueue.add(jsonRequest);
