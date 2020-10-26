@@ -121,7 +121,7 @@ public class AddEventActivity extends AppCompatActivity {
                 final Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
-                TimePickerDialog timePicker = new TimePickerDialog(AddEventActivity.this,
+                timePicker = new TimePickerDialog(AddEventActivity.this,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -162,7 +162,7 @@ public class AddEventActivity extends AppCompatActivity {
                 final Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
-                TimePickerDialog timePicker = new TimePickerDialog(AddEventActivity.this,
+                timePicker = new TimePickerDialog(AddEventActivity.this,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -220,7 +220,7 @@ public class AddEventActivity extends AppCompatActivity {
 
                 JSONObject jsonObject = null;
                 try {
-                    jsonObject = new JSONObject(jsonString.toString());
+                    jsonObject = new JSONObject(jsonString);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -229,12 +229,14 @@ public class AddEventActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         //TODO: handle success
+                        Log.d(TAG, "Event add successful");
                     }
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
                         //TODO: handle failure
+                        Log.e(TAG, "Event add failed");
                     }
                 });
                 requestQueue.add(jsonRequest);

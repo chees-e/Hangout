@@ -32,14 +32,14 @@ public class FindEventActivity extends AppCompatActivity {
     int numEvents;
     // TODO: allow user to change this value
     int numStartEvents = 1;
-    String url = "";
+    String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/";
     RequestQueue queue;
 
-    String eventName = "1";
-    String id = "2";
-    String description = "3";
-    String start = "4";
-    String end = "5";
+    String eventName = "";
+    String id = "";
+    String description = "";
+    String start = "";
+    String end = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

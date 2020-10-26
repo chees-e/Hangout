@@ -25,11 +25,6 @@ import com.google.firebase.iid.InstanceIdResult;
 // TODO: add user settings
 // TODO: add permission checks
 public class Profile extends AppCompatActivity {
-    private Button signOutButton;
-    private Button chatButton;
-    private Button createEventButton;
-    private TextView email;
-    private Button findEventButton;
     final static String TAG = "Profile";
 
     @Override
@@ -37,7 +32,7 @@ public class Profile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        email = findViewById(R.id.email);
+        TextView email = findViewById(R.id.email);
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         assert currentUser != null;
         Log.d(TAG, "Current User:" + currentUser.getDisplayName());
@@ -47,7 +42,7 @@ public class Profile extends AppCompatActivity {
             email.setText(currentAccount.getEmail());
         }
 
-        signOutButton = findViewById(R.id.sign_out_button);
+        Button signOutButton = findViewById(R.id.sign_out_button);
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,7 +50,7 @@ public class Profile extends AppCompatActivity {
             }
         });
 
-        chatButton = findViewById(R.id.chat_button);
+        Button chatButton = findViewById(R.id.chat_button);
         chatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,7 +59,7 @@ public class Profile extends AppCompatActivity {
             }
         });
 
-        createEventButton = findViewById(R.id.eventButton);
+        Button createEventButton = findViewById(R.id.eventButton);
         createEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,7 +68,7 @@ public class Profile extends AppCompatActivity {
             }
         });
 
-        findEventButton = findViewById(R.id.find_events_button);
+        Button findEventButton = findViewById(R.id.find_events_button);
         findEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,9 +92,7 @@ public class Profile extends AppCompatActivity {
             }
         });
 
-        if (checkGooglePlayServices()) {
-
-        } else {
+        if (!checkGooglePlayServices()) {
             Log.w(TAG, "Device doesn't have google play services");
         }
     }
