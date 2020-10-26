@@ -27,6 +27,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.api.Status;
@@ -65,7 +66,6 @@ public class AddEventActivity extends AppCompatActivity {
 
     private Button addEventButton;
 
-    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,9 +94,9 @@ public class AddEventActivity extends AppCompatActivity {
         // gets location
 
         // gets start date
-        startDate.setOnTouchListener(new View.OnTouchListener() {
+        startDate.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
                 int day = calendar.get(Calendar.DAY_OF_WEEK);
                 int month = calendar.get(Calendar.MONTH);
@@ -110,14 +110,14 @@ public class AddEventActivity extends AppCompatActivity {
                             }
                         }, year, month, day);
                 datePicker.show();
-                return true;
+
             }
         });
 
         // gets start time
-        startTime.setOnTouchListener(new View.OnTouchListener() {
+        startTime.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
@@ -129,15 +129,15 @@ public class AddEventActivity extends AppCompatActivity {
                             }
                         }, hour, minute, true);
                 timePicker.show();
-                return true;
+
             }
 
         });
 
         // gets end date
-        endDate.setOnTouchListener( new View.OnTouchListener() {
+        endDate.setOnClickListener( new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
                 int day = calendar.get(Calendar.DAY_OF_WEEK);
                 int month = calendar.get(Calendar.MONTH);
@@ -151,14 +151,14 @@ public class AddEventActivity extends AppCompatActivity {
                             }
                         }, year, month, day);
                 datePicker.show();
-                return true;
+
             }
         });
 
         // gets end time
-        endTime.setOnTouchListener(new View.OnTouchListener() {
+        endTime.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
@@ -170,7 +170,7 @@ public class AddEventActivity extends AppCompatActivity {
                             }
                         }, hour, minute, true);
                 timePicker.show();
-                return true;
+
             }
         });
 
@@ -203,11 +203,11 @@ public class AddEventActivity extends AppCompatActivity {
                 }
 
                 RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
-                String url = "";
+                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/";
                 
-                String jsonObject = null;
+               String jsonString = null;
                 try {
-                     jsonObject = new JSONObject()
+                     jsonString = new JSONObject()
                             .put("id", currentUser.getUid())
                             .put("name", eventName.getText())
                             .put("desc", descriptionName.getText())
@@ -218,30 +218,26 @@ public class AddEventActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                final String finalJsonObject = jsonObject;
-                StringRequest postRequest = new StringRequest(Request.Method.POST, url,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                // response
-                                Log.d("Response", response);
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                // error
-                                Log.d("Error.Response", error.getMessage());
-                            }
-                        }
-                ) {
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(jsonString.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
                     @Override
-                    public byte[] getBody() {
-                        String json = finalJsonObject; // TODO: add json
-                        return json.getBytes();
+                    public void onResponse(JSONObject response) {
+                        //TODO: handle success
                     }
-                };
-                requestQueue.add(postRequest);
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        //TODO: handle failure
+                    }
+                });
+                requestQueue.add(jsonRequest);
                 requestQueue.start();
                 finish();
             }
