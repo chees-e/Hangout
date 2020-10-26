@@ -32,6 +32,14 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
 
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -51,6 +59,7 @@ import java.util.List;
 // TODO: improve location selector (maps integration?)
 public class AddEventActivity extends AppCompatActivity {
     private final String TAG = "AddEventActivity";
+    private static int AUTOCOMPLETE_REQUEST_CODE = 1;
     private EditText eventName;
     private EditText locationName;
     private EditText descriptionName;
@@ -75,6 +84,7 @@ public class AddEventActivity extends AppCompatActivity {
         eventName = findViewById(R.id.editTextEvent);
 
         locationName = findViewById(R.id.editTextLocation);
+        locationName.setInputType(InputType.TYPE_NULL);
 
         descriptionName = findViewById(R.id.editTextEventDescription);
 
@@ -92,6 +102,19 @@ public class AddEventActivity extends AppCompatActivity {
 
 
         // gets location
+        Places.initialize(getApplicationContext(), "AIzaSyDSs9dhmEDSx0JH6e_slWAD3-P1l5F6-YY");
+        PlacesClient placesClient = Places.createClient(this);
+        locationName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
+
+                // Start the autocomplete intent.
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
+                        .build(getApplicationContext());
+                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+            }
+        });
 
         // gets start date
         startDate.setOnTouchListener(new View.OnTouchListener() {
@@ -257,6 +280,24 @@ public class AddEventActivity extends AppCompatActivity {
         */ }
         });
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                locationName.setText(place.getAddress());
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                // TODO: Handle the error.
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i(TAG, status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private boolean isEmpty (EditText text) {
