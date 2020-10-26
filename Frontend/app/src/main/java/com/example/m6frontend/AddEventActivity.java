@@ -226,17 +226,30 @@ public class AddEventActivity extends AppCompatActivity {
                 }
 
                 RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
-                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/";
-                
+                //This is a temporary thing for M6, I (shawn) will come back to this
+                //Oh forgot that string addition works ohwell fix it later I guess
+                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/addEvent"
+                        .concat("?name=")
+                        .concat(eventName.toString())
+                        .concat("&id=")
+                        .concat(currentUser.getUid())
+                        .concat("&desc=")
+                        .concat(descriptionName.toString())
+                        .concat("&start=")
+                        .concat(startDate.getText() + "T" + startTime.getText())
+                        .concat("&end=")
+                        .concat(endDate.getText() + "T" + endTime.getText());
+
                String jsonString = null;
                 try {
-                     jsonString = new JSONObject()
+                     /*jsonString = new JSONObject()
                             .put("id", currentUser.getUid())
                             .put("name", eventName.getText())
                             .put("desc", descriptionName.getText())
                             .put("start",startDate.getText() + "T" + startTime.getText())
                             .put("end", endDate.getText() + "T" + endTime.getText())
-                            .toString();
+                            .toString();*/
+                    jsonString = new JSONObject().put("msg", "0").toString();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -248,7 +261,7 @@ public class AddEventActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
+                JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.GET, url, jsonObject, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         //TODO: handle success
@@ -259,7 +272,7 @@ public class AddEventActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         error.printStackTrace();
                         //TODO: handle failure
-                        Log.e(TAG, "Event add failed");
+                        Log.e(TAG, "Event add failed, response: " + error.toString());
                     }
                 });
                 requestQueue.add(jsonRequest);
