@@ -19,11 +19,11 @@ app.get('/addEvent/', function(req, res) {
 	console.log(req.query.desc);
 	
 	if (!req.query.name || !req.query.id || !req.query.desc || !req.query.start || !req.query.end) {
-		res.send({error:"invalid request"});
+		res.status(400).send({msg:"invalid request"});
 	} else {
 		let rv = database.addEvent(req.query.name, req.query.id, req.query.desc, req.query.start, req.query.end);
 	
-		res.send({id:rv});
+		res.send({msg:"success"});
 	}
 })
 
