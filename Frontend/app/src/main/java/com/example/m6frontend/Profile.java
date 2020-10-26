@@ -10,18 +10,25 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 public class Profile extends AppCompatActivity {
     private Button signOutButton;
     private Button chatButton;
     private Button eventButton;
     private TextView email;
-    private ImageButton settingsButton;
+    private Button button;
     final static String TAG = "Profile";
 
     @Override
@@ -64,9 +71,42 @@ public class Profile extends AppCompatActivity {
                 startActivity(addEventIntent);
             }
         });
-        
+
+        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+            @Override
+            public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                if (!task.isSuccessful()) {
+                    Log.w(TAG, "getInstanceId failed", task.getException());
+                    return;
+                }
+                String token = task.getResult().getToken();
+                String message = getString(R.string.token_prefix, token);
+                Log.d(TAG, message);
+                // TODO: change message to something meaningful
+               // Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        if (checkGooglePlayServices()) {
+
+        } else {
+            Log.w(TAG, "Device doesn't have google play services");
+        }
     }
 
+    private boolean checkGooglePlayServices() {
+
+        int status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
+
+        if (status != ConnectionResult.SUCCESS) {
+            Log.e(TAG, "Error");
+            // TODO: ask user to update google play services and manage the error
+            return false;
+        } else {
+            Log.i(TAG, "Google play services updated");
+            return true;
+        }
+    }
     private void signOut() {
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(getApplicationContext(),MainActivity.class);

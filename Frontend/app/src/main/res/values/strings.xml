@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">M6Frontend</string>
+    <string name="empty"></string>
     <string name="add_event_caption">Event Name</string>
     <string name="location_caption">Location</string>
     <string name="description_caption">Event Description</string>
@@ -9,4 +10,6 @@
     <string name="add_event_btn_caption">Add Event</string>
     <string name="date_hint">Date</string>
     <string name="time_hint">Time</string>
+    <string name="token_prefix">Token: %s</string>
+    <string name="handle_notification_now">Test Notification</string>
 </resources>
