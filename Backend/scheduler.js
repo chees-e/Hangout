@@ -1,92 +1,87 @@
 'use strict';
 
-var eventlib = require("./eventlib.js");
+const eventlib = require("./eventlib.js");
+const fs = require("fs");
 
-class Scheduler{
-	constructor(){
-		this.events = {}; // Map from ids to events
-		this.users = {};  // Map from ids to users
-		this.impls = {};  // Map from ids to eventImpls
-		this.nextID = 1;  // Next available ID
-	}
-	/* addEvent(event)
-	 *  params: event, instance of eventlib.Event
-	 *  returns: false if adding failed, true if adding was successful
-	 * If the event already exists, the Scheduler is not modified
-	 */
-	addEvent(event){
-		if ((event instanceof eventlib.Event) && !(this.events.hasOwnProperty(event.id))){
-			this.events[event.id] = event;
-			this.impls[event.id] = new eventlib.EventImpl(event.id);
-			this.impls[event.id].importEvent(event);
-			return true;
-		} else {
-			return false;
+const data = require("./data/scheduler.json");
+
+/* updateData(filename, input)
+ *  params:
+ *    _filename - string, filename to save to without extension
+ *    input     - object, object to save to JSON
+ *  returns:
+ *    -1 if the write fails
+ *    0  if the write succeeds
+ */
+async function updateData(filename, input) {
+	fs.writeFile(`./data/${filename}.json`, JSON.stringify(input), (err) => {
+		if (err) {
+			console.log(err);
+			return -1;
+		} else return 0;
+	});
+	
+	return 0;
+}
+
+/* addEvent(_name, _id, _desc, _start, _end)
+ *  params: 
+ *   _name  - string, name of event
+ *   _id    - int, unique id of event
+ *   _desc  - string, event description
+ *   _start - Date, event start date and time
+ *   _end   - Date, event end date and time
+ *  returns: A negative value if the operation failed, the id if the
+ *    operation was successful
+ *
+ * If an event with the same id already exists, the scheduler is not modified
+ */
+module.exports.addEvent = async (_name, _id, _desc, _start, _end) => {
+	if (data.events.hasOwnProperty(_id)){
+		return -1;
+	} else {
+		let newEvent = new eventlib.Event(_id, _name, _desc, new Date(_start), new Date(_end));
+
+		if ((newEvent.start === NaN) || (newEvent.end === NaN)) {
+			return -1;
 		}
-	}
-	/* addUser(user)
-	 *  params: user id
-	 *  returns: true if add was successful, false otherwise
-	 * If the user already exists, the Scheduler is not modified
-	*/
-	addUser(id){
-		if (!this.users.hasOwnProperty(id)){
-			this.users[id] = new eventlib.User(id);
-			this.impls[id] = new eventlib.EventImpl(id);
-			return true;
+
+		data.events[_id] = newEvent;
+
+		let oldNextID = data.nextID;
+		let oldLastID = data.lastID;
+		
+		data.lastID = _id;
+		data.nextID = Math.max(data.nextID - 1, _id) + 1;
+
+		let rv = await updateData("scheduler", data);
+		
+		if (rv === 0) {
+			return data.lastID;
 		} else {
-			return false;
-		}
-	}
-	/* getNextID()
-	*   returns: An ID which is guaranteed to be available.
-	*/
-	getNextID(){
-		return this.nextID++;
-	}
-	/* getEvents()
-	* 	returns: An array of the available events
-	*/
-	getEvents(){
-		var events = new Array();
-		for (const [key, value] of Object.entries(this.events)) {
-			events.push(value);
-		}
-		return events;
-	}
-	/* addEventToUser()
-	 *  params:
-	 *   uid: user id
-	 *   eid: event id
-	 *  returns: true if the event was added, false otherwise
-	 * 
-	 * If there was a conflict, the user's data will not change and
-	 * addEventToUser() will return false
-	*/
-	addEventToUser(uid, eid){
-		if (!(this.events.hasOwnProperty(eid) && this.users.hasOwnProperty(uid))){
-			return false;
-		} else if (this.impls[uid].conflicts(this.impls[eid])){
-			return false;
-		} else {
-			const event = this.events[eid];
-			this.users[uid].addEvent(event);
-			this.impls[uid].importEvent(event);
-			return true;
-		}
-	}
-	/* getUserEvents()
-	 *  params:
-	 *   uid: user id
-	 *  returns: array of events that the user attends
-	*/
-	getUserEvents(uid){
-		if (!this.users.hasOwnProperty(uid)){
-			return false;
-		} else {
-			return this.users[uid].getEvents();
+			data.lastID = oldLastID;
+			data.nextID = oldNextID;
+			delete data.events[_id];
+			return rv;
 		}
 	}
 }
 
-module.exports = { Scheduler };
+
+/* getNextID()
+*   returns: An ID which is guaranteed to be available.
+*/
+module.exports.getNextID = () => {
+	return data.nextID;
+}
+
+/* getEvent
+ *  returns: most recently added event
+ */
+module.exports.getEvent = async () => {
+	if (data.lastID === -1){
+		return new eventlib.Event(-1, "", "", null, null);
+	} else {
+		return data.events[data.lastID];
+	}
+}

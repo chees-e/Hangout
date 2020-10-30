@@ -1,11 +1,7 @@
 'use strict';
 
-var eventlib = require("./eventlib.js");
-var assert = require("assert");
-
-var Event = eventlib.Event;
-var User = eventlib.User;
-var EventImpl = eventlib.EventImpl;
+const eventlib = require("./eventlib.js");
+const assert = require("assert");
 
 function testEventEquals(){
 	var ev = new eventlib.Event(null, null, null, null, null);
