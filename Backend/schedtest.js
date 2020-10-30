@@ -1,8 +1,8 @@
 'use strict';
 
-var eventlib = require("./eventlib.js");
-var scheduler = require("./scheduler.js");
-var assert = require("assert");
+const eventlib = require("./eventlib.js");
+const scheduler = require("./scheduler.js");
+const assert = require("assert");
 
 function assertArrEqual(ev1, ev2){
 	assert(ev1.length === ev2.length);
@@ -16,33 +16,44 @@ function assertArrEqual(ev1, ev2){
 }
 
 function testAddEvent(){
-	var sched = new scheduler.Scheduler();
-
 	const start1 = new Date(2020, 10, 24, 10, 45);
 	const end1 = new Date(2020, 10, 24, 13, 50);
-	const ev = new eventlib.Event(sched.getNextID(), null, null, start1, end1);
-	const newID = sched.getNextID();
 
-	assert(ev.id !== newID);
-	const events1 = sched.getEvents();
-	
-	assertArrEqual(events1, []);
+	// Restore scheduler to known state
+	scheduler.reset().then((code) => {
+		assert(code === 0);
+	});
 
-	assert(events1.length === 0); // sched.getEvents() must be a valid array
+	const evid = scheduler.getNextID();
+	const ev = new eventlib.Event(evid, "Test", "TestDesc", start1, end1);
+
+	// Default event: scheduler.getEvent() with no events must not error
+	scheduler.getEvent().then((evnt) => {
+		assert(evnt instanceof eventlib.Event);
+		assert(evnt.id === -1);
+		assert(evnt.start === null);
+		assert(evnt.end === null);
+	});
+
+	scheduler.addEvent("Test", evid, "TestDesc", start1, end1).then((code) => {
+		assert(code === evid);
+	});
+
+	const newID = scheduler.getNextID();
+	assert(evid !== newID);
+
+	// getEvent must return the last added event
+	scheduler.getEvent().then((evnt) => {
+		assert(evnt instanceof eventlib.Event);
+		assert(evnt.equals(ev));
+	});
 	
-	sched.addEvent(ev);
-	const events2 = sched.getEvents();
-	
-	assertArrEqual(events1, []);   // sched.getEvents() must not change prior values
-	assertArrEqual(events2, [ev]); // ev must be the only value in events2
-	
-	sched.addUser(newID);
-	const events3 = sched.getEvents();
-	
-	assertArrEqual(events3, [ev]);  // Adding users must not add events
+//	sched.addUser(newID);
+//	const events3 = sched.getEvents();
+//	assertArrEqual(events3, [ev]);  // Adding users must not add events
 }
 
-function testAddEventToUser(){
+/*function testAddEventToUser(){
 	var sched = new scheduler.Scheduler();
 
 	const start1 = new Date(2020, 10, 24, 10, 45);
@@ -64,7 +75,7 @@ function testAddEventToUser(){
 	assert(!sched.addEventToUser(UID, EID));
 	assert(sched.addEventToUser(UID, EID2));
 	assertArrEqual(sched.getUserEvents(UID), [ev, ev2]);
-}
+}*/
 
 testAddEvent();
-testAddEventToUser();
+//testAddEventToUser();

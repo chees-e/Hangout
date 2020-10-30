@@ -24,6 +24,23 @@ async function updateData(filename, input) {
 	return 0;
 }
 
+/* reset()
+ * 
+ * Resets the scheduler's state.
+ * 
+ * No events or users exist.
+ * 
+ * Returns a negative value on failure, and 0 on success
+ * 
+*/
+module.exports.reset = async () => {
+	data.events = {};
+	data.users = {};
+	data.nextID = null;
+	data.lastID = null;
+	return await updateData("scheduler", data);
+}
+
 /* addEvent(_name, _id, _desc, _start, _end)
  *  params: 
  *   _name  - string, name of event
@@ -37,14 +54,10 @@ async function updateData(filename, input) {
  * If an event with the same id already exists, the scheduler is not modified
  */
 module.exports.addEvent = async (_name, _id, _desc, _start, _end) => {
-	if (data.events.hasOwnProperty(_id)){
+	if ((!_id) || (data.events.hasOwnProperty(_id))){
 		return -1;
 	} else {
-		let newEvent = new eventlib.Event(_id, _name, _desc, new Date(_start), new Date(_end));
-
-		if ((newEvent.start === NaN) || (newEvent.end === NaN)) {
-			return -1;
-		}
+		let newEvent = new eventlib.Event(_id, _name, _desc, _start, _end);
 
 		data.events[_id] = newEvent;
 
@@ -72,14 +85,18 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end) => {
 *   returns: An ID which is guaranteed to be available.
 */
 module.exports.getNextID = () => {
-	return data.nextID;
+	if (!data.nextID){
+		return 1;
+	} else {
+		return data.nextID;
+	}
 }
 
 /* getEvent
  *  returns: most recently added event
  */
 module.exports.getEvent = async () => {
-	if (data.lastID === -1){
+	if (!data.lastID){
 		return new eventlib.Event(-1, "", "", null, null);
 	} else {
 		return data.events[data.lastID];

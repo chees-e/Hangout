@@ -21,7 +21,7 @@ app.get('/addEvent/', function(req, res) {
 	if (!req.query.name || !req.query.id || !req.query.desc || !req.query.start || !req.query.end) {
 		res.status(400).send({msg:"invalid request"});
 	} else {
-		let rv = database.addEvent(req.query.name, req.query.id, req.query.desc, req.query.start, req.query.end);
+		let rv = database.addEvent(req.query.name, req.query.id, req.query.desc, new Date(req.query.start), new Date(req.query.end));
 		rv.then((code) => {
 			console.log(code);
 			if ((!code) || (code <= 0)) {
