@@ -29,10 +29,7 @@ function testAddEvent(){
 
 	// Default event: scheduler.getEvent() with no events must not error
 	scheduler.getEvent().then((evnt) => {
-		assert(evnt instanceof eventlib.Event);
-		assert(evnt.id === -1);
-		assert(evnt.start === null);
-		assert(evnt.end === null);
+		assert(evnt === null);
 	});
 
 	scheduler.addEvent("Test", evid, "TestDesc", start1, end1).then((code) => {

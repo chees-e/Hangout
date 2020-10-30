@@ -28,7 +28,7 @@ async function updateData(filename, input) {
  * 
  * Resets the scheduler's state.
  * 
- * No events or users exist.
+ * After reset, no events or users exist.
  * 
  * Returns a negative value on failure, and 0 on success
  * 
@@ -54,7 +54,7 @@ module.exports.reset = async () => {
  * If an event with the same id already exists, the scheduler is not modified
  */
 module.exports.addEvent = async (_name, _id, _desc, _start, _end) => {
-	if ((!_id) || (data.events.hasOwnProperty(_id))){
+	if ((!_id) || (data.events.hasOwnProperty(_id) && !(data.events[_id].isValid()))){
 		return -1;
 	} else {
 		let newEvent = new eventlib.Event(_id, _name, _desc, _start, _end);
@@ -92,13 +92,21 @@ module.exports.getNextID = () => {
 	}
 }
 
-/* getEvent
- *  returns: most recently added event
+/* getEvent(id)
+ *  params: (optional) id - integer, id of event to fetch
+ *  returns: event with id id. If id is not passed in,
+ *   it returns the last event added
  */
-module.exports.getEvent = async () => {
-	if (!data.lastID){
-		return new eventlib.Event(-1, "", "", null, null);
+module.exports.getEvent = async (id) => {
+	if (!id) {
+		if (!data.lastID) {
+			return null;
+		} else {
+			return data.events[data.lastID];
+		}
+	} else if (!data.events.hasOwnProperty(id)){
+		return null;
 	} else {
-		return data.events[data.lastID];
+		return data.events[id];
 	}
 }

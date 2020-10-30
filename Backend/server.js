@@ -1,48 +1,55 @@
+'use strict';
 
 const express = require("express");
 const http = require("http");
 const app = express()
 const database = require("./scheduler.js");
 
-app.use(express.json())
+app.use(express.json());
  
 app.get('/test', function(req, res) {
     res.send({text:"Hello world"})
-})
+});
 
 app.get('/time', function(req, res) {
 	let curr = new Date();
 	res.send(curr.toString());
-})
+});
 
-app.get('/addEvent/', function(req, res) {
-	console.log(req.query.desc);
-	
-	if (!req.query.name || !req.query.id || !req.query.desc || !req.query.start || !req.query.end) {
-		res.status(400).send({msg:"invalid request"});
+app.post('/event/', function(req, res) {
+	let rv = 0;
+	let id = database.getNextID();
+	if (!req.query.name || !req.query.id || !req.query.desc || !req.query.start || !req.query.end
+	    || (parseInt(req.query.id) === NaN)) {
+		rv = database.addEvent(null, id, null, null, null);
 	} else {
-		let rv = database.addEvent(req.query.name, req.query.id, req.query.desc, new Date(req.query.start), new Date(req.query.end));
-		rv.then((code) => {
-			console.log(code);
-			if ((!code) || (code <= 0)) {
-				res.status(400).send({msg:"failure"});
-			} else {
-				res.send({msg:"success"});
-			}
-		});
+		id = parseInt(req.query.id);
+		rv = database.addEvent(req.query.name, id, req.query.desc, new Date(req.query.start), new Date(req.query.end));
 	}
-})
+	rv.then((code) => {
+		if ((!code) || (code <= 0)) {
+			res.status(409).send({msg:"Event exists"});
+		} else {
+			res.status(201).send({"id":`${id}`});
+		}
+	});
+});
 
-app.get('/getEvent/', function(req, res) {
-	database.getEvent().then((evnt) => {
-		console.log(evnt);
-		res.send({  
-			name: evnt.name,
-			id: evnt.id,
-			desc: evnt.desc,
-			start: evnt.start,
-			end: evnt.end
-		})
+app.get('/event/:id', function(req, res) {
+	database.getEvent(req.params.id).then((evnt) => {
+		if (!evnt) {
+			res.status(404).send({msg:"Event not found"});
+		} else if (!evnt.isValid()) {
+			res.status(404).send({msg:"Event is invalid"});
+		} else {
+			res.send({  
+				name: evnt.name,
+				id: evnt.id,
+				desc: evnt.desc,
+				start: evnt.start,
+				end: evnt.end
+			});
+		}
 	})
 })
 

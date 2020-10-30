@@ -33,6 +33,10 @@ class Event{
 			Object.freeze(this);
 		}
 	}
+	isValid(){
+		return ((this.start instanceof Date) && (this.end instanceof Date)
+			 && (this.id >= 1) && (this.name) && (this.desc));
+	}
 	equals(other){
 		if ((other === null) || !(other instanceof Event)){
 			return false;
