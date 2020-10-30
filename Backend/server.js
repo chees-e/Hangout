@@ -35,6 +35,18 @@ app.post('/event/', function(req, res) {
 	});
 });
 
+app.get('/event/', function(req, res) {
+	let events = database.getAllEvents();
+	if (events.length === 0){
+		res.status(404).send({msg:"No events"});
+	} else {
+		res.send({
+			"length" : events.length,
+			"events" : events
+		});
+	}
+});
+
 app.get('/event/:id', function(req, res) {
 	database.getEvent(req.params.id).then((evnt) => {
 		if (!evnt) {

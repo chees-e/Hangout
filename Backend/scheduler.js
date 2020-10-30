@@ -54,7 +54,7 @@ module.exports.reset = async () => {
  * If an event with the same id already exists, the scheduler is not modified
  */
 module.exports.addEvent = async (_name, _id, _desc, _start, _end) => {
-	if ((!_id) || (data.events.hasOwnProperty(_id) && !(data.events[_id].isValid()))){
+	if ((!_id) || (data.events.hasOwnProperty(_id) && data.events[_id].isValid())){
 		return -1;
 	} else {
 		let newEvent = new eventlib.Event(_id, _name, _desc, _start, _end);
@@ -109,4 +109,19 @@ module.exports.getEvent = async (id) => {
 	} else {
 		return data.events[id];
 	}
+}
+
+/* getAllEvents()
+ *  params: none
+ *  returns: array containing all valid events
+ *
+ */
+module.exports.getAllEvents = () => {
+	var evts = new Array();
+	for (const [key, value] of Object.entries(data.events)) {
+		if (value && value.isValid()) {
+			evts.push(value);
+		}
+	}
+	return evts;
 }
