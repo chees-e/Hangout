@@ -78,9 +78,24 @@ public class FindEventActivity extends AppCompatActivity {
                             description = response.getString("desc");
                             start = response.getString("start");
                             end = response.getString("end");
+                            eventGroup.add(getString(R.string.event_name) + eventName);
+
+                            String[] array;
+                            List<String> list = new ArrayList<>();
+                            array = getResources().getStringArray(R.array.event_name);
+
+                            // TODO: clean up implementation
+                            list.add(array[0] + id);
+                            list.add(array[1] + description);
+                            list.add(array[2] + start);
+                            list.add(array[3] + end);
+
+                            eventInfo.put(eventGroup.get(numEvents), list);
+                            adapter.notifyDataSetChanged();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        Log.d(TAG, response.toString());
                         Log.d(TAG, "Event info received");
                     }
                 }, new Response.ErrorListener() {
@@ -95,19 +110,6 @@ public class FindEventActivity extends AppCompatActivity {
         // Add the request to the RequestQueue.
         queue.add(jsonObjectRequest);
 
-        eventGroup.add(getString(R.string.event_name) + eventName);
 
-        String[] array;
-        List<String> list = new ArrayList<>();
-        array = getResources().getStringArray(R.array.event_name);
-
-        // TODO: clean up implementation
-        list.add(array[0] + id);
-        list.add(array[1] + description);
-        list.add(array[2] + start);
-        list.add(array[3] + end);
-
-        eventInfo.put(eventGroup.get(numEvents), list);
-        adapter.notifyDataSetChanged();
     }
 }
