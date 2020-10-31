@@ -1,28 +1,7 @@
 'use strict';
 
 const eventlib = require("./eventlib.js");
-const fs = require("fs");
-
-const data = require("./data/scheduler.json");
-
-/* updateData(filename, input)
- *  params:
- *    _filename - string, filename to save to without extension
- *    input     - object, object to save to JSON
- *  returns:
- *    -1 if the write fails
- *    0  if the write succeeds
- */
-async function updateData(filename, input) {
-	fs.writeFile(`./data/${filename}.json`, JSON.stringify(input), (err) => {
-		if (err) {
-			console.log(err);
-			return -1;
-		} else return 0;
-	});
-	
-	return 0;
-}
+const data = require("./database.js");
 
 /* reset()
  * 
@@ -34,11 +13,33 @@ async function updateData(filename, input) {
  * 
 */
 module.exports.reset = async () => {
-	data.events = {};
-	data.users = {};
-	data.nextID = null;
-	data.lastID = null;
-	return await updateData("scheduler", data);
+	if (data.setData("events", {}) !== 0) {
+		return -1;
+	} else if (data.setData("users", {}) !== 0) {
+		return -1;
+	} else if (data.setData("nextID", 1) !== 0) {
+		return -1;
+	} else if (data.setData("lastID", null) !== 0) {
+		return -1;
+	}
+	return 0;
+}
+
+/* getEventImpl(_id)
+ *  params:
+ *   _id - string or null / undefined
+ *  returns:
+ *   null if event exists, the event otherwise
+ */
+function getEventImpl(_id) {
+	const eventData = data.getData(`events/${_id}`);
+	if ((!_id) || (!eventData)) {
+		return null;
+	} else {
+		return new eventlib.Event(parseInt(eventData.id), eventData.name,
+								  eventData.desc, new Date(eventData.start),
+								  new Date(eventData.end));
+	}
 }
 
 /* addEvent(_name, _id, _desc, _start, _end)
@@ -54,28 +55,23 @@ module.exports.reset = async () => {
  * If an event with the same id already exists, the scheduler is not modified
  */
 module.exports.addEvent = async (_name, _id, _desc, _start, _end) => {
-	if ((!_id) || (data.events.hasOwnProperty(_id) && data.events[_id].isValid())){
+	const oldEvent = getEventImpl(_id);
+	if ((oldEvent) && (oldEvent.isValid())) {
 		return -1;
 	} else {
-		let newEvent = new eventlib.Event(_id, _name, _desc, _start, _end);
-
-		data.events[_id] = newEvent;
-
-		let oldNextID = data.nextID;
-		let oldLastID = data.lastID;
+		let id = _id;
+		if (!_id) {
+			id = getNextID();
+		}
 		
-		data.lastID = _id;
-		data.nextID = Math.max(data.nextID - 1, _id) + 1;
+		let newEvent = new eventlib.Event(id, _name, _desc, _start, _end);
 
-		let rv = await updateData("scheduler", data);
-		
-		if (rv === 0) {
-			return data.lastID;
+		if (data.setData(`events/${id}`, newEvent) === 0) {
+			data.setData("lastID", id);
+			data.setData("nextID", Math.max(data.getData("nextID") - 1, id) + 1);
+			return id;
 		} else {
-			data.lastID = oldLastID;
-			data.nextID = oldNextID;
-			delete data.events[_id];
-			return rv;
+			return -1;
 		}
 	}
 }
@@ -85,10 +81,11 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end) => {
 *   returns: An ID which is guaranteed to be available.
 */
 module.exports.getNextID = () => {
-	if (!data.nextID){
+	const id = data.getData("nextID");
+	if (!id){
 		return 1;
 	} else {
-		return data.nextID;
+		return id;
 	}
 }
 
@@ -102,12 +99,10 @@ module.exports.getEvent = async (id) => {
 		if (!data.lastID) {
 			return null;
 		} else {
-			return data.events[data.lastID];
+			return getEventImpl(data.lastID);
 		}
-	} else if (!data.events.hasOwnProperty(id)){
-		return null;
 	} else {
-		return data.events[id];
+		return getEventImpl(id);
 	}
 }
 
@@ -118,7 +113,9 @@ module.exports.getEvent = async (id) => {
  */
 module.exports.getAllEvents = () => {
 	var evts = new Array();
-	for (const [key, value] of Object.entries(data.events)) {
+	const eventmap = data.getData("events");
+	for (const [key, _] of Object.entries(eventmap)) {
+		const value = getEventImpl(key);
 		if (value && value.isValid()) {
 			evts.push(value);
 		}

@@ -40,7 +40,7 @@ function testAddEvent(){
 	assert(evid !== newID);
 
 	// getEvent must return the last added event
-	scheduler.getEvent().then((evnt) => {
+	scheduler.getEvent(evid).then((evnt) => {
 		assert(evnt instanceof eventlib.Event);
 		assert(evnt.equals(ev));
 	});
@@ -76,3 +76,4 @@ function testAddEvent(){
 
 testAddEvent();
 //testAddEventToUser();
+process.exit(0); // Stop timer from running infinitely
