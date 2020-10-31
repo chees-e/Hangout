@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -112,6 +113,7 @@ public class Profile extends AppCompatActivity {
     }
     private void signOut() {
         FirebaseAuth.getInstance().signOut();
+        GoogleSignIn.getClient(getBaseContext(), new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()).signOut();
         Intent intent = new Intent(getApplicationContext(),MainActivity.class);
         startActivity(intent);
     }
