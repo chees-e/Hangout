@@ -40,7 +40,7 @@ public class Profile extends AppCompatActivity {
 
         GoogleSignInAccount currentAccount = GoogleSignIn.getLastSignedInAccount(this);
         if (currentAccount != null) {
-            email.setText(currentAccount.getEmail());
+            email.setText("Welcome, " + currentAccount.getEmail() + "!");
         }
 
         Button signOutButton = findViewById(R.id.sign_out_button);
@@ -75,6 +75,15 @@ public class Profile extends AppCompatActivity {
             public void onClick(View v) {
                 Intent findEventIntent = new Intent(Profile.this, FindEventActivity.class);
                 startActivity(findEventIntent);
+            }
+        });
+
+        Button myEventsButton = findViewById(R.id.my_events_button);
+        myEventsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myEventIntent = new Intent(Profile.this, MyEventsActivity.class);
+                startActivity(myEventIntent);
             }
         });
 
