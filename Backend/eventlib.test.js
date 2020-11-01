@@ -1,35 +1,33 @@
 'use strict';
 
 const eventlib = require("./eventlib.js");
-const assert = require("assert");
 
-function testEventEquals(){
+test('Testing Event.equals', () => {
 	var ev = new eventlib.Event(null, null, null, null, null, null);
 	var ev2 = new eventlib.Event(null, null, null, null, null, null);
-	assert(!ev.equals(ev2)); // Invalid events
+	expect(ev.equals(ev2)).toBe(false); // Invalid events
 
 	ev = new eventlib.Event(1, null, null, new Date(), new Date(), null);
 	ev2 = new eventlib.Event(ev.id, ev.name, ev.desc, ev.start, ev.end, null);
-	assert(ev.equals(ev2)); // Copying fields
+	expect(ev.equals(ev2)).toBe(true); // Copying fields
 	
 	ev2 = new eventlib.Event(2, ev.name, ev.desc, ev.start, ev.end, null);
-	assert(!ev.equals(ev2)); // Different IDs
+	expect(ev.equals(ev2)).toBe(false); // Different IDs
 
 	ev2 = new eventlib.Event(1, "test", ev.desc, ev.start, ev.end, null);
-	assert(ev.equals(ev2)); // Different names should not influence equals
+	expect(ev.equals(ev2)).toBe(true); // Different names should not influence equals
 	
 	ev2 = new eventlib.Event(1, ev.name, "test", ev.start, ev.end, null);
-	assert(ev.equals(ev2)); // Different descriptions should not influence equals
+	expect(ev.equals(ev2)).toBe(true); // Different descriptions should not influence equals
 
 	ev2 = new eventlib.Event(1, ev.name, ev.desc, new Date(0), ev.end, null);
-	assert(!ev.equals(ev2)); // Different starts
+	expect(ev.equals(ev2)).toBe(false); // Different starts
 	
 	ev2 = new eventlib.Event(1, ev.name, ev.desc, ev.start, new Date(0), null);
-	assert(!ev.equals(ev2)); // Different ends
-	
-}
+	expect(ev.equals(ev2)).toBe(false); // Different ends
+});
 
-function testEventImpl(){
+test('Testing EventImpl', () => {
 	const start1 = new Date(2020, 10, 24, 10, 45);
 	const end1 = new Date(2020, 10, 24, 13, 50);
 
@@ -48,29 +46,26 @@ function testEventImpl(){
 	evImpl.importEvent(ev);
 	evImpl2.importEvent(ev);
 	
-	assert(evImpl.equals(evImpl2));
-	assert(evImpl.attends(evImpl2));
+	expect(evImpl.equals(evImpl2)).toBe(true);
+	expect(evImpl.attends(evImpl2)).toBe(true);
 
 	// Non-conflicting events
 	evImpl3.importEvent(ev3);
-	assert(!evImpl.conflicts(evImpl3));
+	expect(evImpl.conflicts(evImpl3)).toBe(false);
 	
 	// Different IDs
 	evImpl2 = new eventlib.EventImpl(0);
 	evImpl2.importEvent(ev2);
 	
-	assert(!evImpl.equals(evImpl2));
-	assert(!evImpl.attends(evImpl2));
+	expect(evImpl.equals(evImpl2)).toBe(false);
+	expect(evImpl.attends(evImpl2)).toBe(false);
 	
 	// evImpl is a subset of evImpl2
 	evImpl2 = new eventlib.EventImpl(0);
 	evImpl2.importEvent(ev);
 	evImpl2.importEvent(ev3);
 	
-	assert(evImpl2.attends(evImpl));
-	assert(!evImpl2.equals(evImpl));
-	assert(evImpl2.conflicts(evImpl3));
-}
-
-testEventEquals();
-testEventImpl();
+	expect(evImpl2.attends(evImpl)).toBe(true);
+	expect(evImpl2.equals(evImpl)).toBe(false);
+	expect(evImpl2.conflicts(evImpl3)).toBe(true);
+});
