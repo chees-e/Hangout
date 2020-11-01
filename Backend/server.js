@@ -99,6 +99,18 @@ app.get('/user/:id', function(req, res) {
 	});
 });
 
+app.post('/user/:uid/event/:eid', function(req, res) {
+	database.addEventToUser(req.params.uid, req.params.eid).then((code) => {
+		if (code === -2) {
+			res.status(404).send({msg:"Invalid IDs"});
+		} else if (code === -1) {
+			res.status(409).send({msg:"Conflict detected"});
+		} else {
+			res.send({msg:"Success"});
+		}
+	});
+});
+
 var server = app.listen(8081, function () {
    var host = server.address().address
    var port = server.address().port

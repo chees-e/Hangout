@@ -51,30 +51,48 @@ function testAddEvent(){
 	assertArrEqual(events3, [ev]);  // Adding users must not add events
 }
 
-/*function testAddEventToUser(){
-	var sched = new scheduler.Scheduler();
+function testAddEventToUser(){
 
 	const start1 = new Date(2020, 10, 24, 10, 45);
 	const end1 = new Date(2020, 10, 24, 13, 50);
 	const start2 = new Date(2020, 10, 24, 15, 20);
 	const end2 = new Date(2020, 10, 24, 16, 30);
-	const EID = sched.getNextID();
-	const EID2 = sched.getNextID();
-	const UID = sched.getNextID();
+	const EID = scheduler.getNextID();
+	const UID = "test UID";
+	const location = {"lat":0, "long":0};
 
-	var ev = new eventlib.Event(EID, null, null, start1, end1);
-	var ev2 = new eventlib.Event(EID2, null, null, start2, end2);
+	// Restore scheduler to known state
+	scheduler.reset().then((code) => {
+		assert(code === 0);
+	});
+
+	var ev = new eventlib.Event(EID, null, null, start1, end1, location);
+	const EID2 = scheduler.getNextID();
+	var ev2 = new eventlib.Event(EID2, null, null, start2, end2, location);
 	
-	sched.addEvent(ev);
-	sched.addEvent(ev2);
-	sched.addUser(UID);
+	scheduler.addEvent(ev);
+	scheduler.addEvent(ev2);
+	scheduler.addUser(UID);
 	
-	assert(sched.addEventToUser(UID, EID));
-	assert(!sched.addEventToUser(UID, EID));
-	assert(sched.addEventToUser(UID, EID2));
-	assertArrEqual(sched.getUserEvents(UID), [ev, ev2]);
-}*/
+	scheduler.addEventToUser(UID, EID).then((code) => {
+		assert(code === 0);
+	});
+	scheduler.addEventToUser(UID, EID).then((code) => {
+		assert(code === -1);
+	});
+	scheduler.addEventToUser(UID, -1).then((code) => {
+		assert(code === -2);
+	});
+	scheduler.addEventToUser(UID, EID2).then((code) => {
+		assert(code === 0);
+	});
+	scheduler.getUser(UID).then((user) => {
+		assert(user.events.length === 2);
+		assert(user.events[0] === EID);
+		assert(user.events[1] === EID2);
+	});
+}
 
 testAddEvent();
-//testAddEventToUser();
+testAddEventToUser();
 process.exit(0); // Stop timer from running infinitely

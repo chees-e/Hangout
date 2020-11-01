@@ -74,6 +74,7 @@ function getImpl(_id) {
 	} else {
 		let impl = new eventlib.EventImpl(implData.id);
 		impl.timeslots = implData.timeslots;
+		return impl;
 	}
 }
 
@@ -192,6 +193,32 @@ module.exports.addUser = async (_id) => {
 		data.setData("impls", impls);
 		
 		return _id;
+	}
+}
+
+/* addEventToUser(uid, eid)
+ *  params:
+ *   uid: user id
+ *   eid: event id
+ *  returns:
+ *   negative value on failure and 0 on success
+*/
+module.exports.addEventToUser = async (_uid, _eid) => {
+	const user = getUserImpl(_uid);
+	const evnt = getEventImpl(_eid);
+	const uimpl = getImpl(_uid);
+	const eimpl = getImpl(_eid);
+	if (!(user && evnt && uimpl && eimpl)){
+		return -2;
+	} else if (uimpl.conflicts(eimpl)){
+		return -1;
+	} else {
+		user.addEvent(evnt);
+		uimpl.importEvent(evnt);
+		
+		data.setData(`users/${_uid}`, user);
+		data.setData(`impls/${_uid}`, uimpl);
+		return 0;
 	}
 }
 
