@@ -2,7 +2,6 @@
 
 const eventlib = require("./eventlib.js");
 const data = require("./database.js");
-
 /* reset()
  * 
  * Resets the scheduler's state.
@@ -98,7 +97,7 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => 
 	} else {
 		let id = _id;
 		if (!_id) {
-			id = getNextID();
+			id = module.exports.getNextID();
 		}
 		
 		let newEvent = new eventlib.Event(id, _name, _desc, _start, _end, _location);
@@ -107,7 +106,8 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => 
 
 		if (data.setData(`events/${id}`, newEvent) === 0) {
 			data.setData("lastID", id);
-			data.setData("nextID", Math.max(data.getData("nextID") - 1, id) + 1);
+			let tmp = Math.max(data.getData("nextID") - 1, id) + 1;
+			data.setData("nextID", tmp);
 			data.setData(`impls/${id}`, newImpl);
 			return id;
 		} else {
