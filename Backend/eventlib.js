@@ -10,34 +10,37 @@
  * by arrays of time slots
  */
 
-/* Immutable class Event: Represents the "Design 1" format of an event, as used in the
+/* Class Event: Represents the "Design 1" format of an event, as used in the
  * scheduler.
  * 
  * Event name and description can be handled elsewhere, as the scheduler does not
  * yet directly interface with a database.
  * 
- * "Design 1" events are represented as a tuple (id, name, desc, start, end),
- * where id is an integer, name and desc are strings, and start and end are Dates.
+ * "Design 1" events are represented as a tuple (id, name, desc, start, end, location),
+ * where id is an integer, name and desc are strings, start and end are Dates,
+ * and location is an object with format {"lat" : <latitude>, "long" : <longitude>}.
  * 
  * name and desc should be entirely determined by id, so they are not compared
  * in equals
 */
 class Event{
-	constructor(id, name, desc, start, end){
+	constructor(id, name, desc, start, end, location){
 		this.id = id;
 		this.name = name;
 		this.desc = desc;
 		this.start = start;
 		this.end = end;
-		if (new.target === Event) {
-			Object.freeze(this);
-		}
+		this.location = location;
+		this.attendees = [];
 	}
-	isValid(){
+	isValid() {
 		return ((this.start instanceof Date) && (this.end instanceof Date)
-			 && (this.id >= 1) && (this.name) && (this.desc));
+			 && (this.id >= 1) && (this.name) && (this.desc) && (this.location));
 	}
-	equals(other){
+	copy() {
+		return new Event(this.id, this.name, this.desc, this.start, this.end, this.location);
+	}
+	equals(other) {
 		if ((other === null) || !(other instanceof Event)){
 			return false;
 		} else if (!((this.start instanceof Date) && (this.end instanceof Date)
@@ -70,7 +73,7 @@ class User{
 	 * 
 	 */
 	addEvent(event){
-		this.events.push(event);
+		this.events.push(event.id);
 		return true;
 	}
 	/* getEvents();

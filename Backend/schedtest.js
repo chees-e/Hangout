@@ -18,6 +18,7 @@ function assertArrEqual(ev1, ev2){
 function testAddEvent(){
 	const start1 = new Date(2020, 10, 24, 10, 45);
 	const end1 = new Date(2020, 10, 24, 13, 50);
+	const location = {"lat":0, "long":0};
 
 	// Restore scheduler to known state
 	scheduler.reset().then((code) => {
@@ -25,14 +26,14 @@ function testAddEvent(){
 	});
 
 	const evid = scheduler.getNextID();
-	const ev = new eventlib.Event(evid, "Test", "TestDesc", start1, end1);
+	const ev = new eventlib.Event(evid, "Test", "TestDesc", start1, end1, location);
 
 	// Default event: scheduler.getEvent() with no events must not error
 	scheduler.getEvent().then((evnt) => {
 		assert(evnt === null);
 	});
 
-	scheduler.addEvent("Test", evid, "TestDesc", start1, end1).then((code) => {
+	scheduler.addEvent("Test", evid, "TestDesc", start1, end1, location).then((code) => {
 		assert(code === evid);
 	});
 
@@ -45,9 +46,9 @@ function testAddEvent(){
 		assert(evnt.equals(ev));
 	});
 	
-//	sched.addUser(newID);
-//	const events3 = sched.getEvents();
-//	assertArrEqual(events3, [ev]);  // Adding users must not add events
+	scheduler.addUser(newID);
+	let events3 = scheduler.getAllEvents();
+	assertArrEqual(events3, [ev]);  // Adding users must not add events
 }
 
 /*function testAddEventToUser(){
