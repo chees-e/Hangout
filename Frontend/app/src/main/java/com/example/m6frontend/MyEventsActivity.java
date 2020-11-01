@@ -4,8 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -14,6 +16,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,6 +41,8 @@ public class MyEventsActivity extends AppCompatActivity {
     String start = "";
     String end = "";
 
+    FloatingActionButton addEventButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,7 +63,14 @@ public class MyEventsActivity extends AppCompatActivity {
         adapter = new EventsAdapter(this, myList);
         rvEvents.setAdapter(adapter);
 
-
+        addEventButton = findViewById(R.id.fab);
+        addEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent addEventIntent = new Intent(MyEventsActivity.this, AddEventActivity.class);
+                startActivity(addEventIntent);
+            }
+        });
 
         //String event = myList.get(0);
         //Log.d(TAG, event);
