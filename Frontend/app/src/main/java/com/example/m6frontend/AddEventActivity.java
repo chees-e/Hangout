@@ -70,8 +70,6 @@ public class AddEventActivity extends AppCompatActivity {
     private EditText startTime;
     private EditText endDate;
     private EditText endTime;
-    private DatePickerDialog datePicker;
-    private TimePickerDialog timePicker;
 
     private Button addEventButton;
 
@@ -102,7 +100,7 @@ public class AddEventActivity extends AppCompatActivity {
 
 
         // gets location
-        Places.initialize(getApplicationContext(), "AIzaSyC6aRfD_pXQzDHUDvLYok0IL6h58ARh5MI");
+        Places.initialize(getApplicationContext(), getResources().getString(R.string.GOOGLE_MAPS_API_KEY));
         PlacesClient placesClient = Places.createClient(this);
         locationName.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,11 +119,11 @@ public class AddEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
-                int day = calendar.get(Calendar.DAY_OF_WEEK);
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
                 int month = calendar.get(Calendar.MONTH);
                 int year = calendar.get(Calendar.YEAR);
 
-                datePicker = new DatePickerDialog(AddEventActivity.this,
+                DatePickerDialog datePicker = new DatePickerDialog(AddEventActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -144,7 +142,7 @@ public class AddEventActivity extends AppCompatActivity {
                 final Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
-                timePicker = new TimePickerDialog(AddEventActivity.this,
+                TimePickerDialog timePicker = new TimePickerDialog(AddEventActivity.this,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -162,11 +160,11 @@ public class AddEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
-                int day = calendar.get(Calendar.DAY_OF_WEEK);
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
                 int month = calendar.get(Calendar.MONTH);
                 int year = calendar.get(Calendar.YEAR);
 
-                datePicker = new DatePickerDialog(AddEventActivity.this,
+                DatePickerDialog datePicker = new DatePickerDialog(AddEventActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -185,7 +183,7 @@ public class AddEventActivity extends AppCompatActivity {
                 final Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
-                timePicker = new TimePickerDialog(AddEventActivity.this,
+                TimePickerDialog timePicker = new TimePickerDialog(AddEventActivity.this,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
