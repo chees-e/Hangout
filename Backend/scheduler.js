@@ -1,104 +1,233 @@
 'use strict';
 
 const eventlib = require("./eventlib.js");
-const fs = require("fs");
-
-const data = require("./data/scheduler.json");
-
-/* updateData(filename, input)
- *  params:
- *    _filename - string, filename to save to without extension
- *    input     - object, object to save to JSON
- *  returns:
- *    -1 if the write fails
- *    0  if the write succeeds
- */
-async function updateData(filename, input) {
-	fs.writeFile(`./data/${filename}.json`, JSON.stringify(input), (err) => {
-		if (err) {
-			console.log(err);
-			return -1;
-		} else return 0;
-	});
-	
-	return 0;
-}
-
+const data = require("./database.js");
 /* reset()
  * 
  * Resets the scheduler's state.
  * 
- * No events or users exist.
+ * After reset, no events or users exist.
  * 
  * Returns a negative value on failure, and 0 on success
  * 
 */
 module.exports.reset = async () => {
-	data.events = {};
-	data.users = {};
-	data.nextID = null;
-	data.lastID = null;
-	return await updateData("scheduler", data);
+	if (data.setData("events", {}) !== 0) {
+		return -1;
+	} else if (data.setData("users", {}) !== 0) {
+		return -1;
+	} else if (data.setData("impls", {}) !== 0) {
+		return -1;
+	} else if (data.setData("nextID", 1) !== 0) {
+		return -1;
+	} else if (data.setData("lastID", null) !== 0) {
+		return -1;
+	}
+	return 0;
 }
 
-/* addEvent(_name, _id, _desc, _start, _end)
+/* getEventImpl(_id)
+ *  params:
+ *   _id - string or null / undefined
+ *  returns:
+ *   null if event does not exist, the event otherwise
+ */
+function getEventImpl(_id) {
+	const eventData = data.getData(`events/${_id}`);
+	if ((!_id) || (!eventData)) {
+		return null;
+	} else {
+		return new eventlib.Event(parseInt(eventData.id), eventData.name,
+								  eventData.desc, new Date(eventData.start),
+								  new Date(eventData.end), eventData.location);
+	}
+}
+
+/* getUserImpl(_id)
+ *  params:
+ *   _id - string or null / undefined
+ *  returns:
+ *   null if the impl does not exist, the user otherwise
+*/
+function getUserImpl(_id) {
+	const userData = data.getData(`users/${_id}`);
+	if ((!_id) || (!userData)) {
+		return null;
+	} else {
+		let user = new eventlib.User(userData.id);
+		user.events = userData.events;
+		return user;
+	}
+}
+
+/* getImpl(_id)
+ *  params:
+ *   _id - string or null / undefined
+ *  returns:
+ *   null if the impl does not exist, the impl otherwise
+*/
+function getImpl(_id) {
+	const implData = data.getData(`impls/${_id}`);
+	if ((!_id) || (!implData)) {
+		return null;
+	} else {
+		let impl = new eventlib.EventImpl(implData.id);
+		impl.timeslots = implData.timeslots;
+		return impl;
+	}
+}
+
+/* addEvent(_name, _id, _desc, _start, _end, _location)
  *  params: 
  *   _name  - string, name of event
  *   _id    - int, unique id of event
  *   _desc  - string, event description
  *   _start - Date, event start date and time
  *   _end   - Date, event end date and time
+ *   _location - Object, location of event
  *  returns: A negative value if the operation failed, the id if the
  *    operation was successful
  *
- * If an event with the same id already exists, the scheduler is not modified
+ * If a valid event with the same id already exists, the scheduler is not modified
  */
-module.exports.addEvent = async (_name, _id, _desc, _start, _end) => {
-	if ((!_id) || (data.events.hasOwnProperty(_id))){
+module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => {
+	const oldEvent = getEventImpl(_id);
+	if ((oldEvent) && (oldEvent.isValid())) {
 		return -1;
 	} else {
-		let newEvent = new eventlib.Event(_id, _name, _desc, _start, _end);
-
-		data.events[_id] = newEvent;
-
-		let oldNextID = data.nextID;
-		let oldLastID = data.lastID;
+		let id = _id;
+		if (!_id) {
+			id = module.exports.getNextID();
+		}
 		
-		data.lastID = _id;
-		data.nextID = Math.max(data.nextID - 1, _id) + 1;
+		let newEvent = new eventlib.Event(id, _name, _desc, _start, _end, _location);
+		let newImpl = new eventlib.EventImpl(id);
+		newImpl.importEvent(newEvent);
 
-		let rv = await updateData("scheduler", data);
-		
-		if (rv === 0) {
-			return data.lastID;
+		if (data.setData(`events/${id}`, newEvent) === 0) {
+			data.setData("lastID", id);
+			let tmp = Math.max(data.getData("nextID") - 1, id) + 1;
+			data.setData("nextID", tmp);
+			data.setData(`impls/${id}`, newImpl);
+			return id;
 		} else {
-			data.lastID = oldLastID;
-			data.nextID = oldNextID;
-			delete data.events[_id];
-			return rv;
+			return -1;
 		}
 	}
 }
 
+/* deleteEvent(id)
+ *  params: id - ID of event to remove
+ *  returns: a negative value on failure and 0 on success
+ */
+module.exports.deleteEvent = async (_id) => {
+	const eventmap = data.getData("events");
+	if (eventmap.hasOwnProperty(_id)) {
+		delete eventmap[_id];
+		return data.setData("events", eventmap);
+	} else {
+		return -1;
+	}
+}
 
 /* getNextID()
 *   returns: An ID which is guaranteed to be available.
 */
 module.exports.getNextID = () => {
-	if (!data.nextID){
+	const id = data.getData("nextID");
+	if (!id){
 		return 1;
 	} else {
-		return data.nextID;
+		return id;
 	}
 }
 
-/* getEvent
- *  returns: most recently added event
+/* getEvent(id)
+ *  params: (optional) id - integer, id of event to fetch
+ *  returns: event with id id. If id is not passed in,
+ *   it returns the last event added
  */
-module.exports.getEvent = async () => {
-	if (!data.lastID){
-		return new eventlib.Event(-1, "", "", null, null);
+module.exports.getEvent = async (id) => {
+	if (!id) {
+		if (!data.lastID) {
+			return null;
+		} else {
+			return getEventImpl(data.lastID);
+		}
 	} else {
-		return data.events[data.lastID];
+		return getEventImpl(id);
 	}
+}
+
+/* getAllEvents()
+ *  params: none
+ *  returns: array containing all valid events
+ *
+ */
+module.exports.getAllEvents = () => {
+	var evts = new Array();
+	const eventmap = data.getData("events");
+	for (const [key, _] of Object.entries(eventmap)) {
+		const value = getEventImpl(key);
+		if (value && value.isValid()) {
+			evts.push(value);
+		}
+	}
+	return evts;
+}
+
+/* addUser(_id)
+ *  params: _id - user id, must not collide with event ids
+ *  returns: negative value on failure and _id on success
+*/
+module.exports.addUser = async (_id) => {
+	let users = data.getData("users");
+	if (users.hasOwnProperty(_id)) {
+		return -1;
+	} else {
+		users[_id] = new eventlib.User(_id);
+		data.setData("users", users);
+
+		let impls = data.getData("impls");
+		impls[_id] = new eventlib.EventImpl(_id);
+		data.setData("impls", impls);
+		
+		return _id;
+	}
+}
+
+/* addEventToUser(uid, eid)
+ *  params:
+ *   uid: user id
+ *   eid: event id
+ *  returns:
+ *   negative value on failure and 0 on success
+*/
+module.exports.addEventToUser = async (_uid, _eid) => {
+	const user = getUserImpl(_uid);
+	const evnt = getEventImpl(_eid);
+	const uimpl = getImpl(_uid);
+	const eimpl = getImpl(_eid);
+	if (!(user && evnt && uimpl && eimpl)){
+		return -2;
+	} else if (uimpl.conflicts(eimpl)){
+		return -1;
+	} else {
+		user.addEvent(evnt);
+		uimpl.importEvent(evnt);
+		
+		data.setData(`users/${_uid}`, user);
+		data.setData(`impls/${_uid}`, uimpl);
+		return 0;
+	}
+}
+
+/* getUser(id)
+ *  params:
+ *   id: user id
+ *  returns:
+ *   null if the user does not exist or the user's data if the user exists
+*/
+module.exports.getUser = async (_uid) => {
+	return getUserImpl(_uid);
 }
