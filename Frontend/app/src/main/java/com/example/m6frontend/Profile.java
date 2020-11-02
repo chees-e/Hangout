@@ -87,6 +87,15 @@ public class Profile extends AppCompatActivity {
             }
         });
 
+        Button friendButton = findViewById(R.id.friend_button);
+        friendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent friendIntent = new Intent(Profile.this, FriendsActivity.class);
+                startActivity(friendIntent);
+            }
+        });
+
         FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
             @Override
             public void onComplete(@NonNull Task<InstanceIdResult> task) {

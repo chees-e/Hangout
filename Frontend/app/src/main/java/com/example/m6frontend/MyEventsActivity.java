@@ -126,7 +126,7 @@ public class MyEventsActivity extends AppCompatActivity {
                             end = response.getString("end");
 
                             myList.add(getString(R.string.event_name) + eventName);
-                            myList.add(id);
+                            //myList.add(id);
                             adapter.notifyDataSetChanged();
 
                         } catch (JSONException e) {
