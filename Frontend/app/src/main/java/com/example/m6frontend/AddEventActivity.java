@@ -9,7 +9,6 @@ import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
@@ -51,9 +50,8 @@ import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 
 // TODO: implement adding additional users
@@ -72,8 +70,6 @@ public class AddEventActivity extends AppCompatActivity {
     private EditText startTime;
     private EditText endDate;
     private EditText endTime;
-    private DatePickerDialog datePicker;
-    private TimePickerDialog timePicker;
 
     private Button addEventButton;
 
@@ -123,11 +119,11 @@ public class AddEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
-                int day = calendar.get(Calendar.DAY_OF_WEEK);
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
                 int month = calendar.get(Calendar.MONTH);
                 int year = calendar.get(Calendar.YEAR);
 
-                datePicker = new DatePickerDialog(AddEventActivity.this,
+                DatePickerDialog datePicker = new DatePickerDialog(AddEventActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -146,7 +142,7 @@ public class AddEventActivity extends AppCompatActivity {
                 final Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
-                timePicker = new TimePickerDialog(AddEventActivity.this,
+                TimePickerDialog timePicker = new TimePickerDialog(AddEventActivity.this,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -164,11 +160,11 @@ public class AddEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final Calendar calendar = Calendar.getInstance();
-                int day = calendar.get(Calendar.DAY_OF_WEEK);
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
                 int month = calendar.get(Calendar.MONTH);
                 int year = calendar.get(Calendar.YEAR);
 
-                datePicker = new DatePickerDialog(AddEventActivity.this,
+                DatePickerDialog datePicker = new DatePickerDialog(AddEventActivity.this,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -187,7 +183,7 @@ public class AddEventActivity extends AppCompatActivity {
                 final Calendar calendar = Calendar.getInstance();
                 int hour = calendar.get(Calendar.HOUR_OF_DAY);
                 int minute = calendar.get(Calendar.MINUTE);
-                timePicker = new TimePickerDialog(AddEventActivity.this,
+                TimePickerDialog timePicker = new TimePickerDialog(AddEventActivity.this,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
@@ -206,62 +202,67 @@ public class AddEventActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
                 if (isEmpty(eventName) || isEmpty(locationName) || isEmpty(descriptionName) ||
                         isEmpty(startDate) || isEmpty(startTime) || isEmpty(endDate) || isEmpty(endTime)) {
                     Toast.makeText(AddEventActivity.this, "Please enter the required fields", Toast.LENGTH_LONG).show();
                     return;
                 }
+                try {
+                    String jsonString = new JSONObject()
+                            .put("summary", eventName.getText())
+                            .put("location", locationName.getText())
+                            .put("description", descriptionName.getText())
+                            .put("start", new JSONObject().put("dateTime", startDate.getText() + "T" + startTime.getText()))
+                            .put("end", new JSONObject().put("dateTime", endDate.getText() + "T" + endTime.getText()))
+                            .put("attendees", new JSONArray().put("email:" + currentUser.getEmail()))
+                            .toString();
+                    Toast.makeText(AddEventActivity.this, jsonString, Toast.LENGTH_LONG).show();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
-
-                String url = Uri.parse("http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/addEvent")
-                            .buildUpon()
-                            .appendQueryParameter("name", String.valueOf(eventName.getText()))
-                            .appendQueryParameter("id", currentUser.getUid())
-                            .appendQueryParameter("desc", String.valueOf(descriptionName.getText()))
-                            .appendQueryParameter("start", startDate.getText() + "T" + startTime.getText())
-                            .appendQueryParameter("end", endDate.getText() + "T" + endTime.getText())
-                            .build().toString();
                 RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
-                StringRequest addEventRequest = new StringRequest(Request.Method.POST, url,
-                        new Response.Listener<String>()
-                        {
-                            @Override
-                            public void onResponse(String response) {
-                                // response
-                                Toast.makeText(getBaseContext(), "Event added successfully", Toast.LENGTH_LONG).show();
-                                Log.d(TAG, response);
-                            }
-                        },
-                        new Response.ErrorListener()
-                        {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-                                // error
-                                Toast.makeText(getBaseContext(), "Event could not be added", Toast.LENGTH_LONG).show();
-                                Log.d(TAG, error.getMessage());
-                            }
-                        }
-                ) {
-                    /*@Override
-                    protected Map<String, String> getParams()
-                    {
-                        Map<String, String>  params = new HashMap<String, String>();
-                        params.put("name", String.valueOf(eventName.getText()));
-                        params.put("id", currentUser.getUid());
-                        params.put("desc", String.valueOf(descriptionName.getText()));
-                        params.put("start", startDate.getText() + "T" + startTime.getText());
-                        params.put("end", endDate.getText() + "T" + endTime.getText());
-                        return params;
-                    }
-                    */
-
-                };
-                requestQueue.add(addEventRequest);
-
+                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/addEvent";
                 
-                Log.d(TAG, url);
+               String jsonString = null;
+                try {
+                     jsonString = new JSONObject()
+                            .put("id", currentUser.getUid())
+                            .put("name", eventName.getText())
+                            .put("desc", descriptionName.getText())
+                            .put("start",startDate.getText() + "T" + startTime.getText())
+                            .put("end", endDate.getText() + "T" + endTime.getText())
+                            .toString();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(jsonString);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                final JSONObject finalJsonObject = jsonObject;
+                JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        //TODO: handle success
+                        Log.d(TAG, "success" + finalJsonObject.toString());
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        //TODO: handle failure
+                        Log.e(TAG, "failed" + finalJsonObject.toString());
+                    }
+                });
+                requestQueue.add(jsonRequest);
+                requestQueue.start();
                 finish();
             }
 

@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,7 +40,7 @@ public class Profile extends AppCompatActivity {
 
         GoogleSignInAccount currentAccount = GoogleSignIn.getLastSignedInAccount(this);
         if (currentAccount != null) {
-            email.setText(currentAccount.getEmail());
+            email.setText("Welcome, " + currentAccount.getEmail() + "!");
         }
 
         Button signOutButton = findViewById(R.id.sign_out_button);
@@ -74,6 +75,24 @@ public class Profile extends AppCompatActivity {
             public void onClick(View v) {
                 Intent findEventIntent = new Intent(Profile.this, FindEventActivity.class);
                 startActivity(findEventIntent);
+            }
+        });
+
+        Button myEventsButton = findViewById(R.id.my_events_button);
+        myEventsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent myEventIntent = new Intent(Profile.this, MyEventsActivity.class);
+                startActivity(myEventIntent);
+            }
+        });
+
+        Button friendButton = findViewById(R.id.friend_button);
+        friendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent friendIntent = new Intent(Profile.this, FriendsActivity.class);
+                startActivity(friendIntent);
             }
         });
 
@@ -112,6 +131,7 @@ public class Profile extends AppCompatActivity {
     }
     private void signOut() {
         FirebaseAuth.getInstance().signOut();
+        GoogleSignIn.getClient(getBaseContext(), new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()).signOut();
         Intent intent = new Intent(getApplicationContext(),MainActivity.class);
         startActivity(intent);
     }

@@ -9,5 +9,6 @@
     <ExpandableListView
         android:id="@+id/eventList"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:transcriptMode="alwaysScroll"/>
 </RelativeLayout>
