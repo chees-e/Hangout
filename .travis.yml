@@ -1,3 +1,12 @@
+before_install:
+ - cd Backend
+ - npm install
 language: node_js
 node_js:
-  - 14
+  - "stable"
+cache:
+  directories:
+    - "$HOME/.npm"
+script:
+ - npm test
+ - npm run build
