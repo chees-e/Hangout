@@ -9,4 +9,3 @@ cache:
     - "$HOME/.npm"
 script:
  - npm test
- - npm run build
