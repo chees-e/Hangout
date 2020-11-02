@@ -23,6 +23,10 @@
  * name and desc should be entirely determined by id, so they are not compared
  * in equals
 */
+
+const ATTENDEE_WEIGHT = 1;
+const FRIEND_WEIGHT = 20;
+
 class Event{
 	constructor(id, name, desc, start, end, location){
 		this.id = id;
@@ -52,6 +56,24 @@ class Event{
 				&& (this.end.getTime() === other.end.getTime());
 		}
 	}
+
+	calculateScore(user) {
+		if (this.attendees.includes(user.id)) {
+			//User already attends this event, no need for recommendation
+			return -1;
+		}
+		//Right now it is just calculating the score based on the attendees
+		let score = 0;
+
+		for (let i = 0; i < this.attendees.length; i++) {
+			if (user.isFriend(this.attendees[i])) {
+				score += FRIEND_WEIGHT;
+			} else {
+				score += ATTENDEE_WEIGHT;
+			}
+		}
+
+	}
 }
 
 /* Class User: Represents the "Design 1" format of a person, as used in the scheduler.
@@ -65,6 +87,7 @@ class User{
 	constructor(id){
 		this.id = id;
 		this.events = [];
+		this.friends = [];
 	}
 	/* addEvent(event);
 	 *
@@ -74,6 +97,17 @@ class User{
 	 */
 	addEvent(event){
 		this.events.push(event.id);
+		return true;
+	}
+
+	/* addEvent(event);
+	 *
+	 * Params: event - type Event, event to add to the User's schedule
+	 * Returns: true if the event was successfully added, false if there was a conflict
+	 * 
+	 */
+	addFriend(id){
+		this.friends.push(id);
 		return true;
 	}
 	/* getEvents();
@@ -87,6 +121,25 @@ class User{
 		}
 		return arrs;
 	}
+	/* getFriends();
+	 * 
+	 * Returns: a list of (ids of) friends the user have
+	*/
+	getFriends() {
+		var arrs = [];
+		for (var i = 0; i < this.friends.length; i++){
+			arrs.push(this.friends[i]);
+		}
+		return arrs;
+	}
+	/* isFriend();
+	 * 
+	 * Returns: whether the user is friend with the given user
+	 * used when determining the score of an event
+	*/
+	ifFriend(id) {
+		return this.friends.includes(id);
+	}
 	/* getProfile();
 	 * 
 	 * Params: none
@@ -98,6 +151,8 @@ class User{
 		return JSON.stringify(this);
 	}
 }
+
+
 
 /* Class EventImpl: Represents the "Design 2" format of an event or a user.
  * 
