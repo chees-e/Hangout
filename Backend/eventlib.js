@@ -32,8 +32,13 @@ class Event{
 		this.id = id;
 		this.name = name;
 		this.desc = desc;
-		this.start = start;
-		this.end = end;
+		if (start < end) {
+			this.start = start;
+			this.end = end;
+		} else {
+			this.start = end;
+			this.end = start;
+		}
 		this.location = location;
 		this.attendees = [];
 	}
@@ -168,20 +173,105 @@ const TSLength = 10;
  * The current implementation processes event conflicts per day, or time
  * period where events can conflict
  */
-const dayLength = 24 * 60 * 60 / TSLength;
+const dayLength = 24 * 60 / TSLength;
 
-/* getTimeslot: Get time slot number from date. Only takes into account
- * time of day, according to the local time zone.
+function getDayEncoding(date) {
+	const minuteMS = 60 * 1000;
+	const dayMS = 24 * 60 * minuteMS;
+	const zero = new Date(0);
+	const diff = date - zero + (date.getTimezoneOffset() * minuteMS);
+	return Math.floor(diff / dayMS);
+}
+
+/* getTimeslot: Get time slot number from date, using the local time zone
  */
-function getTimeslot(date){
-	var minutes = date.getHours() * 60 + date.getMinutes();
-	return Math.floor(minutes / TSLength);
+function getTimeslot(date) {
+	const minutes = date.getHours() * 60 + date.getMinutes();
+	const timeslot = {
+		slot: Math.floor(minutes / TSLength),
+		day: getDayEncoding(date)
+	};
+	return timeslot;
+}
+
+/* Compares to time slots of the form { start: int, length: int, id: int }
+ *  returns: 
+ *   - A negative value if they are not valid time slots
+ *   - 0 if they do not intersect at all
+ *   - 1 if they intersect and have the same id
+ *   - 2 if they intersect and have different ids
+*/
+function compare(slot1, slot2) {
+	if (!(slot1.hasOwnProperty("start") && slot1.hasOwnProperty("length")
+	   && slot1.hasOwnProperty("id") && slot2.hasOwnProperty("start")
+	   && slot2.hasOwnProperty("length") && slot2.hasOwnProperty("id"))) {
+		return -1;
+	} else {
+		let s1 = slot1;
+		let s2 = slot2;
+		if (s1.start > s2.start) {
+			s1 = slot2;
+			s2 = slot1;
+		}
+		if ((s1.start + s1.length) > (s2.start)) {
+			if (s1.id === s2.id) {
+				return 1;
+			} else {
+				return 2;
+			}
+		} else {
+			return 0;
+		}
+	}
+}
+
+// If slot1 contains slot2
+function contains(slot1, slot2) {
+	return (slot2.start >= slot1.start)
+		&& ((slot2.start + slot2.length) <= (slot1.start + slot1.length))
+		&& (slot1.id === slot2.id);
+}
+
+// If slot2 is a subset of slot1
+// slot1 and slot2 must be sorted by start
+function subset(slot1, slot2) {
+	var j = 0;
+	for (var i = 0; i < slot2.length; i++) {
+		while ((slot2[i].start + slot2[i].length) < slot1[j].start) {
+			j++;
+			if (j >= slot1.length) {
+// There exists at least one event in slot2 which occurs after the end of all events in slot1
+				return false;
+			}
+		}
+		if (!contains(slot1[j], slot2[i])) {
+			return false;
+		}
+	}
+	return true;
+}
+
+// If slot1 conflicts with slot2
+function conflicts(slot1, slot2) {
+	var j = 0;
+	for (var i = 0; i < slot1.length; i++) {
+		while ((slot2[j].start + slot2[j].length) < slot1[i].start) {
+			j++;
+			if (j >= slot2.length) {
+				return false;
+			}
+		}
+		if (compare(slot1[i], slot2[j]) !== 0) {
+			return true;
+		}
+	}
+	return false;
 }
 
 class EventImpl{
 	constructor(id){
 		this.id = id;
-		this.timeslots = Array(dayLength).fill(null);
+		this.timeslots = new Map();
 	}
 	// Import User with table of events 
 	importUser(user){
@@ -193,46 +283,124 @@ class EventImpl{
 	importEvent(event){
 		var startSlot = getTimeslot(event.start);
 		var endSlot = getTimeslot(event.end);
-		for (var i = startSlot; i < endSlot; i++){
-			this.timeslots[i] = event.id;
-		}
-	}
-	// Check if EventImpl other is a subset of this
-	attends(other){
-		if (!(other instanceof EventImpl)){
-			return false;
-		}
-		for (var i = 0; i < dayLength; i++){
-			if ((other.timeslots[i] !== null)
-			&& (other.timeslots[i] !== this.timeslots[i])){
-				return false;
+		// At least one day where this event takes up the whole day
+		if ((startSlot.day + 1) < (endSlot.day - 1)) {
+			for (var i = startSlot.day + 1; i < (endSlot.day - 1); i++) {
+				this.addTS(i, {
+					start: 0,
+					length: dayLength,
+					id: event.id
+				});
 			}
 		}
-		return true;
+		if (startSlot.day < endSlot.day) {
+			/* This event lasts from the start time to the end of the first day,
+			* and from the start of the last day to the end time
+			*/
+			this.addTS(startSlot.day, {
+				start: startSlot.slot,
+				length: dayLength - startSlot.slot,
+				id: event.id
+			});
+			this.addTS(endSlot.day, {
+				start: 0,
+				length: endSlot.slot,
+				id: event.id
+			});
+		} else {
+			// This event is contained in a single day
+			this.addTS(startSlot.day, {
+				start: startSlot.slot,
+				length: endSlot.slot - startSlot.slot,
+				id: event.id
+			});
+		}
+	}
+	// Add time slot of the form { start: int, length: int, id: int } to array id
+	addTS(id, timeslot) {
+		if (timeslot.length <= 0) {
+			console.log("Invalid event");
+		} else {
+			if (!this.timeslots.has(id)) {
+				this.timeslots.set(id, []);
+			}
+			var arr = this.timeslots.get(id);
+			arr.push(timeslot);
+			arr = arr.sort((a, b) => (
+				(a.start > b.start) ? 1 : -1
+			));
+			this.timeslots.set(id, arr);
+		}
+	}
+	/* Helper for attends, conflicts
+	 * Applies func to every timeslot of this and other in order.
+	 * behav can either be "all" or "any"
+	 * If behav is "any", apply returns true if at any time func returns true
+	 * If behav is "all", apply returns false if at any time func returns false
+	 * If neither this nor other share any time slots, returns def
+	*/
+	apply(func, other, def, behav) {
+		if (!(other instanceof EventImpl)) {
+			return false;
+		}
+		
+		const thiskeys = Array.from(this.timeslots.keys());
+		const sharedkeys = thiskeys.filter( (key) => other.timeslots.has(key) );
+		
+		if (sharedkeys.length === 0) {
+			return def;
+		}
+		
+		for (var i = 0; i < sharedkeys.length; i++) {
+			let key = sharedkeys[i];
+			let val = func(this.timeslots.get(key), other.timeslots.get(key));
+			if (behav === "any") {
+				if (val) {
+					return true;
+				}
+			} else if (behav === "all") {
+				if (!val) {
+					return false;
+				}
+			}
+		}
+		
+		if (behav === "any") {
+			return false;
+		} else if (behav === "all") {
+			return true;
+		}
+	}
+	
+	// Check if EventImpl other is a subset of this
+	attends(other){
+		return this.apply((thisSlot, otherSlot) => subset(thisSlot, otherSlot),
+						other , true, "all");
 	}
 	// Equality operator
 	equals(other){
-		if (!(other instanceof EventImpl)){
+		if (!(other instanceof EventImpl) || (this.timeslots.length != other.timeslots.length)){
 			return false;
 		}
-		for (var i = 0; i < dayLength; i++){
-			if (this.timeslots[i] !== other.timeslots[i]){
+		for (var [key, val] of this.timeslots) {
+			const otherVal = other.timeslots.get(key);
+			if ((!otherVal) || (otherVal.length !== val.length)) {
 				return false;
+			} else {
+				for (var i = 0; i < val.length; i++) {
+					if ((val[i].start !== otherVal[i].start)
+					|| (val[i].length !== otherVal[i].length)
+					|| (val[i].id !== otherVal[i].id)) {
+						return false;
+					}
+				}
 			}
 		}
 		return true;
 	}
 	// Check if other can be added to this
 	conflicts(other){
-		if (!(other instanceof EventImpl)){
-			return true;
-		}
-		for (var i = 0; i < dayLength; i++){
-			if ((other.timeslots[i] !== null) && (this.timeslots[i] !== null)){
-				return true;
-			}
-		}
-		return false;
+		return this.apply((thisSlot, otherSlot) => conflicts(thisSlot, otherSlot), other, false, "any");
 	}
 }
 
