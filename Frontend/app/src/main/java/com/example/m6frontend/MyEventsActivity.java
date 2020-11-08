@@ -32,7 +32,7 @@ public class MyEventsActivity extends AppCompatActivity {
     List<String> myList;
     String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
     RequestQueue queue;
-    EventsAdapter adapter;
+    //EventsAdapter adapter;
     RecyclerView rvEvents;
 
     String eventName = "";
@@ -60,8 +60,8 @@ public class MyEventsActivity extends AppCompatActivity {
 
         rvEvents = (RecyclerView) findViewById(R.id.rvEvents);
         rvEvents.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new EventsAdapter(this, myList);
-        rvEvents.setAdapter(adapter);
+       // adapter = new EventsAdapter(this, myList);
+        //rvEvents.setAdapter(adapter);
 
         addEventButton = findViewById(R.id.fab);
         addEventButton.setOnClickListener(new View.OnClickListener() {
@@ -127,7 +127,7 @@ public class MyEventsActivity extends AppCompatActivity {
 
                             myList.add(getString(R.string.event_name) + eventName);
                             //myList.add(id);
-                            adapter.notifyDataSetChanged();
+                           // adapter.notifyDataSetChanged();
 
                         } catch (JSONException e) {
                             e.printStackTrace();

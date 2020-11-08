@@ -1,6 +1,8 @@
 package com.example.m6frontend;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +18,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.gson.JsonObject;
 
 import org.json.JSONException;
@@ -29,175 +33,73 @@ import java.util.Map;
 public class FindEventActivity extends AppCompatActivity {
 
     String TAG = "FindEventActivity";
-    ExpandableListView eventView;
-    List<String> eventGroup;
-    HashMap<String, List<String>> eventInfo;
-    MainAdapter adapter;
-    // TODO: allow user to change this value
-    int numStartEvents = 3;
-    int totalEvents;
-    int maxEvents = 9;
     String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
     RequestQueue queue;
-
-    String eventName = "";
-    String id = "";
-    String description = "";
-    String start = "";
-    String end = "";
-    List<Boolean> loadingList;
+    private int numEvents;
+    private RecyclerView recyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager layoutManager;
+    ArrayList<JSONObject> dataSet;
+    GoogleSignInAccount currentAccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_event);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.find_event_recyclerview);
+        numEvents = 0;
+        currentAccount = GoogleSignIn.getLastSignedInAccount(this);
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        recyclerView.setHasFixedSize(true);
 
-        eventView = findViewById(R.id.eventList);
-        eventView.setTranscriptMode(ExpandableListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        // use a linear layout manager
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
 
-        eventGroup = new ArrayList<>();
-        eventInfo = new HashMap<>();
-
-        adapter = new MainAdapter(this, eventGroup, eventInfo);
-        eventView.setAdapter(adapter);
-        queue = Volley.newRequestQueue(this);
-
-        // initialize loading list
-        loadingList = new ArrayList<>();
-        for (int i = 0; i < numStartEvents; i++) {
-            loadingList.add(true);
-        }
-
-        // expand eventGroup
-        expandGroup(numStartEvents);
-
-        // get events
-
-        totalEvents = 0;
-        addEvents(totalEvents, numStartEvents);
-        totalEvents = numStartEvents;
-
-        eventView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            private int currentVisibleItemCount;
-            private int currentScrollState;
-            private int currentFirstVisibleItem;
-            private int totalItem;
-
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-                // TODO Auto-generated method stub
-                this.currentScrollState = scrollState;
-                this.isScrollCompleted();
-            }
-
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                // TODO Auto-generated method stub
-                this.currentFirstVisibleItem = firstVisibleItem;
-                this.currentVisibleItemCount = visibleItemCount;
-                this.totalItem = totalItemCount;
-            }
-
-            private void isScrollCompleted() {
-                if (totalItem - currentFirstVisibleItem == currentVisibleItemCount
-                        && this.currentScrollState == SCROLL_STATE_IDLE && !isLoading() && totalEvents < maxEvents && totalEvents >= numStartEvents) {
-                    setLoading(true);
-                    expandGroup(numStartEvents);
-                    addEvents(totalEvents, numStartEvents);
-                    totalEvents += numStartEvents;
-                }
-            }
-        });
-
+        // specify an adapter (see also next example)
+        dataSet = getEventData(5);
+        mAdapter = new FindEventAdapter(dataSet);;
+        recyclerView.setAdapter(mAdapter);
     }
 
-    private boolean isLoading () {
-        for (int i = 0; i < loadingList.size(); i++) {
-            if (loadingList.get(i) == true) {
-                return true;
-            }
-        }
-        return false;
-    }
+    private ArrayList<JSONObject> getEventData(int num) {
 
-    private void setLoading (boolean isLoading) {
-        for (int i = 0; i < loadingList.size(); i++) {
-            loadingList.set(i, isLoading);
-        }
-    }
-
-    private void expandGroup (int toExpand) {
-        for (int i = 0; i < toExpand; i++) {
-            eventGroup.add("");
-        }
-    }
-
-    private void addEvents(int eventNum, int toAdd) {
-        for (int i = eventNum; i < eventNum + toAdd; i++) {
-            addEventData(i);
-        }
-    }
-
-    // TODO: remove id from events
-    // TODO: incorporate backend
-    // TODO: add options for event search
-    private void addEventData(final int numEvent) {
         // debugging code
+        ArrayList<JSONObject> dataSet = new ArrayList<>();
+        for (int i = 0; i < num; i++) {
+            try {
+                dataSet.add(new JSONObject());
+                dataSet.get(i).put("name","name" + numEvents);
+                dataSet.get(i).put("desc","desc"+ numEvents);
+                dataSet.get(i).put("location","location"+ numEvents);
+                dataSet.get(i).put("start","start"+ numEvents);
+                dataSet.get(i).put("end","end"+ numEvents);
+                dataSet.get(i).put("attendees","attendees"+ numEvents);
+                dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl()); // TODO: get owner picture
+                numEvents++;
+                Log.d(TAG, "event added");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        return dataSet;
         /*
-        eventName = "name" + numEvent;
-        id = "id";
-        description = "desc";
-        start = "start";
-        end = "end";
-        eventGroup.set(numEvent, getString(R.string.event_name) + eventName);
-
-        String[] array;
-        List<String> list = new ArrayList<>();
-        array = getResources().getStringArray(R.array.event_name);
-
-        // TODO: clean up implementation
-        list.add(array[0] + id);
-        list.add(array[1] + description);
-        list.add(array[2] + start);
-        list.add(array[3] + end);
-
-        eventInfo.put(eventGroup.get(numEvent), list);
-
-        adapter.notifyDataSetChanged();
-        loadingList.set(numEvent % 3, false);
-        eventView.expandGroup(numEvent);
-        Log.d(TAG, "event added");
-        */
         // Server code
+        final JSONObject data = new JSONObject();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
 
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            eventName = response.getString("name");
-                            id = response.getString("id");
-                            description = response.getString("desc");
-                            start = response.getString("start");
-                            end = response.getString("end");
-                            eventGroup.set(numEvent, getString(R.string.event_name) + eventName);
-
-                            String[] array;
-                            List<String> list = new ArrayList<>();
-                            array = getResources().getStringArray(R.array.event_name);
-
-                            // TODO: clean up implementation
-                            list.add(array[0] + id);
-                            list.add(array[1] + description);
-                            list.add(array[2] + start);
-                            list.add(array[3] + end);
-
-                            eventInfo.put(eventGroup.get(numEvent), list);
-
-                            adapter.notifyDataSetChanged();
-                            loadingList.set(numEvent % 3, false);
-                            eventView.expandGroup(numEvent);
+                            data.put("name",response.getString("name"));
+                            data.put("id",response.getString("id"));
+                            data.put("desc",response.getString("desc"));
+                            data.put("start",response.getString("start"));
+                            data.put("end",response.getString("end"));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -216,6 +118,7 @@ public class FindEventActivity extends AppCompatActivity {
         // Add the request to the RequestQueue.
         queue.add(jsonObjectRequest);
 
-
+        return data;
+        */
     }
 }
