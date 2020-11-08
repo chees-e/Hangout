@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -93,6 +94,15 @@ public class Profile extends AppCompatActivity {
             public void onClick(View v) {
                 Intent friendIntent = new Intent(Profile.this, FriendsActivity.class);
                 startActivity(friendIntent);
+            }
+        });
+
+        Button settingsButton = findViewById(R.id.settingsButton);
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent settingsIntent = new Intent(Profile.this, SettingsActivity.class);
+                startActivity(settingsIntent);
             }
         });
 
