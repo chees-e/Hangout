@@ -36,6 +36,17 @@
                 android:layout_marginEnd="16dp"
                 android:contentDescription="@string/event_owner_picture" />
 
+            <ImageButton
+                android:id="@+id/event_interest_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="5dp"
+                android:layout_toEndOf="@id/eventName"
+                android:src="@drawable/ic_baseline_add_24"
+                android:contentDescription="@string/eventInterestButton" />
+
             <TextView
                 android:id="@+id/findLocationName"
                 android:layout_width="wrap_content"

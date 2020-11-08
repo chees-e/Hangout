@@ -1,10 +1,13 @@
 package com.example.m6frontend;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.AbsListView;
 import android.widget.ExpandableListView;
@@ -36,34 +39,102 @@ public class FindEventActivity extends AppCompatActivity {
     String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
     RequestQueue queue;
     private int numEvents;
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager layoutManager;
+    RecyclerView recyclerView;
+    RecyclerViewAdapter recyclerViewAdapter;
     ArrayList<JSONObject> dataSet;
     GoogleSignInAccount currentAccount;
+    boolean isLoading = false;
+    private final int numLoad = 10;
+    private final int maxEvents = 30;
+    private final int startEvents = 10;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_event);
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.find_event_recyclerview);
+        recyclerView =  findViewById(R.id.recyclerView);
         numEvents = 0;
         currentAccount = GoogleSignIn.getLastSignedInAccount(this);
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        recyclerView.setHasFixedSize(true);
 
-        // use a linear layout manager
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
+        dataSet = initEventData(startEvents);
 
-        // specify an adapter (see also next example)
-        dataSet = getEventData(5);
-        mAdapter = new FindEventAdapter(dataSet);;
-        recyclerView.setAdapter(mAdapter);
+
+        initAdapter();
+        initScrollListener();
     }
 
-    private ArrayList<JSONObject> getEventData(int num) {
+    private void initAdapter() {
+        recyclerViewAdapter = new RecyclerViewAdapter(dataSet, this);;
+        recyclerView.setAdapter(recyclerViewAdapter);
+
+    }
+
+    private void initScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager)
+                        recyclerView.getLayoutManager();
+
+                if (!isLoading) {
+                    if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == dataSet.size() - 1) {
+                        loadMoreEvents();
+                        isLoading = true;
+                    }
+                }
+
+            }
+        });
+    }
+
+    private void loadMoreEvents() {
+        dataSet.add(null);
+        recyclerViewAdapter.notifyItemInserted(dataSet.size() - 1);
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                dataSet.remove(dataSet.size() - 1);
+                int scrollPosition = dataSet.size();
+                recyclerViewAdapter.notifyItemRemoved(scrollPosition);
+                int currentSize = scrollPosition;
+                int nextLimit = currentSize + numLoad;
+
+                while (currentSize - 1 < nextLimit && currentSize - 1 < maxEvents) {
+                    dataSet.add(new JSONObject());
+                    try {
+                        dataSet.get(currentSize).put("name","name" + numEvents);
+                        dataSet.get(currentSize).put("desc","desc"+ numEvents);
+                        dataSet.get(currentSize).put("location","location"+ numEvents);
+                        dataSet.get(currentSize).put("start","start"+ numEvents);
+                        dataSet.get(currentSize).put("end","end"+ numEvents);
+                        dataSet.get(currentSize).put("attendees","attendees"+ numEvents);
+                        dataSet.get(currentSize).put("ownerPicture", currentAccount.getPhotoUrl()); // TODO: get owner picture
+                        numEvents++;
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    currentSize++;
+                }
+                recyclerViewAdapter.notifyDataSetChanged();
+                isLoading = false;
+
+            }
+        }, 200);
+    }
+
+
+    private ArrayList<JSONObject> initEventData(int num) {
 
         // debugging code
         ArrayList<JSONObject> dataSet = new ArrayList<>();
@@ -83,6 +154,7 @@ public class FindEventActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+
 
 
         return dataSet;
