@@ -6,8 +6,8 @@ const dbname = "Hangout";
 var db = null;
 
 module.exports.init = async () => {
-	await client.connect();
-	db = await client.db(dbname);
+    await client.connect();
+    db = await client.db(dbname);
 };
 
 /* setData(path, obj)
@@ -25,16 +25,16 @@ module.exports.setData = async (path, obj) => {
     if (keys.length <= 0) {
         return -1;
     } else if (keys.length === 1) {
-		collection = "loosedata";
-		query = { name : keys[0] };
-		update = { name : keys[0], value: obj };
-	} else {
-		collection = keys[0];
-		query = { id : keys[1] };
-		update = obj;
-	}
-	await db.collection(collection).replaceOne(query, update, { upsert : true });
-	return 0;
+        collection = "loosedata";
+        query = { name : keys[0] };
+        update = { name : keys[0], value: obj };
+    } else {
+        collection = keys[0];
+        query = { id : keys[1] };
+        update = obj;
+    }
+    await db.collection(collection).replaceOne(query, update, { upsert : true });
+    return 0;
 };
 
 /* getData(path)
@@ -51,22 +51,22 @@ module.exports.getData = async (path) => {
     if (keys.length <= 0) {
         return -1;
     } else if (keys.length === 1) {
-		collection = "loosedata";
-		query = { name : keys[0] };
-	} else {
-		collection = keys[0];
-		query = { id : keys[1] };
-	}
-	let results = await db.collection(collection).find(query).toArray();
-	if (results.length <= 0) {
-		return null;
-	} else {
-		return results[0];
-	}
+        collection = "loosedata";
+        query = { name : keys[0] };
+    } else {
+        collection = keys[0];
+        query = { id : keys[1] };
+    }
+    let results = await db.collection(collection).find(query).toArray();
+    if (results.length <= 0) {
+        return null;
+    } else {
+        return results[0];
+    }
 };
 
 module.exports.getKeys = async (collection) => {
-	return await db.collection(collection).find().project({"id" : 1}).toArray();
+    return await db.collection(collection).find().project({"id" : 1}).toArray();
 };
 /* hasKey(path)
  *  params:
@@ -75,7 +75,7 @@ module.exports.getKeys = async (collection) => {
  *   true if the key exists, false otherwise
 */
 module.exports.hasKey = (path) => {
-	return module.exports.getData(path).then((dat) => {
-		return (dat !== null);
-	});
+    return module.exports.getData(path).then((dat) => {
+        return (dat !== null);
+    });
 };

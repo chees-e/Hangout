@@ -53,13 +53,13 @@ async function getEventImpl(_id) {
 async function getUserImpl(_id) {
     let userData = await data.getData(`users/${_id}`);
     if ((!_id) || (!userData)) {
-		return null;
-	} else {
-		let user = new eventlib.User(userData.id);
-		user.events = userData.events;
-		user.friends = userData.friends;
-		return user;
-	}
+        return null;
+    } else {
+        let user = new eventlib.User(userData.id);
+        user.events = userData.events;
+        user.friends = userData.friends;
+        return user;
+    }
 }
 
 /* getImpl(_id)
@@ -93,7 +93,7 @@ async function getImpl(_id) {
  * If a valid event with the same id already exists, the scheduler is not modified
  */
 module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => {
-	const evnt = await getEventImpl(_id);
+    const evnt = await getEventImpl(_id);
     if (evnt.isValid()) {
         return -1;
     } else {
@@ -183,8 +183,8 @@ module.exports.getAllEvents = async () => {
  *  returns: negative value on failure and _id on success
 */
 module.exports.addUser = async (_id) => {
-	if (data.hasKey(`users/${_id}`)) {
-		return -1;
+    if (data.hasKey(`users/${_id}`)) {
+        return -1;
     } else {
         data.setData(`users/${_id}`, new eventlib.User(_id));
         data.setData(`impls/${_id}`, new eventlib.EventImpl(_id));
@@ -226,6 +226,6 @@ module.exports.addEventToUser = async (_uid, _eid) => {
  *   null if the user does not exist or the user's data if the user exists
 */
 module.exports.getUser = async (_uid) => {
-	let dat = await getUserImpl(_uid);
+    let dat = await getUserImpl(_uid);
     return dat;
 };

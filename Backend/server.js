@@ -41,15 +41,15 @@ app.post("/event/", function(req, res) {
 
 app.get("/event/", function(req, res) {
     sched.getAllEvents().then( (eventlist) => {
-		if (eventlist.length === 0){
-			res.status(404).send({msg:"No events"});
-		} else {
-			res.send({
-				length : eventlist.length,
-				events : eventlist
-			});
-		}
-	});
+        if (eventlist.length === 0){
+            res.status(404).send({msg:"No events"});
+        } else {
+            res.send({
+                length : eventlist.length,
+                events : eventlist
+            });
+        }
+    });
 });
 
 app.delete("/event/:id", function(req, res) {
