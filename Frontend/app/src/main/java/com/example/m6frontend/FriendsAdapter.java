@@ -15,7 +15,9 @@ import java.util.List;
 public class FriendsAdapter extends
         RecyclerView.Adapter<FriendsAdapter.ViewHolder> {
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    private final List<String> friendList;
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView friendName;
         public Button messageButton;
 
@@ -34,7 +36,7 @@ public class FriendsAdapter extends
         }
     }
 
-    private List<String> friendList;
+
 
     public FriendsAdapter(List<String> friendList) {
         this.friendList = friendList;
@@ -55,7 +57,7 @@ public class FriendsAdapter extends
         String name = friendList.get(position);
 
         holder.friendName.setText(name);
-        holder.messageButton.setText("Message");
+        holder.messageButton.setText(R.string.messages_header);
     }
 
     @Override

@@ -1,20 +1,16 @@
 package com.example.m6frontend;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
+
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -28,18 +24,13 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.maps.model.LatLng;
 
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
-import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -60,24 +51,22 @@ import java.util.List;
 // TODO: improve location selector (maps integration?)
 public class AddEventActivity extends AppCompatActivity {
     private final String TAG = "AddEventActivity";
-    private static int AUTOCOMPLETE_REQUEST_CODE = 1;
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     private EditText eventName;
     private EditText locationName;
     private EditText descriptionName;
-    private EditText usersName;
+    //private EditText usersName;
 
     private EditText startDate;
     private EditText startTime;
     private EditText endDate;
     private EditText endTime;
 
-    private Button addEventButton;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
-        addEventButton = findViewById(R.id.add_event_button);
+        Button addEventButton = findViewById(R.id.add_event_button);
 
         eventName = findViewById(R.id.editTextEvent);
 
@@ -86,7 +75,7 @@ public class AddEventActivity extends AppCompatActivity {
 
         descriptionName = findViewById(R.id.editTextEventDescription);
 
-        usersName = findViewById(R.id.editTextAddUsers);
+        //usersName = findViewById(R.id.editTextAddUsers);
 
         startDate = findViewById(R.id.editTextStartDate);
         startTime = findViewById(R.id.editTextStartTime);
@@ -101,7 +90,7 @@ public class AddEventActivity extends AppCompatActivity {
 
         // gets location
         Places.initialize(getApplicationContext(), getResources().getString(R.string.GOOGLE_MAPS_API_KEY));
-        PlacesClient placesClient = Places.createClient(this);
+
         locationName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -280,6 +269,7 @@ public class AddEventActivity extends AppCompatActivity {
                 Status status = Autocomplete.getStatusFromIntent(data);
                 Log.i(TAG, status.getStatusMessage());
             } else if (resultCode == RESULT_CANCELED) {
+                Log.i(TAG, "REQUEST CANCELED");
                 // The user canceled the operation.
             }
             return;

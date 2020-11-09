@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 const eventlib = require("./eventlib.js");
 const data = require("./database.js");
@@ -12,19 +12,16 @@ const data = require("./database.js");
  * 
 */
 module.exports.reset = async () => {
-	if (data.setData("events", {}) !== 0) {
-		return -1;
-	} else if (data.setData("users", {}) !== 0) {
-		return -1;
-	} else if (data.setData("impls", {}) !== 0) {
-		return -1;
-	} else if (data.setData("nextID", 1) !== 0) {
-		return -1;
-	} else if (data.setData("lastID", null) !== 0) {
-		return -1;
-	}
-	return 0;
-}
+    if ((data.setData("events", {})
+      || data.setData("users", {})
+      || data.setData("impls", {})
+      || data.setData("nextID", 1)
+      || data.setData("lastID", null)) !== 0) {
+        return -1;
+    } else {
+        return 0;
+    }
+};
 
 /* getEventImpl(_id)
  *  params:
@@ -33,15 +30,15 @@ module.exports.reset = async () => {
  *   null if event does not exist, the event otherwise
  */
 function getEventImpl(_id) {
-	const eventData = data.getData(`events/${_id}`);
-	if ((!_id) || (!eventData)) {
-		return null;
-	} else {
-		return new eventlib.Event(parseInt(eventData.id), eventData.name,
-								  eventData.desc, new Date(eventData.start),
-								  new Date(eventData.end), eventData.location);
-	}
-}
+    const eventData = data.getData(`events/${_id}`);
+    if ((!_id) || (!eventData)) {
+        return null;
+    } else {
+        return new eventlib.Event(parseInt(eventData.id, 10), eventData.name,
+                                  eventData.desc, new Date(eventData.start),
+                                  new Date(eventData.end), eventData.location);
+    }
+};
 
 /* getUserImpl(_id)
  *  params:
@@ -50,15 +47,15 @@ function getEventImpl(_id) {
  *   null if the impl does not exist, the user otherwise
 */
 function getUserImpl(_id) {
-	const userData = data.getData(`users/${_id}`);
-	if ((!_id) || (!userData)) {
-		return null;
-	} else {
-		let user = new eventlib.User(userData.id);
-		user.events = userData.events;
-		return user;
-	}
-}
+    const userData = data.getData(`users/${_id}`);
+    if ((!_id) || (!userData)) {
+        return null;
+    } else {
+        let user = new eventlib.User(userData.id);
+        user.events = userData.events;
+        return user;
+    }
+};
 
 /* getImpl(_id)
  *  params:
@@ -67,15 +64,15 @@ function getUserImpl(_id) {
  *   null if the impl does not exist, the impl otherwise
 */
 function getImpl(_id) {
-	const implData = data.getData(`impls/${_id}`);
-	if ((!_id) || (!implData)) {
-		return null;
-	} else {
-		let impl = new eventlib.EventImpl(implData.id);
-		impl.timeslots = implData.timeslots;
-		return impl;
-	}
-}
+    const implData = data.getData(`impls/${_id}`);
+    if ((!_id) || (!implData)) {
+        return null;
+    } else {
+        let impl = new eventlib.EventImpl(implData.id);
+        impl.timeslots = implData.timeslots;
+        return impl;
+    }
+};
 
 /* addEvent(_name, _id, _desc, _start, _end, _location)
  *  params: 
@@ -91,56 +88,56 @@ function getImpl(_id) {
  * If a valid event with the same id already exists, the scheduler is not modified
  */
 module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => {
-	const oldEvent = getEventImpl(_id);
-	if ((oldEvent) && (oldEvent.isValid())) {
-		return -1;
-	} else {
-		let id = _id;
-		if (!_id) {
-			id = module.exports.getNextID();
-		}
-		
-		let newEvent = new eventlib.Event(id, _name, _desc, _start, _end, _location);
-		let newImpl = new eventlib.EventImpl(id);
-		newImpl.importEvent(newEvent);
+    const oldEvent = getEventImpl(_id);
+    if ((oldEvent) && (oldEvent.isValid())) {
+        return -1;
+    } else {
+        let id = _id;
+        if (!_id) {
+            id = module.exports.getNextID();
+        }
+        
+        let newEvent = new eventlib.Event(id, _name, _desc, _start, _end, _location);
+        let newImpl = new eventlib.EventImpl(id);
+        newImpl.importEvent(newEvent);
 
-		if (data.setData(`events/${id}`, newEvent) === 0) {
-			data.setData("lastID", id);
-			let tmp = Math.max(data.getData("nextID") - 1, id) + 1;
-			data.setData("nextID", tmp);
-			data.setData(`impls/${id}`, newImpl);
-			return id;
-		} else {
-			return -1;
-		}
-	}
-}
+        if (data.setData(`events/${id}`, newEvent) === 0) {
+            data.setData("lastID", id);
+            let tmp = Math.max(data.getData("nextID") - 1, id) + 1;
+            data.setData("nextID", tmp);
+            data.setData(`impls/${id}`, newImpl);
+            return id;
+        } else {
+            return -1;
+        }
+    }
+};
 
 /* deleteEvent(id)
  *  params: id - ID of event to remove
  *  returns: a negative value on failure and 0 on success
  */
 module.exports.deleteEvent = async (_id) => {
-	const eventmap = data.getData("events");
-	if (eventmap.hasOwnProperty(_id)) {
-		delete eventmap[_id];
-		return data.setData("events", eventmap);
-	} else {
-		return -1;
-	}
-}
+    const eventmap = data.getData("events");
+    if (eventmap.hasOwnProperty(_id)) {
+        delete eventmap[_id];
+        return data.setData("events", eventmap);
+    } else {
+        return -1;
+    }
+};
 
 /* getNextID()
 *   returns: An ID which is guaranteed to be available.
 */
 module.exports.getNextID = () => {
-	const id = data.getData("nextID");
-	if (!id){
-		return 1;
-	} else {
-		return id;
-	}
-}
+    const id = data.getData("nextID");
+    if (!id){
+        return 1;
+    } else {
+        return id;
+    }
+};
 
 /* getEvent(id)
  *  params: (optional) id - integer, id of event to fetch
@@ -148,16 +145,16 @@ module.exports.getNextID = () => {
  *   it returns the last event added
  */
 module.exports.getEvent = async (id) => {
-	if (!id) {
-		if (!data.lastID) {
-			return null;
-		} else {
-			return getEventImpl(data.lastID);
-		}
-	} else {
-		return getEventImpl(id);
-	}
-}
+    if (!id) {
+        if (!data.lastID) {
+            return null;
+        } else {
+            return getEventImpl(data.lastID);
+        }
+    } else {
+        return getEventImpl(id);
+    }
+};
 
 /* getAllEvents()
  *  params: none
@@ -165,36 +162,36 @@ module.exports.getEvent = async (id) => {
  *
  */
 module.exports.getAllEvents = () => {
-	var evts = new Array();
-	const eventmap = data.getData("events");
-	for (const [key, _] of Object.entries(eventmap)) {
-		const value = getEventImpl(key);
-		if (value && value.isValid()) {
-			evts.push(value);
-		}
-	}
-	return evts;
-}
+    var evts = new Array();
+    const eventmap = data.getData("events");
+    for (const [key, _] of Object.entries(eventmap)) {
+        const value = getEventImpl(key);
+        if (value && value.isValid()) {
+            evts.push(value);
+        }
+    }
+    return evts;
+};
 
 /* addUser(_id)
  *  params: _id - user id, must not collide with event ids
  *  returns: negative value on failure and _id on success
 */
 module.exports.addUser = async (_id) => {
-	let users = data.getData("users");
-	if (users.hasOwnProperty(_id)) {
-		return -1;
-	} else {
-		users[_id] = new eventlib.User(_id);
-		data.setData("users", users);
+    let users = data.getData("users");
+    if (users.hasOwnProperty(_id)) {
+        return -1;
+    } else {
+        users[_id] = new eventlib.User(_id);
+        data.setData("users", users);
 
-		let impls = data.getData("impls");
-		impls[_id] = new eventlib.EventImpl(_id);
-		data.setData("impls", impls);
-		
-		return _id;
-	}
-}
+        let impls = data.getData("impls");
+        impls[_id] = new eventlib.EventImpl(_id);
+        data.setData("impls", impls);
+        
+        return _id;
+    }
+};
 
 /* addEventToUser(uid, eid)
  *  params:
@@ -204,23 +201,23 @@ module.exports.addUser = async (_id) => {
  *   negative value on failure and 0 on success
 */
 module.exports.addEventToUser = async (_uid, _eid) => {
-	const user = getUserImpl(_uid);
-	const evnt = getEventImpl(_eid);
-	const uimpl = getImpl(_uid);
-	const eimpl = getImpl(_eid);
-	if (!(user && evnt && uimpl && eimpl)){
-		return -2;
-	} else if (uimpl.conflicts(eimpl)){
-		return -1;
-	} else {
-		user.addEvent(evnt);
-		uimpl.importEvent(evnt);
-		
-		data.setData(`users/${_uid}`, user);
-		data.setData(`impls/${_uid}`, uimpl);
-		return 0;
-	}
-}
+    const user = getUserImpl(_uid);
+    const evnt = getEventImpl(_eid);
+    const uimpl = getImpl(_uid);
+    const eimpl = getImpl(_eid);
+    if (!(user && evnt && uimpl && eimpl)){
+        return -2;
+    } else if (uimpl.conflicts(eimpl)){
+        return -1;
+    } else {
+        user.addEvent(evnt);
+        uimpl.importEvent(evnt);
+        
+        data.setData(`users/${_uid}`, user);
+        data.setData(`impls/${_uid}`, uimpl);
+        return 0;
+    }
+};
 
 /* getUser(id)
  *  params:
@@ -229,5 +226,5 @@ module.exports.addEventToUser = async (_uid, _eid) => {
  *   null if the user does not exist or the user's data if the user exists
 */
 module.exports.getUser = async (_uid) => {
-	return getUserImpl(_uid);
-}
+    return getUserImpl(_uid);
+};

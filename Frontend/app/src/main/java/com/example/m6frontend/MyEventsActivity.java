@@ -13,35 +13,31 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class MyEventsActivity extends AppCompatActivity {
-    String TAG = "MyEventsActivity";
+    private String TAG = "MyEventsActivity";
     List<String> myList;
     String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event";
     RequestQueue queue;
     //EventsAdapter adapter;
     RecyclerView rvEvents;
 
-    String eventName = "";
-    String id = "";
-    String description = "";
-    String start = "";
-    String end = "";
+    private String eventName = "";
+    private String id = "";
+    private String description = "";
+    private String start = "";
+    private String end = "";
 
-    FloatingActionButton addEventButton;
+    private FloatingActionButton addEventButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

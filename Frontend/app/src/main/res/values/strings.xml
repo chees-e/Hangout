@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">M6Frontend</string>
-    <string name="empty"></string>
+    <string name="empty"> </string>
     <string name="add_event_caption">Event Name</string>
     <string name="location_caption">Location</string>
     <string name="description_caption">Event Description</string>
@@ -16,6 +16,8 @@
     <string name="find_event_caption">Find Events</string>
     <string name="event_name">Event: </string>
     <string name="event_owner_picture">eventOwnerPicture </string>
+    <string name="eventInterestButton">eventInterestButton</string>
+
 
     <string-array name="event_name">
         <item>ID: </item>
@@ -23,4 +25,20 @@
         <item>Start: </item>
         <item>End: </item>
     </string-array>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
 </resources>

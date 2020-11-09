@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 //The backend automatically checks for duplicate
                 RequestQueue queue = Volley.newRequestQueue(this);
                 String url ="http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/";
-                url.concat(account.getId().toString());
+                url.concat(account.getId());
                 StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                         new Response.Listener<String>() {
                             @Override
