@@ -1,1 +1,19 @@
-{"events":{},"users":{},"impls":{},"nextID":1,"lastID":null}
+{
+	"_type" : "MAP",
+	"_values" : [
+		["events", {
+			"_type" : "MAP",
+			"_values" : []
+		}],
+		["users", {
+			"_type" : "MAP",
+			"_values" : []
+		}],
+		["impls", {
+			"_type" : "MAP",
+			"_values" : []
+		}],
+		["nextID", 1],
+		["lastID", null]
+	]
+}

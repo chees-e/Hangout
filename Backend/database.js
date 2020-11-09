@@ -1,7 +1,6 @@
 "use strict";
 const fs = require("fs");
 const data = JSON.parse(fs.readFileSync("./data/scheduler.json", "utf-8"), parseWithMap);
-
 const timeout = 60 * 1000; // Time between disk writes in milliseconds
 
 /* stringifyWithMap
@@ -12,13 +11,8 @@ function stringifyWithMap(key, value) {
     if (obj instanceof Map) {
         const temp = {
             "_type" : "MAP",
-            "_keys" : [],
-            "_values" : {}
+            "_values" : obj.values()
         };
-        for (let [key, value] of obj) {
-            temp._keys.push(key);
-            temp._values[key] = value;
-        }
         return temp;
     } else {
         return value;
@@ -31,12 +25,7 @@ function stringifyWithMap(key, value) {
 function parseWithMap(key, value) {
     if (typeof value === "object" && value !== null) {
         if (value._type === "MAP") {
-            const tmpMap = new Map();
-            for (let keyIdx = 0; keyIdx < value._keys.length; keyIdx++) {
-                const key = value._keys[keyIdx];
-                tmpMap.set(key, value._values[key]);
-            }
-            return tmpMap;
+            return new Map(value._values);
         }
     }
     return value;
@@ -71,15 +60,19 @@ function updateData(filename, input) {
  *   all key1...keyn in keys, or null if it does not exist
  */
 function traverse(json, keys) {
-    var node = json;
-    for (let key of keys) {
-        if (node.hasOwnProperty(key)) {
-            node = node[key];
-        } else {
-            return null;
+    if (keys.length <= 0) {
+        return json;
+    } else {
+        let node = json;
+        for (let key of keys) {
+            if ((node instanceof Map) && node.has(key)) {
+                node = node.get(key);
+            } else {
+                return null;
+            }
         }
+        return node;
     }
-    return node;
 }
 
 const interval = setInterval(updateData, timeout, "scheduler", data);
@@ -98,8 +91,9 @@ module.exports.setData = (path, obj) => {
     } else {
         let lastKey = keys.pop();
         let node = traverse(data, keys);
-        if (node && lastKey) {
-            node[lastKey] = obj;
+
+        if (node != null) {
+            node.set(lastKey, obj);
             return 0;
         } else {
             return -1;
@@ -118,16 +112,16 @@ module.exports.getData = (path) => {
     if (keys.length <= 0) {
         return null;
     } else {
-        let lastKey = new String(keys.pop());
+        let lastKey = keys.pop();
         let node = traverse(data, keys);
 
-        if (node && lastKey) {
-            return node[lastKey];
+        if (node !== null) {
+            return node.get(lastKey);
         } else {
             return null;
         }
     }
-}
+};
 
 /* hasKey(path)
  *  params:
@@ -137,4 +131,4 @@ module.exports.getData = (path) => {
 */
 module.exports.hasKey = (path) => {
     return (module.exports.getData(path) !== null);
-}
+};

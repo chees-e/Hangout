@@ -123,22 +123,14 @@ class User{
      * Returns: the events the user currently attends
     */
     getEvents(){
-        var arrs = [];
-        for (var i = 0; i < this.events.length; i++){
-            arrs.push(this.events[i]);
-        }
-        return arrs;
+		return this.events.slice();
     }
     /* getFriends();
      * 
      * Returns: a list of (ids of) friends the user have
     */
     getFriends() {
-        var arrs = [];
-        for (var i = 0; i < this.friends.length; i++){
-            arrs.push(this.friends[i]);
-        }
-        return arrs;
+		return this.friends.slice();
     }
     /* isFriend();
      * 
@@ -238,16 +230,17 @@ function contains(slot1, slot2) {
 // If slot2 is a subset of slot1
 // slot1 and slot2 must be sorted by start
 function subset(slot1, slot2) {
-    var j = 0;
-    for (var i = 0; i < slot2.length; i++) {
-        while ((slot2[i].start + slot2[i].length) < slot1[j].start) {
-            j++;
-            if (j >= slot1.length) {
+    const sl1iter = slot1.values();
+    let sl1 = sl1iter.next();
+    for (let sl2 of slot2) {
+		while ((sl2.start + sl2.length) < sl1.value.start) {
+		    sl1 = sl1iter.next();
+            if (sl1.done) {
 // There exists at least one event in slot2 which occurs after the end of all events in slot1
                 return false;
             }
-        }
-        if (!contains(slot1[j], slot2[i])) {
+        } 
+        if (!contains(sl1.value, sl2)) {
             return false;
         }
     }
@@ -256,15 +249,16 @@ function subset(slot1, slot2) {
 
 // If slot1 conflicts with slot2
 function conflicts(slot1, slot2) {
-    let j = 0;
+    const sl2iter = slot2.values();
+	let sl2 = sl2iter.next();
     for (let sl1 of slot1) {
-        while ((slot2[j].start + slot2[j].length) < sl1.start) {
-            j++;
-            if (j >= slot2.length) {
+        while ((sl2.value.start + sl2.value.length) < sl1.start) {
+			sl2 = sl2iter.next();
+            if (sl2.done) {
                 return false;
             }
         }
-        if (compare(sl1, slot2[j]) !== 0) {
+        if (compare(sl1, sl2.value) !== 0) {
             return true;
         }
     }
@@ -278,8 +272,8 @@ class EventImpl{
     }
     // Import User with table of events 
     importUser(user){
-        for (var i = 0; i < user.events.length; i++){
-            this.importEvent(user.events[i]);
+		for (let evnt of user.events) {
+            this.importEvent(evnt);
         }
     }
     // Import single event into time slot table
@@ -352,8 +346,7 @@ class EventImpl{
             return def;
         }
         
-        for (var i = 0; i < sharedkeys.length; i++) {
-            let key = sharedkeys[i];
+        for (let key of sharedkeys) {
             let val = func(this.timeslots.get(key), other.timeslots.get(key));
             if (behav === "any") {
                 if (val) {
@@ -383,15 +376,16 @@ class EventImpl{
         if (!(other instanceof EventImpl) || (this.timeslots.length !== other.timeslots.length)){
             return false;
         }
-        for (var [key, val] of this.timeslots) {
+        for (let [key, val] of this.timeslots) {
             const otherVal = other.timeslots.get(key);
             if ((!otherVal) || (otherVal.length !== val.length)) {
                 return false;
             } else {
                 return val.every((elem, idx) => {
-                    return ((elem.start === otherVal[idx].start)
-                    && (elem.length === otherVal[idx].length)
-                    && (elem.id === otherVal[idx].id));
+					let other = otherVal.slice(idx, idx+1)[0];
+                    return ((elem.start === other.start)
+                    && (elem.length === other.length)
+                    && (elem.id === other.id));
                 });
             }
         }

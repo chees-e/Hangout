@@ -3,13 +3,13 @@
 jest.unmock("./eventlib.js");
 
 jest.mock("./database.js", () => {
-    let testData = {
-        events : {},
-        users : {},
-        impls : {},
-        nextID : 1,
-        lastID : null
-    };
+    let testData = new Map([
+        ["events", new Map()],
+        ["users", new Map()],
+        ["impls", new Map()],
+        ["nextID", 1],
+        ["lastID", null]
+    ]);
     return {
         setData: (path, obj) => {
             let keys = path.split("/");
@@ -18,14 +18,14 @@ jest.mock("./database.js", () => {
                 if (path === "events/10") { 
                     return -1;
                 } else if (keys.length === 1) {
-                    testData[keys[0]] = obj;
+                    testData.set(keys[0], obj);
                     return 0;
                 } else {
-                    testData[keys[0]][keys[1]] = obj;
+                    testData.get(keys[0]).set(keys[1], obj);
                     return 0;
                 }
             } else {
-                testData[keys[0]] = obj;
+                testData.set(keys[0], obj);
                 return 0;
             }
         },
@@ -36,14 +36,14 @@ jest.mock("./database.js", () => {
                 if (path === "events/10") { 
                     return null;
                 } else if (keys.length === 1) {
-                    return testData[keys[0]];
-                } else if (testData[keys[0]].hasOwnProperty(keys[1])) {
-                    return testData[keys[0]][keys[1]];
+                    return testData.get(keys[0]);
+                } else if (testData.get(keys[0]).has(keys[1])) {
+                    return testData.get(keys[0]).get(keys[1]);
                 } else {
                     return null;
                 }
             } else {
-                return testData[keys[0]];
+                return testData.get(keys[0]);
             }
         },
         hasKey: () => {
@@ -58,13 +58,14 @@ const assert = require("assert");
 
 function assertArrEqual(ev1, ev2){
     expect(ev1.length).toBe(ev2.length);
-    for (var i = 0; i < ev1.length; i++){
-        if (!(ev1[i] instanceof eventlib.Event)){
-            expect(ev1[i]).toBe(ev2[i]);
-        } else {
-            expect(ev1[i].equals(ev2[i])).toBe(true);
-        }
-    }
+    expect(ev1.every((elem, idx) => {
+        let other = ev2.slice(idx, idx+1)[0];
+        if (elem instanceof eventlib.Event) {
+			return elem.equals(other);
+		} else {
+			return elem === other;
+		}
+    })).toBe(true);
 }
 
 test("Testing addEvent", () => {

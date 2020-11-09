@@ -12,9 +12,9 @@ const data = require("./database.js");
  * 
 */
 module.exports.reset = async () => {
-    if ((data.setData("events", {})
-      || data.setData("users", {})
-      || data.setData("impls", {})
+    if ((data.setData("events", new Map())
+      || data.setData("users", new Map())
+      || data.setData("impls", new Map())
       || data.setData("nextID", 1)
       || data.setData("lastID", null)) !== 0) {
         return -1;
@@ -55,7 +55,7 @@ function getUserImpl(_id) {
         user.events = userData.events;
         return user;
     }
-};
+}
 
 /* getImpl(_id)
  *  params:
@@ -72,7 +72,7 @@ function getImpl(_id) {
         impl.timeslots = implData.timeslots;
         return impl;
     }
-};
+}
 
 /* addEvent(_name, _id, _desc, _start, _end, _location)
  *  params: 
@@ -119,8 +119,8 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => 
  */
 module.exports.deleteEvent = async (_id) => {
     const eventmap = data.getData("events");
-    if (eventmap.hasOwnProperty(_id)) {
-        delete eventmap[_id];
+    if (eventmap.has(_id)) {
+        eventmap.delete(_id);
         return data.setData("events", eventmap);
     } else {
         return -1;
@@ -164,7 +164,7 @@ module.exports.getEvent = async (id) => {
 module.exports.getAllEvents = () => {
     var evts = new Array();
     const eventmap = data.getData("events");
-    for (const [key, _] of Object.entries(eventmap)) {
+    for (const [key, _] of eventmap) {
         const value = getEventImpl(key);
         if (value && value.isValid()) {
             evts.push(value);
@@ -179,14 +179,14 @@ module.exports.getAllEvents = () => {
 */
 module.exports.addUser = async (_id) => {
     let users = data.getData("users");
-    if (users.hasOwnProperty(_id)) {
+    if (users.has(_id)) {
         return -1;
     } else {
-        users[_id] = new eventlib.User(_id);
+        users.set(_id, new eventlib.User(_id));
         data.setData("users", users);
 
         let impls = data.getData("impls");
-        impls[_id] = new eventlib.EventImpl(_id);
+        impls.set(_id, new eventlib.EventImpl(_id));
         data.setData("impls", impls);
         
         return _id;
