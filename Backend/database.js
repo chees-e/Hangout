@@ -62,6 +62,26 @@ function updateData(filename, input) {
     return 0;
 }
 
+/* traverse(json, keys)
+ *  params:
+ *   json - Object representing JSON structure
+ *   keys - Array of keys to traverse
+ *  returns:
+ *   the node corresponding to json[key1][key2][key3][etc] for 
+ *   all key1...keyn in keys, or null if it does not exist
+ */
+function traverse(json, keys) {
+    var node = json;
+    for (let key of keys) {
+        if (node.hasOwnProperty(key)) {
+            node = node[key];
+        } else {
+            return null;
+        }
+    }
+    return node;
+}
+
 const interval = setInterval(updateData, timeout, "scheduler", data);
 
 /* setData(path, obj)
@@ -76,19 +96,10 @@ module.exports.setData = (path, obj) => {
     if (keys.length <= 0) {
         return -1;
     } else {
-        var node = data;
-        for (var i = 0; i < (keys.length - 1); i++) {
-            let key = keys[i];
-            if (node.hasOwnProperty(keys[i])) {
-                node = node[keys[i]];
-            } else {
-                return -1;
-            }
-        }
-        
-        let key = keys[keys.length - 1];
-        if (key) {
-            node[key] = obj;
+        let lastKey = keys.pop();
+        let node = traverse(data, keys);
+        if (node && lastKey) {
+            node[lastKey] = obj;
             return 0;
         } else {
             return -1;
@@ -107,19 +118,11 @@ module.exports.getData = (path) => {
     if (keys.length <= 0) {
         return null;
     } else {
-        var node = data;
-        for (var i = 0; i < (keys.length - 1); i++) {
-            let key = keys[i];
-            if (node.hasOwnProperty(keys[i])) {
-                node = node[keys[i]];
-            } else {
-                return null;
-            }
-        }
-        
-        let key = new String(keys[keys.length - 1]);
-        if (key) {
-            return node[key];
+        let lastKey = new String(keys.pop());
+        let node = traverse(data, keys);
+
+        if (node && lastKey) {
+            return node[lastKey];
         } else {
             return null;
         }

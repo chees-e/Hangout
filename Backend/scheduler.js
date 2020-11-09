@@ -38,7 +38,7 @@ function getEventImpl(_id) {
                                   eventData.desc, new Date(eventData.start),
                                   new Date(eventData.end), eventData.location);
     }
-};
+}
 
 /* getUserImpl(_id)
  *  params:

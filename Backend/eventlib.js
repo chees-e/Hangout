@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /* Eventlib: The backend's scheduling code, used to generate user profiles.
  * Right now, it is events are suggested and conflicts are resolved as if
@@ -42,13 +42,16 @@ class Event{
         this.location = location;
         this.attendees = [];
     }
+    
     isValid() {
         return ((this.start instanceof Date) && (this.end instanceof Date)
              && (this.id >= 1) && (this.name) && (this.desc) && (this.location));
     }
+    
     copy() {
         return new Event(this.id, this.name, this.desc, this.start, this.end, this.location);
     }
+    
     equals(other) {
         if ((other === null) || !(other instanceof Event)){
             return false;
@@ -70,8 +73,8 @@ class Event{
         //Right now it is just calculating the score based on the attendees
         let score = 0;
 
-        for (let i = 0; i < this.attendees.length; i++) {
-            if (user.isFriend(this.attendees[i])) {
+        for (let otherUser of this.attendees) {
+            if (user.isFriend(otherUser)) {
                 score += FRIEND_WEIGHT;
             } else {
                 score += ATTENDEE_WEIGHT;
@@ -253,15 +256,15 @@ function subset(slot1, slot2) {
 
 // If slot1 conflicts with slot2
 function conflicts(slot1, slot2) {
-    var j = 0;
-    for (var i = 0; i < slot1.length; i++) {
-        while ((slot2[j].start + slot2[j].length) < slot1[i].start) {
+    let j = 0;
+    for (let sl1 of slot1) {
+        while ((slot2[j].start + slot2[j].length) < sl1.start) {
             j++;
             if (j >= slot2.length) {
                 return false;
             }
         }
-        if (compare(slot1[i], slot2[j]) !== 0) {
+        if (compare(sl1, slot2[j]) !== 0) {
             return true;
         }
     }
@@ -385,13 +388,11 @@ class EventImpl{
             if ((!otherVal) || (otherVal.length !== val.length)) {
                 return false;
             } else {
-                for (var i = 0; i < val.length; i++) {
-                    if ((val[i].start !== otherVal[i].start)
-                    || (val[i].length !== otherVal[i].length)
-                    || (val[i].id !== otherVal[i].id)) {
-                        return false;
-                    }
-                }
+                return val.every((elem, idx) => {
+                    return ((elem.start === otherVal[idx].start)
+                    && (elem.length === otherVal[idx].length)
+                    && (elem.id === otherVal[idx].id));
+                });
             }
         }
         return true;
