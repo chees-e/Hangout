@@ -3,7 +3,8 @@
 const express = require("express");
 const http = require("http");
 const app = express();
-const database = require("./scheduler.js");
+const db = require("./database.js");
+const sched = require("./scheduler.js");
 const eventlib = require("./eventlib.js");
 
 app.use(express.json());
@@ -19,15 +20,15 @@ app.get("/time", function(req, res) {
 
 app.post("/event/", function(req, res) {
     let rv = 0;
-    let id = database.getNextID();
+    let id = sched.getNextID();
     let evnt = new eventlib.Event(parseInt(req.query.id, 10), req.query.name, req.query.desc,
                                   new Date(req.query.start), new Date(req.query.end),
                                   req.query.location);
     if (!evnt.isValid()) {
-        rv = database.addEvent(null, id, null, new Date(0), new Date(0), null);
+        rv = sched.addEvent(null, id, null, new Date(0), new Date(0), null);
     } else {
         id = parseInt(req.query.id, 10);
-        rv = database.addEvent(evnt.name, evnt.id, evnt.desc, evnt.start, evnt.end, evnt.location);
+        rv = sched.addEvent(evnt.name, evnt.id, evnt.desc, evnt.start, evnt.end, evnt.location);
     }
     rv.then((code) => {
         if ((!code) || (code <= 0)) {
@@ -39,19 +40,20 @@ app.post("/event/", function(req, res) {
 });
 
 app.get("/event/", function(req, res) {
-    let eventlist = database.getAllEvents();
-    if (eventlist.length === 0){
-        res.status(404).send({msg:"No events"});
-    } else {
-        res.send({
-            length : eventlist.length,
-            events : eventlist
-        });
-    }
+    sched.getAllEvents().then( (eventlist) => {
+		if (eventlist.length === 0){
+			res.status(404).send({msg:"No events"});
+		} else {
+			res.send({
+				length : eventlist.length,
+				events : eventlist
+			});
+		}
+	});
 });
 
 app.delete("/event/:id", function(req, res) {
-    database.deleteEvent(req.params.id).then((code) => {
+    sched.deleteEvent(req.params.id).then((code) => {
         if (code < 0) {
             res.status(404).send({msg:"Event not found"});
         } else {
@@ -61,7 +63,7 @@ app.delete("/event/:id", function(req, res) {
 });
 
 app.get("/event/:id", function(req, res) {
-    database.getEvent(req.params.id).then((evnt) => {
+    sched.getEvent(req.params.id).then((evnt) => {
         if (!evnt) {
             res.status(404).send({msg:"Event not found"});
         } else if (!evnt.isValid()) {
@@ -80,7 +82,7 @@ app.get("/event/:id", function(req, res) {
 });
 
 app.post("/user/:id", function(req, res) {
-    database.addUser(req.params.id).then((code) => {
+    sched.addUser(req.params.id).then((code) => {
         if (code < 0) {
             res.status(409).send({msg:"User already exists"});
         } else {
@@ -90,7 +92,7 @@ app.post("/user/:id", function(req, res) {
 });
 
 app.get("/user/:id", function(req, res) {
-    database.getUser(req.params.id).then((user) => {
+    sched.getUser(req.params.id).then((user) => {
         if (!user) {
             res.status(404).send({msg:"User not found"});
         } else {
@@ -103,7 +105,7 @@ app.get("/user/:id", function(req, res) {
 });
 
 app.post("/user/:uid/event/:eid", function(req, res) {
-    database.addEventToUser(req.params.uid, req.params.eid).then((code) => {
+    sched.addEventToUser(req.params.uid, req.params.eid).then((code) => {
         if (code === -2) {
             res.status(404).send({msg:"Invalid IDs"});
         } else if (code === -1) {
@@ -115,9 +117,7 @@ app.post("/user/:uid/event/:eid", function(req, res) {
 });
 
 var server = app.listen(8081, function () {
-   var host = server.address().address;
-   var port = server.address().port;
-//   console.log("Example app listening at http://%s:%s", host, port)
+   db.init().then();
 });
 
 

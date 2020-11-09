@@ -33,8 +33,8 @@ module.exports.reset = async () => {
  *  returns:
  *   A null event if event does not exist, the event otherwise
  */
-function getEventImpl(_id) {
-    const eventData = data.getData(`events/${_id}`);
+async function getEventImpl(_id) {
+    const eventData = await data.getData(`events/${_id}`);
     if ((!_id) || (!eventData)) {
         return new eventlib.Event(null, null, null, null, null, null);
     } else {
@@ -50,15 +50,16 @@ function getEventImpl(_id) {
  *  returns:
  *   null if the impl does not exist, the user otherwise
 */
-function getUserImpl(_id) {
-    const userData = data.getData(`users/${_id}`);
+async function getUserImpl(_id) {
+    let userData = await data.getData(`users/${_id}`);
     if ((!_id) || (!userData)) {
-        return null;
-    } else {
-        let user = new eventlib.User(userData.id);
-        user.events = userData.events;
-        return user;
-    }
+		return null;
+	} else {
+		let user = new eventlib.User(userData.id);
+		user.events = userData.events;
+		user.friends = userData.friends;
+		return user;
+	}
 }
 
 /* getImpl(_id)
@@ -67,8 +68,8 @@ function getUserImpl(_id) {
  *  returns:
  *   null if the impl does not exist, the impl otherwise
 */
-function getImpl(_id) {
-    const implData = data.getData(`impls/${_id}`);
+async function getImpl(_id) {
+    const implData = await data.getData(`impls/${_id}`);
     if ((!_id) || (!implData)) {
         return null;
     } else {
@@ -92,7 +93,8 @@ function getImpl(_id) {
  * If a valid event with the same id already exists, the scheduler is not modified
  */
 module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => {
-    if (getEventImpl(_id).isValid()) {
+	const evnt = await getEventImpl(_id);
+    if (evnt.isValid()) {
         return -1;
     } else {
         let id = _id;
@@ -104,11 +106,11 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => 
         let newImpl = new eventlib.EventImpl(id);
         newImpl.importEvent(newEvent);
 
-        if (data.setData(`events/${id}`, newEvent) === 0) {
-            data.setData("lastID", id);
+        if (await data.setData(`events/${id}`, newEvent) === 0) {
+            await data.setData("lastID", id);
             let tmp = Math.max(data.getData("nextID") - 1, id) + 1;
-            data.setData("nextID", tmp);
-            data.setData(`impls/${id}`, newImpl);
+            await data.setData("nextID", tmp);
+//            await data.setData(`impls/${id}`, newImpl);
             return id;
         } else {
             return -1;
@@ -164,12 +166,12 @@ module.exports.getEvent = async (id) => {
  *  returns: array containing all valid events
  *
  */
-module.exports.getAllEvents = () => {
+module.exports.getAllEvents = async () => {
     var evts = new Array();
-    const eventmap = data.getData("events");
-    for (const [key, _] of eventmap) {
-        const value = getEventImpl(key);
-        if (value && value.isValid()) {
+    const eventmap = await data.getKeys("events");
+    for (const _ of eventmap) {
+        const value = await getEventImpl(_.id);
+        if (value.isValid()) {
             evts.push(value);
         }
     }
@@ -181,16 +183,11 @@ module.exports.getAllEvents = () => {
  *  returns: negative value on failure and _id on success
 */
 module.exports.addUser = async (_id) => {
-    let users = data.getData("users");
-    if (users.has(_id)) {
-        return -1;
+	if (data.hasKey(`users/${_id}`)) {
+		return -1;
     } else {
-        users.set(_id, new eventlib.User(_id));
-        data.setData("users", users);
-
-        let impls = data.getData("impls");
-        impls.set(_id, new eventlib.EventImpl(_id));
-        data.setData("impls", impls);
+        data.setData(`users/${_id}`, new eventlib.User(_id));
+        data.setData(`impls/${_id}`, new eventlib.EventImpl(_id));
         
         return _id;
     }
@@ -216,8 +213,8 @@ module.exports.addEventToUser = async (_uid, _eid) => {
         user.addEvent(evnt);
         uimpl.importEvent(evnt);
         
-        data.setData(`users/${_uid}`, user);
-        data.setData(`impls/${_uid}`, uimpl);
+        await data.setData(`users/${_uid}`, user);
+        await data.setData(`impls/${_uid}`, uimpl);
         return 0;
     }
 };
@@ -229,5 +226,6 @@ module.exports.addEventToUser = async (_uid, _eid) => {
  *   null if the user does not exist or the user's data if the user exists
 */
 module.exports.getUser = async (_uid) => {
-    return getUserImpl(_uid);
+	let dat = await getUserImpl(_uid);
+    return dat;
 };

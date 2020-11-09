@@ -29,7 +29,7 @@ const FRIEND_WEIGHT = 20;
 
 class Event{
     constructor(id, name, desc, start, end, location){
-        this.id = id;
+        this.id = `${id}`;
         this.name = name;
         this.desc = desc;
         if (start < end) {
