@@ -239,7 +239,7 @@ function subset(slot1, slot2) {
     const sl1iter = slot1.values();
     let sl1 = sl1iter.next();
     for (let sl2 of slot2) {
-        sl1 = advance(sl1, sl1iter, (initial) => (((sl2.start + sl2.length) < sl1.value.start)),
+        sl1 = advance(sl1, sl1iter, (initial) => (((sl2.start + sl2.length) < initial.value.start)),
                                     (initial) => (initial.done));
         if (sl1.done) {
 // There exists at least one event in slot2 which occurs after the end of all events in slot1
@@ -257,7 +257,7 @@ function conflicts(slot1, slot2) {
     const sl2iter = slot2.values();
     let sl2 = sl2iter.next();
     for (let sl1 of slot1) {
-        sl2 = advance(sl2, sl2iter, (initial) => (((sl2.value.start + sl2.value.length) < sl1.start)),
+        sl2 = advance(sl2, sl2iter, (initial) => (((initial.value.start + initial.value.length) < sl1.start)),
                                     (initial) => (initial.done));
         if (sl2.done) {
             return false;
