@@ -26,17 +26,17 @@ import java.util.List;
 public class MyEventsActivity extends AppCompatActivity {
     private String TAG = "MyEventsActivity";
     private List<String> myList;
-    String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event";
+    private final String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event";
     private RequestQueue queue;
     //EventsAdapter adapter;
-    private RecyclerView rvEvents;
 
-    private String eventName = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_events);
+        RecyclerView rvEvents;
 
         myList = new ArrayList<String>();
         queue = Volley.newRequestQueue(this);
@@ -102,11 +102,11 @@ public class MyEventsActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            eventName = response.getString("name");
-                            String id = response.getString("id");
-                            String description = response.getString("desc");
-                            String start = response.getString("start");
-                            String end = response.getString("end");
+                            String eventName = response.getString("name");
+                            // String id = response.getString("id");
+                            // String description = response.getString("desc");
+                            // String start = response.getString("start");
+                            //String end = response.getString("end");
 
                             myList.add(getString(R.string.event_name) + eventName);
                             //myList.add(id);
