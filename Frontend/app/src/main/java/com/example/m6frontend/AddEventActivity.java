@@ -224,7 +224,7 @@ public class AddEventActivity extends AppCompatActivity {
                 }
 
                 RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
-                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event/";
+                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/";
                 
                String jsonString = null;
                 try {

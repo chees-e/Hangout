@@ -30,7 +30,7 @@ import java.util.List;
 public class MyEventsActivity extends AppCompatActivity {
     String TAG = "MyEventsActivity";
     List<String> myList;
-    String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
+    String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event";
     RequestQueue queue;
     //EventsAdapter adapter;
     RecyclerView rvEvents;
@@ -50,11 +50,7 @@ public class MyEventsActivity extends AppCompatActivity {
 
         myList = new ArrayList<String>();
         queue = Volley.newRequestQueue(this);
-        //myList.add("test1");
-        //myList.add("test2");
-        //myList.add("test3");
 
-        //Log.d(TAG, myList.get(0));
         addEvents();
         Log.d(TAG, Integer.toString(myList.size()));
 
@@ -71,10 +67,6 @@ public class MyEventsActivity extends AppCompatActivity {
                 startActivity(addEventIntent);
             }
         });
-
-        //String event = myList.get(0);
-        //Log.d(TAG, event);
-
     }
 
     /*private void addEvents() {
