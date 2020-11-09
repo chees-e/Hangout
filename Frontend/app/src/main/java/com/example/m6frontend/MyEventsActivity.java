@@ -25,15 +25,17 @@ import java.util.List;
 
 public class MyEventsActivity extends AppCompatActivity {
     private String TAG = "MyEventsActivity";
-    private List<String> myList;
-    private final String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
+    List<String> myList;
+    String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event";
     RequestQueue queue;
     //EventsAdapter adapter;
-    private RecyclerView rvEvents;
+    RecyclerView rvEvents;
 
     private String eventName = "";
-
-
+    private String id = "";
+    private String description = "";
+    private String start = "";
+    private String end = "";
 
     private FloatingActionButton addEventButton;
 
@@ -42,14 +44,9 @@ public class MyEventsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_events);
 
-
         myList = new ArrayList<String>();
         queue = Volley.newRequestQueue(this);
-        //myList.add("test1");
-        //myList.add("test2");
-        //myList.add("test3");
 
-        //Log.d(TAG, myList.get(0));
         addEvents();
         Log.d(TAG, Integer.toString(myList.size()));
 
@@ -66,10 +63,6 @@ public class MyEventsActivity extends AppCompatActivity {
                 startActivity(addEventIntent);
             }
         });
-
-        //String event = myList.get(0);
-        //Log.d(TAG, event);
-
     }
 
     /*private void addEvents() {
@@ -109,17 +102,16 @@ public class MyEventsActivity extends AppCompatActivity {
 
     private void addEvents() {
         // Server code
-
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
                             eventName = response.getString("name");
-                            String id = response.getString("id");
-                            String description = response.getString("desc");
-                            String start = response.getString("start");
-                            String end = response.getString("end");
+                            id = response.getString("id");
+                            description = response.getString("desc");
+                            start = response.getString("start");
+                            end = response.getString("end");
 
                             myList.add(getString(R.string.event_name) + eventName);
                             //myList.add(id);

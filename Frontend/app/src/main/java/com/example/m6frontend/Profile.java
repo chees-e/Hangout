@@ -51,15 +51,6 @@ public class Profile extends AppCompatActivity {
             }
         });
 
-        Button chatButton = findViewById(R.id.chat_button);
-        chatButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent chatIntent = new Intent(getApplicationContext(), ChatActivity.class);
-                startActivity(chatIntent);
-            }
-        });
-
         Button createEventButton = findViewById(R.id.eventButton);
         createEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
