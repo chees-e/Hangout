@@ -43,25 +43,26 @@ class Event{
         this.attendees = [];
     }
     
+    // Check if event is valid
     isValid() {
         return ((this.start instanceof Date) && (this.end instanceof Date)
-             && (this.id >= 1) && (this.name) && (this.desc) && (this.location));
+             && (this.id >= 1) && (this.location));
     }
     
-    copy() {
-        return new Event(this.id, this.name, this.desc, this.start, this.end, this.location);
+    // Two events are equal if their hashes are equal
+    hash() {
+        if (this.isValid()) {
+            return `${this.id} ${this.start} ${this.end}`;
+        } else {
+            return null;
+        }
     }
     
     equals(other) {
-        if ((other === null) || !(other instanceof Event)){
-            return false;
-        } else if (!((this.start instanceof Date) && (this.end instanceof Date)
-                 && (other.start instanceof Date) && (other.end instanceof Date))) {
-            return false; // Invalid events cannot be equal
+        if (other instanceof Event && this.isValid() && other.isValid()) {
+            return this.hash() === other.hash();
         } else {
-            return (this.id === other.id) 
-                && (this.start.getTime() === other.start.getTime())
-                && (this.end.getTime() === other.end.getTime());
+            return false; // Invalid events cannot be equal
         }
     }
 
@@ -123,14 +124,14 @@ class User{
      * Returns: the events the user currently attends
     */
     getEvents(){
-		return this.events.slice();
+        return this.events.slice();
     }
     /* getFriends();
      * 
      * Returns: a list of (ids of) friends the user have
     */
     getFriends() {
-		return this.friends.slice();
+        return this.friends.slice();
     }
     /* isFriend();
      * 
@@ -189,7 +190,7 @@ function getTimeslot(date) {
     return timeslot;
 }
 
-/* Compares to time slots of the form { start: int, length: int, id: int }
+/* Compares 2 time slots of the form { start: int, length: int, id: int }
  *  returns: 
  *   - A negative value if they are not valid time slots
  *   - 0 if they do not intersect at all
@@ -197,26 +198,20 @@ function getTimeslot(date) {
  *   - 2 if they intersect and have different ids
 */
 function compare(slot1, slot2) {
-    if (!(slot1.hasOwnProperty("start") && slot1.hasOwnProperty("length")
-       && slot1.hasOwnProperty("id") && slot2.hasOwnProperty("start")
-       && slot2.hasOwnProperty("length") && slot2.hasOwnProperty("id"))) {
-        return -1;
-    } else {
-        let s1 = slot1;
-        let s2 = slot2;
-        if (s1.start > s2.start) {
-            s1 = slot2;
-            s2 = slot1;
-        }
-        if ((s1.start + s1.length) > (s2.start)) {
-            if (s1.id === s2.id) {
-                return 1;
-            } else {
-                return 2;
-            }
+    let s1 = slot1;
+    let s2 = slot2;
+    if (s1.start > s2.start) {
+        s1 = slot2;
+        s2 = slot1;
+    }
+    if ((s1.start + s1.length) > (s2.start)) {
+        if (s1.id === s2.id) {
+            return 1;
         } else {
-            return 0;
+            return 2;
         }
+    } else {
+        return 0;
     }
 }
 
@@ -227,19 +222,29 @@ function contains(slot1, slot2) {
         && (slot1.id === slot2.id);
 }
 
+// Advance initial according to iter, loopcond, and exitcond
+function advance(initial, iter, loopcond, exitcond) {
+    while (loopcond(initial)) {
+        initial = iter.next();
+        if (exitcond(initial)) {
+            return initial;
+        }
+    }
+    return initial;
+}
+
 // If slot2 is a subset of slot1
 // slot1 and slot2 must be sorted by start
 function subset(slot1, slot2) {
     const sl1iter = slot1.values();
     let sl1 = sl1iter.next();
     for (let sl2 of slot2) {
-		while ((sl2.start + sl2.length) < sl1.value.start) {
-		    sl1 = sl1iter.next();
-            if (sl1.done) {
+        sl1 = advance(sl1, sl1iter, (initial) => (((sl2.start + sl2.length) < sl1.value.start)),
+                                    (initial) => (initial.done));
+        if (sl1.done) {
 // There exists at least one event in slot2 which occurs after the end of all events in slot1
-                return false;
-            }
-        } 
+            return false;
+        }
         if (!contains(sl1.value, sl2)) {
             return false;
         }
@@ -250,19 +255,28 @@ function subset(slot1, slot2) {
 // If slot1 conflicts with slot2
 function conflicts(slot1, slot2) {
     const sl2iter = slot2.values();
-	let sl2 = sl2iter.next();
+    let sl2 = sl2iter.next();
     for (let sl1 of slot1) {
-        while ((sl2.value.start + sl2.value.length) < sl1.start) {
-			sl2 = sl2iter.next();
-            if (sl2.done) {
-                return false;
-            }
+        sl2 = advance(sl2, sl2iter, (initial) => (((sl2.value.start + sl2.value.length) < sl1.start)),
+                                    (initial) => (initial.done));
+        if (sl2.done) {
+            return false;
         }
         if (compare(sl1, sl2.value) !== 0) {
             return true;
         }
     }
     return false;
+}
+
+function mapEquals(map1, map2, func) {
+    for (let [key, val] of map1) {
+        let val2 = map2.get(key);
+        if (!(val2 && func(val, val2))) {
+            return false;
+        }
+    }
+    return true;
 }
 
 class EventImpl{
@@ -272,7 +286,7 @@ class EventImpl{
     }
     // Import User with table of events 
     importUser(user){
-		for (let evnt of user.events) {
+        for (let evnt of user.events) {
             this.importEvent(evnt);
         }
     }
@@ -332,9 +346,8 @@ class EventImpl{
      * behav can either be "all" or "any"
      * If behav is "any", apply returns true if at any time func returns true
      * If behav is "all", apply returns false if at any time func returns false
-     * If neither this nor other share any time slots, returns def
     */
-    apply(func, other, def, behav) {
+    apply(func, other, behav) {
         if (!(other instanceof EventImpl)) {
             return false;
         }
@@ -342,58 +355,39 @@ class EventImpl{
         const thiskeys = Array.from(this.timeslots.keys());
         const sharedkeys = thiskeys.filter( (key) => other.timeslots.has(key) );
         
-        if (sharedkeys.length === 0) {
-            return def;
-        }
-        
-        for (let key of sharedkeys) {
-            let val = func(this.timeslots.get(key), other.timeslots.get(key));
-            if (behav === "any") {
-                if (val) {
-                    return true;
-                }
-            } else if (behav === "all") {
-                if (!val) {
-                    return false;
-                }
-            }
-        }
-        
         if (behav === "any") {
-            return false;
+            return sharedkeys.some( (key) => {
+                return func(this.timeslots.get(key), other.timeslots.get(key));
+            });
         } else if (behav === "all") {
-            return true;
+            return sharedkeys.every( (key) => {
+                return func(this.timeslots.get(key), other.timeslots.get(key));
+            });
         }
     }
     
     // Check if EventImpl other is a subset of this
     attends(other){
-        return this.apply((thisSlot, otherSlot) => subset(thisSlot, otherSlot),
-                        other , true, "all");
+        return this.apply((thisSlot, otherSlot) => subset(thisSlot, otherSlot), other , "all");
     }
     // Equality operator
     equals(other){
-        if (!(other instanceof EventImpl) || (this.timeslots.length !== other.timeslots.length)){
+        if (!(other instanceof EventImpl)) {
             return false;
         }
-        for (let [key, val] of this.timeslots) {
-            const otherVal = other.timeslots.get(key);
-            if ((!otherVal) || (otherVal.length !== val.length)) {
-                return false;
-            } else {
-                return val.every((elem, idx) => {
-					let other = otherVal.slice(idx, idx+1)[0];
-                    return ((elem.start === other.start)
+        return mapEquals(this.timeslots, other.timeslots, (val1, val2) => {
+            return val1.every((elem, idx) => {
+                let other = val2.slice(idx, idx+1)[0];
+                return other && ((elem.start === other.start)
                     && (elem.length === other.length)
                     && (elem.id === other.id));
-                });
-            }
-        }
-        return true;
+            });
+        });
+        
     }
     // Check if other can be added to this
     conflicts(other){
-        return this.apply((thisSlot, otherSlot) => conflicts(thisSlot, otherSlot), other, false, "any");
+        return this.apply((thisSlot, otherSlot) => conflicts(thisSlot, otherSlot), other, "any");
     }
 }
 

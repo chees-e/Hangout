@@ -12,27 +12,31 @@ const data = require("./database.js");
  * 
 */
 module.exports.reset = async () => {
-    if ((data.setData("events", new Map())
-      || data.setData("users", new Map())
-      || data.setData("impls", new Map())
-      || data.setData("nextID", 1)
-      || data.setData("lastID", null)) !== 0) {
-        return -1;
-    } else {
-        return 0;
+    let initialState = new Map([
+        ["events", new Map()],
+        ["users", new Map()],
+        ["impls", new Map()],
+        ["nextID", 1],
+        ["lastID", null]
+    ]);
+    for (let [key, val] of initialState) {
+        if (data.setData(key, val) !== 0) {
+            return -1;
+        }
     }
+    return 0;
 };
 
 /* getEventImpl(_id)
  *  params:
  *   _id - string or null / undefined
  *  returns:
- *   null if event does not exist, the event otherwise
+ *   A null event if event does not exist, the event otherwise
  */
 function getEventImpl(_id) {
     const eventData = data.getData(`events/${_id}`);
     if ((!_id) || (!eventData)) {
-        return null;
+        return new eventlib.Event(null, null, null, null, null, null);
     } else {
         return new eventlib.Event(parseInt(eventData.id, 10), eventData.name,
                                   eventData.desc, new Date(eventData.start),
@@ -88,8 +92,7 @@ function getImpl(_id) {
  * If a valid event with the same id already exists, the scheduler is not modified
  */
 module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => {
-    const oldEvent = getEventImpl(_id);
-    if ((oldEvent) && (oldEvent.isValid())) {
+    if (getEventImpl(_id).isValid()) {
         return -1;
     } else {
         let id = _id;
@@ -205,7 +208,7 @@ module.exports.addEventToUser = async (_uid, _eid) => {
     const evnt = getEventImpl(_eid);
     const uimpl = getImpl(_uid);
     const eimpl = getImpl(_eid);
-    if (!(user && evnt && uimpl && eimpl)){
+    if (!(user && evnt.isValid())){
         return -2;
     } else if (uimpl.conflicts(eimpl)){
         return -1;

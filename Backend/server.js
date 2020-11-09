@@ -4,6 +4,7 @@ const express = require("express");
 const http = require("http");
 const app = express();
 const database = require("./scheduler.js");
+const eventlib = require("./eventlib.js");
 
 app.use(express.json());
  
@@ -19,12 +20,14 @@ app.get("/time", function(req, res) {
 app.post("/event/", function(req, res) {
     let rv = 0;
     let id = database.getNextID();
-    if (!req.query.name || !req.query.id || !req.query.desc || !req.query.start || !req.query.end
-        || (isNaN(parseInt(req.query.id, 10)) || !req.query.location)) {
+    let evnt = new eventlib.Event(parseInt(req.query.id, 10), req.query.name, req.query.desc,
+                                  new Date(req.query.start), new Date(req.query.end),
+                                  req.query.location);
+    if (!evnt.isValid()) {
         rv = database.addEvent(null, id, null, new Date(0), new Date(0), null);
     } else {
         id = parseInt(req.query.id, 10);
-        rv = database.addEvent(req.query.name, id, req.query.desc, new Date(req.query.start), new Date(req.query.end), req.query.location);
+        rv = database.addEvent(evnt.name, evnt.id, evnt.desc, evnt.start, evnt.end, evnt.location);
     }
     rv.then((code) => {
         if ((!code) || (code <= 0)) {

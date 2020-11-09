@@ -13,15 +13,16 @@ jest.mock("./database.js", () => {
     return {
         setData: (path, obj) => {
             let keys = path.split("/");
+            let firstVal = testData.get(keys[0]);
+            if (firstVal instanceof Map) {
             // Arbitrarily choose event 10 to fail
-            if ((keys[0] === "events") || (keys[0] === "users") || (keys[0] === "impls")){
                 if (path === "events/10") { 
                     return -1;
                 } else if (keys.length === 1) {
                     testData.set(keys[0], obj);
                     return 0;
                 } else {
-                    testData.get(keys[0]).set(keys[1], obj);
+                    firstVal.set(keys[1], obj);
                     return 0;
                 }
             } else {
@@ -31,16 +32,15 @@ jest.mock("./database.js", () => {
         },
         getData: (path) => {
             let keys = path.split("/");
+            let firstVal = testData.get(keys[0]);
+            if (firstVal instanceof Map) {
             // Arbitrarily choose event 10 to fail
-            if ((keys[0] === "events") || (keys[0] === "users") || (keys[0] === "impls")){
                 if (path === "events/10") { 
                     return null;
                 } else if (keys.length === 1) {
-                    return testData.get(keys[0]);
-                } else if (testData.get(keys[0]).has(keys[1])) {
-                    return testData.get(keys[0]).get(keys[1]);
+                    return firstVal;
                 } else {
-                    return null;
+                    return firstVal.get(keys[1]);
                 }
             } else {
                 return testData.get(keys[0]);
@@ -61,10 +61,10 @@ function assertArrEqual(ev1, ev2){
     expect(ev1.every((elem, idx) => {
         let other = ev2.slice(idx, idx+1)[0];
         if (elem instanceof eventlib.Event) {
-			return elem.equals(other);
-		} else {
-			return elem === other;
-		}
+            return elem.equals(other);
+        } else {
+            return elem === other;
+        }
     })).toBe(true);
 }
 

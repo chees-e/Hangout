@@ -3,27 +3,28 @@
 const eventlib = require("./eventlib.js");
 
 test("Testing Event.equals", () => {
-    var ev = new eventlib.Event(null, null, null, null, null, null);
-    var ev2 = new eventlib.Event(null, null, null, null, null, null);
+    let ev = new eventlib.Event(null, null, null, null, null, null);
+    let ev2 = new eventlib.Event(null, null, null, null, null, null);
+    let location = { "lat" : 0, "long" : 0 };
     expect(ev.equals(ev2)).toBe(false); // Invalid events
 
-    ev = new eventlib.Event(1, null, null, new Date(), new Date(), null);
-    ev2 = new eventlib.Event(ev.id, ev.name, ev.desc, ev.start, ev.end, null);
+    ev = new eventlib.Event(1, null, null, new Date(), new Date(), location);
+    ev2 = new eventlib.Event(ev.id, ev.name, ev.desc, ev.start, ev.end, location);
     expect(ev.equals(ev2)).toBe(true); // Copying fields
     
-    ev2 = new eventlib.Event(2, ev.name, ev.desc, ev.start, ev.end, null);
+    ev2 = new eventlib.Event(2, ev.name, ev.desc, ev.start, ev.end, location);
     expect(ev.equals(ev2)).toBe(false); // Different IDs
 
-    ev2 = new eventlib.Event(1, "test", ev.desc, ev.start, ev.end, null);
+    ev2 = new eventlib.Event(1, "test", ev.desc, ev.start, ev.end, location);
     expect(ev.equals(ev2)).toBe(true); // Different names should not influence equals
     
-    ev2 = new eventlib.Event(1, ev.name, "test", ev.start, ev.end, null);
+    ev2 = new eventlib.Event(1, ev.name, "test", ev.start, ev.end, location);
     expect(ev.equals(ev2)).toBe(true); // Different descriptions should not influence equals
 
-    ev2 = new eventlib.Event(1, ev.name, ev.desc, new Date(0), ev.end, null);
+    ev2 = new eventlib.Event(1, ev.name, ev.desc, new Date(0), ev.end, location);
     expect(ev.equals(ev2)).toBe(false); // Different starts
     
-    ev2 = new eventlib.Event(1, ev.name, ev.desc, ev.start, new Date(0), null);
+    ev2 = new eventlib.Event(1, ev.name, ev.desc, ev.start, new Date(0), location);
     expect(ev.equals(ev2)).toBe(false); // Different ends
 });
 

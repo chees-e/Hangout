@@ -1,6 +1,5 @@
 "use strict";
 const fs = require("fs");
-const data = JSON.parse(fs.readFileSync("./data/scheduler.json", "utf-8"), parseWithMap);
 const timeout = 60 * 1000; // Time between disk writes in milliseconds
 
 /* stringifyWithMap
@@ -33,23 +32,24 @@ function parseWithMap(key, value) {
 
 /* updateData(filename, input)
  *  params:
- *    _filename - string, filename to save to without extension
  *    input     - object, object to save to JSON
  *  returns:
  *    -1 if the write fails
  *    0  if the write succeeds
  */
-function updateData(filename, input) {
-    fs.writeFile(`./data/${filename}.json`, JSON.stringify(input, stringifyWithMap), (err) => {
+function updateData(input) {
+    fs.writeFile("./data/scheduler.json", JSON.stringify(input, stringifyWithMap), (err) => {
         if (err) {
             return -1;
         } else {
-			return 0;
-		}
+            return 0;
+        }
     });
     
     return 0;
 }
+
+const data = JSON.parse(fs.readFileSync("./data/scheduler.json", "utf-8"), parseWithMap);
 
 /* traverse(json, keys)
  *  params:
@@ -60,22 +60,18 @@ function updateData(filename, input) {
  *   all key1...keyn in keys, or null if it does not exist
  */
 function traverse(json, keys) {
-    if (keys.length <= 0) {
-        return json;
-    } else {
-        let node = json;
-        for (let key of keys) {
-            if ((node instanceof Map) && node.has(key)) {
-                node = node.get(key);
-            } else {
-                return null;
-            }
+    let node = json;
+    for (let key of keys) {
+        if ((node instanceof Map) && node.has(key)) {
+            node = node.get(key);
+        } else {
+            return null;
         }
-        return node;
     }
+    return node;
 }
 
-const interval = setInterval(updateData, timeout, "scheduler", data);
+const interval = setInterval(updateData, timeout, data);
 
 /* setData(path, obj)
  *  params:
