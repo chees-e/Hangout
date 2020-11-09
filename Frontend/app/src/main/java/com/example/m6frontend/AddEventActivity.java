@@ -18,13 +18,14 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-
+/* Server Import
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+ */
 import com.google.android.gms.common.api.Status;
 
 import com.google.android.libraries.places.api.Places;
@@ -66,6 +67,7 @@ public class AddEventActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
+
         Button addEventButton = findViewById(R.id.add_event_button);
 
         eventName = findViewById(R.id.editTextEvent);
@@ -103,90 +105,23 @@ public class AddEventActivity extends AppCompatActivity {
             }
         });
 
+
         // gets start date
-        startDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Calendar calendar = Calendar.getInstance();
-                int day = calendar.get(Calendar.DAY_OF_MONTH);
-                int month = calendar.get(Calendar.MONTH);
-                int year = calendar.get(Calendar.YEAR);
-
-                DatePickerDialog datePicker = new DatePickerDialog(AddEventActivity.this,
-                        new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                startDate.setText(year + "-" + (month + 1) + "-" + dayOfMonth);
-                            }
-                        }, year, month, day);
-                datePicker.show();
-
-            }
-        });
+        startDate.setOnClickListener(createDateListener(startDate));
 
         // gets start time
-        startTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Calendar calendar = Calendar.getInstance();
-                int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                int minute = calendar.get(Calendar.MINUTE);
-                TimePickerDialog timePicker = new TimePickerDialog(AddEventActivity.this,
-                        new TimePickerDialog.OnTimeSetListener() {
-                            @Override
-                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                                startTime.setText(hourOfDay + ":" + minute);
-                            }
-                        }, hour, minute, true);
-                timePicker.show();
-
-            }
-
-        });
+        startTime.setOnClickListener(createTimeListener(startTime));
 
         // gets end date
-        endDate.setOnClickListener( new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Calendar calendar = Calendar.getInstance();
-                int day = calendar.get(Calendar.DAY_OF_MONTH);
-                int month = calendar.get(Calendar.MONTH);
-                int year = calendar.get(Calendar.YEAR);
-
-                DatePickerDialog datePicker = new DatePickerDialog(AddEventActivity.this,
-                        new DatePickerDialog.OnDateSetListener() {
-                            @Override
-                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                                endDate.setText(year + "-" + (month + 1) + "-" + dayOfMonth);
-                            }
-                        }, year, month, day);
-                datePicker.show();
-
-            }
-        });
+        endDate.setOnClickListener(createDateListener(endDate));
 
         // gets end time
-        endTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Calendar calendar = Calendar.getInstance();
-                int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                int minute = calendar.get(Calendar.MINUTE);
-                TimePickerDialog timePicker = new TimePickerDialog(AddEventActivity.this,
-                        new TimePickerDialog.OnTimeSetListener() {
-                            @Override
-                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                                endTime.setText(hourOfDay + ":" + minute);
-                            }
-                        }, hour, minute, true);
-                timePicker.show();
-
-            }
-        });
+        endTime.setOnClickListener(createTimeListener(endTime));
 
 
         // TODO: connect to backend
         // TODO: error checking
+
         addEventButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -211,7 +146,7 @@ public class AddEventActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
+                /*
                 RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
                 String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event/";
                 
@@ -252,10 +187,55 @@ public class AddEventActivity extends AppCompatActivity {
                 });
                 requestQueue.add(jsonRequest);
                 requestQueue.start();
+                 */
                 finish();
             }
 
         });
+    }
+
+    private View.OnClickListener createDateListener(final EditText date) {
+
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Calendar calendar = Calendar.getInstance();
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
+                int month = calendar.get(Calendar.MONTH);
+                int year = calendar.get(Calendar.YEAR);
+
+                DatePickerDialog datePicker = new DatePickerDialog(AddEventActivity.this,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                                date.setText(year + "-" + (month + 1) + "-" + dayOfMonth);
+                            }
+                        }, year, month, day);
+                datePicker.show();
+
+            }
+
+        };
+    }
+
+    private View.OnClickListener createTimeListener(final EditText time) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Calendar calendar = Calendar.getInstance();
+                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                int minute = calendar.get(Calendar.MINUTE);
+                TimePickerDialog timePicker = new TimePickerDialog(AddEventActivity.this,
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                                time.setText(hourOfDay + ":" + minute);
+                            }
+                        }, hour, minute, true);
+                timePicker.show();
+
+            }
+        };
     }
 
     @Override

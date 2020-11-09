@@ -91,8 +91,10 @@ public class MainActivity extends AppCompatActivity {
                 //Add user to the user database
                 //The backend automatically checks for duplicate
                 RequestQueue queue = Volley.newRequestQueue(this);
-                String url ="http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/";
-                url.concat(account.getId());
+                StringBuilder urlBuilder = new StringBuilder();
+                urlBuilder.append("http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + account.getId());
+                String url = urlBuilder.toString();
+
                 StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
                         new Response.Listener<String>() {
                             @Override

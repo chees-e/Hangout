@@ -57,8 +57,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         if (holder instanceof FindEventViewHolder) {
             populateEvents((FindEventViewHolder) holder, position);
-        } else if (holder instanceof LoadingViewHolder) {
-            showLoadingView((LoadingViewHolder) holder, position);
         }
     }
 
@@ -117,9 +115,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-    private void showLoadingView(LoadingViewHolder holder, int position) {
-
-    }
     private void populateEvents(FindEventViewHolder holder, int position) {
         try {
             holder.eventName.setText(mDataSet.get(position).get("name").toString());
