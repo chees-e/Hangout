@@ -122,8 +122,11 @@ public class AddEventActivity extends AppCompatActivity {
         // TODO: connect to backend
         // TODO: error checking
 
-        addEventButton.setOnClickListener(new View.OnClickListener() {
+        addEventButton.setOnClickListener(createAddEventButton());
+    }
 
+    private View.OnClickListener createAddEventButton() {
+        return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -149,7 +152,7 @@ public class AddEventActivity extends AppCompatActivity {
                 /*
                 RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
                 String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/";
-                
+
                String jsonString = null;
                 try {
                      jsonString = new JSONObject()
@@ -190,9 +193,9 @@ public class AddEventActivity extends AppCompatActivity {
                  */
                 finish();
             }
-
-        });
+        };
     }
+
 
     private View.OnClickListener createDateListener(final EditText date) {
 

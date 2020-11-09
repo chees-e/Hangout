@@ -13,13 +13,12 @@ import java.util.List;
 
 //TODO: CONNECT WITH BACKEND GETUSER
 public class FriendsActivity extends AppCompatActivity {
-    private List<String> friendList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
-
+        List<String> friendList;
         RecyclerView rvFriends = (RecyclerView) findViewById(R.id.rvFriends);
 
         friendList = new ArrayList<>();

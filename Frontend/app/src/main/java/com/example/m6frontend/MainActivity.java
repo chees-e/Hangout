@@ -31,7 +31,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 // TODO: fix the visual issue when signing in
 // TODO: fix visual issue when pressing the back button
 public class MainActivity extends AppCompatActivity {
-    final static String TAG = "MainActivity";
+    private final static String TAG = "MainActivity";
     private GoogleSignInClient mGoogleSignInClient;
     private final int RC_SIGN_IN =1;
     private FirebaseAuth mAuth;

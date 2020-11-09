@@ -5,10 +5,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDialogFragment;
 
 public class ConfirmInterestDialog extends AppCompatDialogFragment {
+    private final String TAG = "ConfirmInterestDialog";
 
     @Override
     public Dialog onCreateDialog (Bundle savedInstanceState) {
@@ -18,13 +20,13 @@ public class ConfirmInterestDialog extends AppCompatDialogFragment {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // TODO: send info to backend
+                        Log.d(TAG, "Event interest confirmed");
                     }
                 })
                 .setNegativeButton("NO", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
+                        Log.d(TAG, "Event interest unconfirmed");
                     }
                 });
 

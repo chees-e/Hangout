@@ -26,7 +26,7 @@ import com.google.firebase.iid.InstanceIdResult;
 // TODO: add user settings
 // TODO: add permission checks
 public class Profile extends AppCompatActivity {
-    final static String TAG = "Profile";
+    private final static String TAG = "Profile";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

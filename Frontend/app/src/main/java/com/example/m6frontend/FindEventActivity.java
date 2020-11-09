@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class FindEventActivity extends AppCompatActivity {
 
-    String TAG = "FindEventActivity";
+    private final String TAG = "FindEventActivity";
     // private final String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
     // RequestQueue queue;
     private int numEvents;
@@ -28,7 +28,7 @@ public class FindEventActivity extends AppCompatActivity {
     private RecyclerViewAdapter recyclerViewAdapter;
     private ArrayList<JSONObject> dataSet;
     private GoogleSignInAccount currentAccount;
-    boolean isLoading = false;
+    private boolean isLoading = false;
     private final int numLoad = 10;
     private final int maxEvents = 30;
 
@@ -69,11 +69,11 @@ public class FindEventActivity extends AppCompatActivity {
                 LinearLayoutManager linearLayoutManager = (LinearLayoutManager)
                         recyclerView.getLayoutManager();
 
-                if (!isLoading) {
-                    if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == dataSet.size() - 1) {
-                        loadMoreEvents();
-                        isLoading = true;
-                    }
+
+                if (!isLoading && linearLayoutManager != null
+                        && linearLayoutManager.findLastCompletelyVisibleItemPosition() == dataSet.size() - 1) {
+                    loadMoreEvents();
+                    isLoading = true;
                 }
 
             }

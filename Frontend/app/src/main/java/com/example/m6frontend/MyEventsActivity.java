@@ -25,19 +25,13 @@ import java.util.List;
 
 public class MyEventsActivity extends AppCompatActivity {
     private String TAG = "MyEventsActivity";
-    List<String> myList;
+    private List<String> myList;
     String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event";
-    RequestQueue queue;
+    private RequestQueue queue;
     //EventsAdapter adapter;
-    RecyclerView rvEvents;
+    private RecyclerView rvEvents;
 
     private String eventName = "";
-    private String id = "";
-    private String description = "";
-    private String start = "";
-    private String end = "";
-
-    private FloatingActionButton addEventButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +40,7 @@ public class MyEventsActivity extends AppCompatActivity {
 
         myList = new ArrayList<String>();
         queue = Volley.newRequestQueue(this);
-
+        FloatingActionButton addEventButton;
         addEvents();
         Log.d(TAG, Integer.toString(myList.size()));
 
@@ -102,16 +96,17 @@ public class MyEventsActivity extends AppCompatActivity {
 
     private void addEvents() {
         // Server code
+
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
                             eventName = response.getString("name");
-                            id = response.getString("id");
-                            description = response.getString("desc");
-                            start = response.getString("start");
-                            end = response.getString("end");
+                            String id = response.getString("id");
+                            String description = response.getString("desc");
+                            String start = response.getString("start");
+                            String end = response.getString("end");
 
                             myList.add(getString(R.string.event_name) + eventName);
                             //myList.add(id);
