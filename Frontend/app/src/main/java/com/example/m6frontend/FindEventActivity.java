@@ -5,48 +5,32 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.AbsListView;
-import android.widget.ExpandableListView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.gson.JsonObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 
 public class FindEventActivity extends AppCompatActivity {
 
     String TAG = "FindEventActivity";
-    String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
-    RequestQueue queue;
+    // private final String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
+    // RequestQueue queue;
     private int numEvents;
-    RecyclerView recyclerView;
-    RecyclerViewAdapter recyclerViewAdapter;
-    ArrayList<JSONObject> dataSet;
-    GoogleSignInAccount currentAccount;
+    private RecyclerView recyclerView;
+    private RecyclerViewAdapter recyclerViewAdapter;
+    private ArrayList<JSONObject> dataSet;
+    private GoogleSignInAccount currentAccount;
     boolean isLoading = false;
     private final int numLoad = 10;
     private final int maxEvents = 30;
-    private final int startEvents = 10;
 
 
     @Override
@@ -57,6 +41,7 @@ public class FindEventActivity extends AppCompatActivity {
         numEvents = 0;
         currentAccount = GoogleSignIn.getLastSignedInAccount(this);
 
+        int startEvents = 10;
         dataSet = initEventData(startEvents);
 
 
@@ -65,7 +50,7 @@ public class FindEventActivity extends AppCompatActivity {
     }
 
     private void initAdapter() {
-        recyclerViewAdapter = new RecyclerViewAdapter(dataSet, this);;
+        recyclerViewAdapter = new RecyclerViewAdapter(dataSet, this);
         recyclerView.setAdapter(recyclerViewAdapter);
 
     }

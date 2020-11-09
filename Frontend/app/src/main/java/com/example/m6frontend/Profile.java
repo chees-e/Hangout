@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;

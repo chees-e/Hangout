@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">M6Frontend</string>
-    <string name="empty"></string>
+    <string name="empty"> </string>
     <string name="add_event_caption">Event Name</string>
     <string name="location_caption">Location</string>
     <string name="description_caption">Event Description</string>
@@ -17,6 +17,7 @@
     <string name="event_name">Event: </string>
     <string name="event_owner_picture">eventOwnerPicture </string>
     <string name="eventInterestButton">eventInterestButton</string>
+
 
     <string-array name="event_name">
         <item>ID: </item>
