@@ -6,14 +6,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+// import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
 
 //TODO: CONNECT WITH BACKEND GETUSER
 public class FriendsActivity extends AppCompatActivity {
-    List<String> friendList;
+    private List<String> friendList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +32,7 @@ public class FriendsActivity extends AppCompatActivity {
         rvFriends.setAdapter(adapter);
         rvFriends.setLayoutManager(new LinearLayoutManager(this));
 
-        FloatingActionButton addFriendButton = findViewById(R.id.fab2);
+        // FloatingActionButton addFriendButton = findViewById(R.id.fab2);
         //TODO: ADD FRIEND
     }
 }
