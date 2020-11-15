@@ -391,11 +391,11 @@ class EventImpl{
     }
     // Serialization for MongoDB
     serialize(){
-		return {
-			id: this.id,
-			timeslots: Array.from(this.timeslots.entries())
-		};
-	}
+        return {
+            id: this.id,
+            timeslots: Array.from(this.timeslots.entries())
+        };
+    }
 }
 
 module.exports = { Event, User, EventImpl };

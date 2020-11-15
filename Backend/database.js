@@ -24,8 +24,8 @@ module.exports.setData = async (path, obj) => {
     let query = {};
     let update = {};
     if (obj instanceof eventlib.EventImpl) {
-		obj = obj.serialize();
-	}
+        obj = obj.serialize();
+    }
     if (keys.length <= 0) {
         return -1;
     } else if (keys.length === 1) {
@@ -79,6 +79,6 @@ module.exports.getKeys = async (collection) => {
  *   true if the key exists, false otherwise
 */
 module.exports.hasKey = async (path) => {
-	let dat = await module.exports.getData(path);
+    let dat = await module.exports.getData(path);
     return (dat !== null);
 };

@@ -184,7 +184,7 @@ module.exports.getAllEvents = async () => {
  *  returns: negative value on failure and _id on success
 */
 module.exports.addUser = async (_id) => {
-	let has = await data.hasKey(`users/${_id}`);
+    let has = await data.hasKey(`users/${_id}`);
     if (has) {
         return -1;
     } else {

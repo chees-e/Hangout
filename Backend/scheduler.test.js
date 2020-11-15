@@ -16,14 +16,14 @@ jest.mock("./database.js", () => {
     ]);
     return {
         setData: async (path, obj) => {
-			const serialize = (obj) => {
-				if (obj instanceof require("./eventlib.js").EventImpl) {
-					return obj.serialize();
-				} else {
-					return obj;
-				}
-			};
-			obj = serialize(obj);
+            const serialize = (obj) => {
+                if (obj instanceof require("./eventlib.js").EventImpl) {
+                    return obj.serialize();
+                } else {
+                    return obj;
+                }
+            };
+            obj = serialize(obj);
             let keys = path.split("/");
             let firstVal = testData.get(keys[0]);
             if (firstVal instanceof Map) {
@@ -59,21 +59,21 @@ jest.mock("./database.js", () => {
             }
         },
         getKeys: async (path) => {
-			let firstVal = testData.get(path);
-			if (firstVal instanceof Map) {
-				return Array.from(firstVal.keys());
-			} else {
-				return [];
-			}
-		},
+            let firstVal = testData.get(path);
+            if (firstVal instanceof Map) {
+                return Array.from(firstVal.keys());
+            } else {
+                return [];
+            }
+        },
         hasKey: async (path) => {
-			let keys = path.split("/");
-			let firstVal = testData.get(keys[0]);
-			if (firstVal instanceof Map) {
-				return firstVal.has(keys[1]);
-			} else {
-				return testData.has(keys[0]);
-			}
+            let keys = path.split("/");
+            let firstVal = testData.get(keys[0]);
+            if (firstVal instanceof Map) {
+                return firstVal.has(keys[1]);
+            } else {
+                return testData.has(keys[0]);
+            }
         }
     };
 });
@@ -98,16 +98,16 @@ test("Testing addEvent", async () => {
     // Restore scheduler to known state
     expect(await scheduler.reset()).toBe(0);
 
-	let evid = await scheduler.getNextID();
+    let evid = await scheduler.getNextID();
     const ev = new eventlib.Event(evid, "Test", "TestDesc", start1, end1, location);
 
     // Default event: scheduler.getEvent() with no events must not error
-	expect(await scheduler.getEvent()).toBe(null);
+    expect(await scheduler.getEvent()).toBe(null);
 
-	expect(await scheduler.addEvent("Test", evid, "TestDesc", start1, end1, location))
-		.toBe(evid);
+    expect(await scheduler.addEvent("Test", evid, "TestDesc", start1, end1, location))
+        .toBe(evid);
 
-	let newID = await scheduler.getNextID();
+    let newID = await scheduler.getNextID();
     assert(evid !== newID);
 
     // getEvent must return the last added event
