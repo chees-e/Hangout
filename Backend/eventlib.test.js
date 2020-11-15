@@ -28,7 +28,7 @@ test("Testing Event.equals", () => {
     expect(ev.equals(ev2)).toBe(false); // Different ends
 });
 
-test("Testing EventImpl", () => {
+test("Testing EventImpl equals", () => {
     const start1 = new Date(2020, 10, 24, 10, 45);
     const end1 = new Date(2020, 10, 24, 13, 50);
 
@@ -40,25 +40,52 @@ test("Testing EventImpl", () => {
     const ev3 = new eventlib.Event(3, null, null, start2, end2, null);
     
     // Identical events
-    var evImpl = new eventlib.EventImpl(0);
-    var evImpl2 = new eventlib.EventImpl(0);
-    var evImpl3 = new eventlib.EventImpl(0);
+    const evImpl = new eventlib.EventImpl(0);
+    let evImpl2 = new eventlib.EventImpl(0);
     
     evImpl.importEvent(ev);
     evImpl2.importEvent(ev);
     
     expect(evImpl.equals(evImpl2)).toBe(true);
-    expect(evImpl.attends(evImpl2)).toBe(true);
-
-    // Non-conflicting events
-    evImpl3.importEvent(ev3);
-    expect(evImpl.conflicts(evImpl3)).toBe(false);
     
     // Different IDs
     evImpl2 = new eventlib.EventImpl(0);
     evImpl2.importEvent(ev2);
     
     expect(evImpl.equals(evImpl2)).toBe(false);
+    
+    // evImpl is a subset of evImpl2
+    evImpl2 = new eventlib.EventImpl(0);
+    evImpl2.importEvent(ev);
+    evImpl2.importEvent(ev3);
+    
+    expect(evImpl2.equals(evImpl)).toBe(false);
+});
+
+test("Testing EventImpl attends", () => {
+    const start1 = new Date(2020, 10, 24, 10, 45);
+    const end1 = new Date(2020, 10, 24, 13, 50);
+
+    const start2 = new Date(2020, 10, 24, 15, 20);
+    const end2 = new Date(2020, 10, 24, 16, 30);
+    
+    const ev = new eventlib.Event(1, null, null, start1, end1, null);
+    const ev2 = new eventlib.Event(2, null, null, start1, end1, null);
+    const ev3 = new eventlib.Event(3, null, null, start2, end2, null);
+    
+    // Identical eventimpls
+    const evImpl = new eventlib.EventImpl(0);
+    let evImpl2 = new eventlib.EventImpl(0);
+
+    evImpl.importEvent(ev);
+    evImpl2.importEvent(ev);
+    
+    expect(evImpl.attends(evImpl2)).toBe(true);
+
+    // Different event IDs
+    evImpl2 = new eventlib.EventImpl(0);
+    evImpl2.importEvent(ev2);
+    
     expect(evImpl.attends(evImpl2)).toBe(false);
     
     // evImpl is a subset of evImpl2
@@ -67,6 +94,31 @@ test("Testing EventImpl", () => {
     evImpl2.importEvent(ev3);
     
     expect(evImpl2.attends(evImpl)).toBe(true);
-    expect(evImpl2.equals(evImpl)).toBe(false);
+});
+
+test("Testing EventImpl conflicts", () => {
+    const start1 = new Date(2020, 10, 24, 10, 45);
+    const end1 = new Date(2020, 10, 24, 13, 50);
+
+    const start2 = new Date(2020, 10, 24, 15, 20);
+    const end2 = new Date(2020, 10, 24, 16, 30);
+    
+    const ev = new eventlib.Event(1, null, null, start1, end1, null);
+    const ev2 = new eventlib.Event(2, null, null, start2, end2, null);
+    
+    // Identical events
+    const evImpl = new eventlib.EventImpl(0);
+    const evImpl2 = new eventlib.EventImpl(0);
+    const evImpl3 = new eventlib.EventImpl(0);
+    
+    evImpl.importEvent(ev);
+    evImpl2.importEvent(ev);
+    evImpl2.importEvent(ev2);
+    evImpl3.importEvent(ev2);
+    
+    // Non-conflicting events
+    expect(evImpl.conflicts(evImpl3)).toBe(false);
+        
+    // evImpl is a subset of evImpl2
     expect(evImpl2.conflicts(evImpl3)).toBe(true);
 });
