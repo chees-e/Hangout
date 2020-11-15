@@ -3,6 +3,7 @@ const { MongoClient } = require("mongodb");
 const uri = "mongodb://127.0.0.1:27017/";
 const client = new MongoClient(uri);
 const dbname = "Hangout";
+const eventlib = require("./eventlib.js");
 var db = null;
 
 module.exports.init = async () => {
@@ -22,6 +23,9 @@ module.exports.setData = async (path, obj) => {
     let collection = null;
     let query = {};
     let update = {};
+    if (obj instanceof eventlib.EventImpl) {
+		obj = obj.serialize();
+	}
     if (keys.length <= 0) {
         return -1;
     } else if (keys.length === 1) {
@@ -74,8 +78,7 @@ module.exports.getKeys = async (collection) => {
  *  returns:
  *   true if the key exists, false otherwise
 */
-module.exports.hasKey = (path) => {
-    return module.exports.getData(path).then((dat) => {
-        return (dat !== null);
-    });
+module.exports.hasKey = async (path) => {
+	let dat = await module.exports.getData(path);
+    return (dat !== null);
 };

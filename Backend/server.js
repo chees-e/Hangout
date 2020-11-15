@@ -18,9 +18,9 @@ app.get("/time", function(req, res) {
     res.send(curr.toString());
 });
 
-app.post("/event/", function(req, res) {
+app.post("/event/", async function(req, res) {
     let rv = 0;
-    let id = sched.getNextID();
+    let id = await sched.getNextID();
     let evnt = new eventlib.Event(parseInt(req.query.id, 10), req.query.name, req.query.desc,
                                   new Date(req.query.start), new Date(req.query.end),
                                   req.query.location);

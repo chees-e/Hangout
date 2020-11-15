@@ -389,6 +389,13 @@ class EventImpl{
     conflicts(other){
         return this.apply((thisSlot, otherSlot) => conflicts(thisSlot, otherSlot), other, "any");
     }
+    // Serialization for MongoDB
+    serialize(){
+		return {
+			id: this.id,
+			timeslots: Array.from(this.timeslots.entries())
+		};
+	}
 }
 
 module.exports = { Event, User, EventImpl };

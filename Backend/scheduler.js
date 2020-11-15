@@ -20,7 +20,7 @@ module.exports.reset = async () => {
         ["lastID", null]
     ]);
     for (let [key, val] of initialState) {
-        if (data.setData(key, val) !== 0) {
+        if (await data.setData(key, val) !== 0) {
             return -1;
         }
     }
@@ -74,7 +74,7 @@ async function getImpl(_id) {
         return null;
     } else {
         let impl = new eventlib.EventImpl(implData.id);
-        impl.timeslots = implData.timeslots;
+        impl.timeslots = new Map(implData.timeslots);
         return impl;
     }
 }
@@ -99,7 +99,7 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => 
     } else {
         let id = _id;
         if (!_id) {
-            id = module.exports.getNextID();
+            id = await module.exports.getNextID();
         }
         
         let newEvent = new eventlib.Event(id, _name, _desc, _start, _end, _location);
@@ -108,9 +108,10 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => 
 
         if (await data.setData(`events/${id}`, newEvent) === 0) {
             await data.setData("lastID", id);
-            let tmp = Math.max(data.getData("nextID") - 1, id) + 1;
+            let nextID = await data.getData("nextID");
+            let tmp = Math.max(nextID - 1, id) + 1;
             await data.setData("nextID", tmp);
-//            await data.setData(`impls/${id}`, newImpl);
+            await data.setData(`impls/${id}`, newImpl);
             return id;
         } else {
             return -1;
@@ -123,10 +124,10 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => 
  *  returns: a negative value on failure and 0 on success
  */
 module.exports.deleteEvent = async (_id) => {
-    const eventmap = data.getData("events");
+    const eventmap = await data.getData("events");
     if (eventmap.has(_id)) {
         eventmap.delete(_id);
-        return data.setData("events", eventmap);
+        return await data.setData("events", eventmap);
     } else {
         return -1;
     }
@@ -135,8 +136,8 @@ module.exports.deleteEvent = async (_id) => {
 /* getNextID()
 *   returns: An ID which is guaranteed to be available.
 */
-module.exports.getNextID = () => {
-    const id = data.getData("nextID");
+module.exports.getNextID = async () => {
+    const id = await data.getData("nextID");
     if (!id){
         return 1;
     } else {
@@ -154,10 +155,10 @@ module.exports.getEvent = async (id) => {
         if (!data.lastID) {
             return null;
         } else {
-            return getEventImpl(data.lastID);
+            return await getEventImpl(data.lastID);
         }
     } else {
-        return getEventImpl(id);
+        return await getEventImpl(id);
     }
 };
 
@@ -169,8 +170,8 @@ module.exports.getEvent = async (id) => {
 module.exports.getAllEvents = async () => {
     var evts = new Array();
     const eventmap = await data.getKeys("events");
-    for (const _ of eventmap) {
-        const value = await getEventImpl(_.id);
+    for (const id of eventmap) {
+        const value = await getEventImpl(id);
         if (value.isValid()) {
             evts.push(value);
         }
@@ -183,11 +184,12 @@ module.exports.getAllEvents = async () => {
  *  returns: negative value on failure and _id on success
 */
 module.exports.addUser = async (_id) => {
-    if (data.hasKey(`users/${_id}`)) {
+	let has = await data.hasKey(`users/${_id}`);
+    if (has) {
         return -1;
     } else {
-        data.setData(`users/${_id}`, new eventlib.User(_id));
-        data.setData(`impls/${_id}`, new eventlib.EventImpl(_id));
+        await data.setData(`users/${_id}`, new eventlib.User(_id));
+        await data.setData(`impls/${_id}`, new eventlib.EventImpl(_id));
         
         return _id;
     }
@@ -201,10 +203,10 @@ module.exports.addUser = async (_id) => {
  *   negative value on failure and 0 on success
 */
 module.exports.addEventToUser = async (_uid, _eid) => {
-    const user = getUserImpl(_uid);
-    const evnt = getEventImpl(_eid);
-    const uimpl = getImpl(_uid);
-    const eimpl = getImpl(_eid);
+    const user = await getUserImpl(_uid);
+    const evnt = await getEventImpl(_eid);
+    const uimpl = await getImpl(_uid);
+    const eimpl = await getImpl(_eid);
     if (!(user && evnt.isValid())){
         return -2;
     } else if (uimpl.conflicts(eimpl)){
