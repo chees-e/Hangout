@@ -124,13 +124,7 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => 
  *  returns: a negative value on failure and 0 on success
  */
 module.exports.deleteEvent = async (_id) => {
-    const eventmap = await data.getData("events");
-    if (eventmap.has(_id)) {
-        eventmap.delete(_id);
-        return await data.setData("events", eventmap);
-    } else {
-        return -1;
-    }
+    return await data.deleteKey(`events/${_id}`);
 };
 
 /* getNextID()
@@ -170,8 +164,8 @@ module.exports.getEvent = async (id) => {
 module.exports.getAllEvents = async () => {
     var evts = new Array();
     const eventmap = await data.getKeys("events");
-    for (const id of eventmap) {
-        const value = await getEventImpl(id);
+    for (const _ of eventmap) {
+        const value = await getEventImpl(_.id);
         if (value.isValid()) {
             evts.push(value);
         }

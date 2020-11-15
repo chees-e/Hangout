@@ -61,7 +61,11 @@ jest.mock("./database.js", () => {
         getKeys: async (path) => {
             let firstVal = testData.get(path);
             if (firstVal instanceof Map) {
-                return Array.from(firstVal.keys());
+				let ret = [];
+				for (let _ of firstVal.keys()) {
+					ret.push({ id : _ });
+				}
+                return ret;
             } else {
                 return [];
             }

@@ -69,9 +69,17 @@ module.exports.getData = async (path) => {
     }
 };
 
+/* getKeys(collection)
+ *  params:
+ *   collection - string, collection in database.
+ *  returns:
+ *   Array of keys in the collection.
+ *  Available collections are events, users, and impls
+*/
 module.exports.getKeys = async (collection) => {
     return await db.collection(collection).find().project({"id" : 1}).toArray();
 };
+
 /* hasKey(path)
  *  params:
  *   path - string containing array of keys, separated by /
@@ -79,6 +87,33 @@ module.exports.getKeys = async (collection) => {
  *   true if the key exists, false otherwise
 */
 module.exports.hasKey = async (path) => {
-    let dat = await module.exports.getData(path);
-    return (dat !== null);
+	let keys = path.split("/");
+	if (keys.length < 1) {
+		return false;
+	} else if (keys.length === 1) {
+		let dat = await module.exports.getData(keys[0]);
+		return (dat !== null);
+	} else {
+		let dat = await module.exports.getKeys(keys[0]);
+		return dat.some((_) => (_.id === keys[1]));
+	}
+};
+
+/* deleteKey(path)
+ *  params:
+ *   path - string representing element to be deleted, of the form
+ *          "collection/key", where collection is one of:
+ *          "events", "users", and "impls"
+ *  returns:
+ *   0 on success, -1 if the key does not exist, -2 if the arguments are bad
+*/
+module.exports.deleteKey = async (path) => {
+	let keys = path.split("/");
+	if (keys.length !== 2) {
+		return -2;
+	} else if (await module.exports.hasKey(path)){
+		return (await db.collection(keys[0]).deleteOne({ id : keys[1] })) === 1;
+	} else {
+		return -1;
+	}
 };
