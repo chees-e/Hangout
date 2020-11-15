@@ -2,6 +2,10 @@
 
 jest.unmock("./eventlib.js");
 
+const eventlib = require("./eventlib.js");
+const scheduler = require("./scheduler.js");
+const assert = require("assert");
+
 jest.mock("./database.js", () => {
     let testData = new Map([
         ["events", new Map()],
@@ -11,7 +15,15 @@ jest.mock("./database.js", () => {
         ["lastID", null]
     ]);
     return {
-        setData: (path, obj) => {
+        setData: async (path, obj) => {
+			const serialize = (obj) => {
+				if (obj instanceof require("./eventlib.js").EventImpl) {
+					return obj.serialize();
+				} else {
+					return obj;
+				}
+			};
+			obj = serialize(obj);
             let keys = path.split("/");
             let firstVal = testData.get(keys[0]);
             if (firstVal instanceof Map) {
@@ -30,7 +42,7 @@ jest.mock("./database.js", () => {
                 return 0;
             }
         },
-        getData: (path) => {
+        getData: async (path) => {
             let keys = path.split("/");
             let firstVal = testData.get(keys[0]);
             if (firstVal instanceof Map) {
@@ -46,15 +58,25 @@ jest.mock("./database.js", () => {
                 return testData.get(keys[0]);
             }
         },
-        hasKey: () => {
-            return false;
+        getKeys: async (path) => {
+			let firstVal = testData.get(path);
+			if (firstVal instanceof Map) {
+				return Array.from(firstVal.keys());
+			} else {
+				return [];
+			}
+		},
+        hasKey: async (path) => {
+			let keys = path.split("/");
+			let firstVal = testData.get(keys[0]);
+			if (firstVal instanceof Map) {
+				return firstVal.has(keys[1]);
+			} else {
+				return testData.has(keys[0]);
+			}
         }
     };
 });
-
-const eventlib = require("./eventlib.js");
-const scheduler = require("./scheduler.js");
-const assert = require("assert");
 
 function assertArrEqual(ev1, ev2){
     expect(ev1.length).toBe(ev2.length);
@@ -68,81 +90,65 @@ function assertArrEqual(ev1, ev2){
     })).toBe(true);
 }
 
-test("Testing addEvent", () => {
+test("Testing addEvent", async () => {
     const start1 = new Date(2020, 10, 24, 10, 45);
     const end1 = new Date(2020, 10, 24, 13, 50);
     const location = {"lat":0, "long":0};
 
     // Restore scheduler to known state
-    scheduler.reset().then((code) => {
-        expect(code).toBe(0);
-    });
+    expect(await scheduler.reset()).toBe(0);
 
-    const evid = scheduler.getNextID();
+	let evid = await scheduler.getNextID();
     const ev = new eventlib.Event(evid, "Test", "TestDesc", start1, end1, location);
 
     // Default event: scheduler.getEvent() with no events must not error
-    scheduler.getEvent().then((evnt) => {
-        expect(evnt).toBe(null);
-    });
+	expect(await scheduler.getEvent()).toBe(null);
 
-    scheduler.addEvent("Test", evid, "TestDesc", start1, end1, location).then((code) => {
-        expect(code).toBe(evid);
-    });
+	expect(await scheduler.addEvent("Test", evid, "TestDesc", start1, end1, location))
+		.toBe(evid);
 
-    const newID = scheduler.getNextID();
+	let newID = await scheduler.getNextID();
     assert(evid !== newID);
 
     // getEvent must return the last added event
-    scheduler.getEvent(evid).then((evnt) => {
-        expect(evnt instanceof eventlib.Event).toBe(true);
-        expect(evnt.equals(ev)).toBe(true);
-    });
+    let evnt = await scheduler.getEvent(evid);
+    expect(evnt instanceof eventlib.Event).toBe(true);
+    expect(evnt.equals(ev)).toBe(true);
     
-    scheduler.addUser(newID);
-    let events3 = scheduler.getAllEvents();
-    assertArrEqual(events3, [ev]);  // Adding users must not add events
+    await scheduler.addUser(newID);
+    let events3 = await scheduler.getAllEvents();
+    assertArrEqual(events3, [ev]);  // Adding users must not add events*/
 });
 
-test("Testing AddEventToUser", () => {
+test("Testing AddEventToUser", async () => {
 
     const start1 = new Date(2020, 10, 24, 10, 45);
     const end1 = new Date(2020, 10, 24, 13, 50);
     const start2 = new Date(2020, 10, 24, 15, 20);
     const end2 = new Date(2020, 10, 24, 16, 30);
-    const EID = scheduler.getNextID();
     const UID = "test UID";
     const location = {"lat":0, "long":0};
 
     // Restore scheduler to known state
-    scheduler.reset().then((code) => {
-        expect(code).toBe(0);
-    });
+    expect(await scheduler.reset()).toBe(0);
 
+    const EID = await scheduler.getNextID();
     const ev = new eventlib.Event(EID, null, null, start1, end1, location);
-    const EID2 = scheduler.getNextID();
+    expect(await scheduler.addEvent(EID, null, null, start1, end1, location)).toBe(EID);
+
+    const EID2 = await scheduler.getNextID();
     expect(EID !== EID2).toBe(true);
-    const ev2 = new eventlib.Event(EID2, null, null, start2, end2, location);
+    const ev2 = new eventlib.Event(EID2, null, null, start2, end2, location);    
+    expect(await scheduler.addEvent(EID2, null, null, start2, end2, location)).toBe(EID2);
+
+    await scheduler.addUser(UID);
     
-    scheduler.addEvent(EID, null, null, start1, end1, location);
-    scheduler.addEvent(EID2, null, null, start2, end2, location);
-    scheduler.addUser(UID);
-    
-    scheduler.addEventToUser(UID, EID).then((code) => {
-        expect(code).toBe(0);
-    });
-    scheduler.addEventToUser(UID, EID).then((code) => {
-        expect(code).toBe(-1);
-    });
-    scheduler.addEventToUser(UID, -1).then((code) => {
-        expect(code).toBe(-2);
-    });
-    scheduler.addEventToUser(UID, EID2).then((code) => {
-        expect(code).toBe(0);
-    });
-    scheduler.getUser(UID).then((user) => {
-        expect(user.events.length).toBe(2);
-        expect(user.events[0]).toBe(EID);
-        expect(user.events[1]).toBe(EID2);
-    });
+    expect(await scheduler.addEventToUser(UID, EID)).toBe(0);
+    expect(await scheduler.addEventToUser(UID, EID)).toBe(-1);
+    expect(await scheduler.addEventToUser(UID, -1)).toBe(-2);
+    expect(await scheduler.addEventToUser(UID, EID2)).toBe(0);
+    let user = await scheduler.getUser(UID);
+    expect(user.events.length).toBe(2);
+    expect(user.events[0].toString()).toBe(EID.toString());
+    expect(user.events[1].toString()).toBe(EID2.toString());
 });
