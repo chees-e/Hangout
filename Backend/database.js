@@ -9,7 +9,6 @@ var db = null;
 module.exports.init = async () => {
     await client.connect();
     db = await client.db(dbname);
-	console.log("Database initialized");
 };
 
 /* setData(path, obj)

@@ -1,18 +1,12 @@
 "use strict";
 
-jest.unmock("./eventlib.js");
-
-const eventlib = require("./eventlib.js");
-const scheduler = require("./scheduler.js");
-const assert = require("assert");
-
 jest.mock("./database.js", () => {
     let testData = new Map([
         ["events", new Map()],
         ["users", new Map()],
         ["impls", new Map()],
-        ["nextID", 1],
-        ["lastID", null]
+        ["nextID", { value : 1 } ],
+        ["lastID", { value : null} ]
     ]);
     const datafn = jest
         .fn()
@@ -32,7 +26,7 @@ jest.mock("./database.js", () => {
                     return 0;
                 }
             } else {
-                testData.set(keys[0], obj);
+                testData.set(keys[0], { value : obj });
                 return 0;
             }
         });
@@ -100,11 +94,82 @@ jest.mock("./database.js", () => {
     };
 });
 
+jest.mock("./eventlib.js", () => {
+    let userEvents = [];
+    let userFriends = [];
+    return {
+        Event : function (_id) {
+            let attendees = [];
+            return {
+                id : _id,
+                attendees : attendees,
+                isValid: () => (_id !== null),
+                equals: (other) => (other.id === _id),
+                calculateScore : (user) => {
+                    const FRIEND_WEIGHT = 20;
+                    const ATTENDEE_WEIGHT = 1;
+                    if (attendees.includes(user)) {
+                        return -1;
+                    }
+                    let score = 0;
+                    for (let otherUser of this.attendees) {
+                        if (user.isFriend(otherUser)) {
+                            score += FRIEND_WEIGHT;
+                        } else {
+                            score += ATTENDEE_WEIGHT;
+                        }
+                    }
+                    return score;
+                }
+            };
+        },
+        User : function (_id) {
+            return {
+                id : _id,
+                events : userEvents,
+                friends : userFriends,
+                addEvent : (event) => {
+                    if (userEvents.includes(event.id)) {
+                        return false;
+                    } else {
+                        userEvents.push(event.id);
+                        return true;
+                    }
+                },
+                addFriend : (_id) => {
+                    if (userFriends.includes(_id)) {
+                        return false;
+                    } else {
+                        userFriends.push(_id);
+                        return true;
+                    }
+                },
+                getEvents : () => (userEvents.slice()),
+                getFriends : () => (userFriends.slice()),
+                isFriend : (_id) => (userFriends.includes(_id))
+            };
+        },
+        EventImpl : function (_id) {
+            return {
+                id : _id,
+                importEvent : (event) => (true),
+                equals : (other) => (other.id === _id),
+                conflicts : (other) => (other.id >= _id)
+            };
+        }
+    };
+});
+
+const eventlib = require("./eventlib.js");
+const scheduler = require("./scheduler.js");
+const assert = require("assert");
+
+
 function assertArrEqual(ev1, ev2){
     expect(ev1.length).toBe(ev2.length);
     expect(ev1.every((elem, idx) => {
         let other = ev2.slice(idx, idx+1)[0];
-        if (elem instanceof eventlib.Event) {
+        if (elem.hasOwnProperty("equals")) {
             return elem.equals(other);
         } else {
             return elem === other;
@@ -128,7 +193,8 @@ test("Testing addEvent", async () => {
     const invalidEvent = new eventlib.Event(null, null, null, null, null, null);
 
     // Default event: scheduler.getEvent() with no events must not error
-    expect(await scheduler.getEvent()).toBe(null);
+    const defEvent = await scheduler.getEvent();
+    expect(defEvent.equals(invalidEvent)).toBe(true);
 
     // Add a valid event
     expect(await scheduler.addEvent("Test", evid, "TestDesc", start1, end1, location)).toBe(evid);
@@ -148,7 +214,6 @@ test("Testing addEvent", async () => {
 
     // getEvent must return the last added event
     let evnt = await scheduler.getEvent(evid);
-    expect(evnt instanceof eventlib.Event).toBe(true);
     expect(ev.equals(evnt)).toBe(true);
     
     await scheduler.addUser(newID);
@@ -166,7 +231,7 @@ test("Testing AddEventToUser", async () => {
     const end1 = new Date(2020, 10, 24, 13, 50);
     const start2 = new Date(2020, 10, 24, 15, 20);
     const end2 = new Date(2020, 10, 24, 16, 30);
-    const UID = "test UID";
+    const UID = 3;
     const location = {"lat":0, "long":0};
 
     // Restore scheduler to known state
@@ -180,8 +245,9 @@ test("Testing AddEventToUser", async () => {
     // Add an event with start start2 and end end2
     const EID2 = await scheduler.getNextID();
     expect(EID !== EID2).toBe(true);
-    const ev2 = new eventlib.Event(EID2, null, null, start2, end2, location);    
+    const ev2 = new eventlib.Event(EID2);    
     expect(await scheduler.addEvent(null, EID2, null, start2, end2, location)).toBe(EID2);
+    expect(await scheduler.addEvent(null, 3, null, start2, end2, location)).toBe(3);
 
     // Add a user with id UID
     expect(await scheduler.addUser(UID)).toBe(UID);
@@ -191,7 +257,7 @@ test("Testing AddEventToUser", async () => {
     // Case 1: UID valid, EID valid, no conflict: expects 0
     expect(await scheduler.addEventToUser(UID, EID)).toBe(0);
     // Case 2: UID valid, EID valid, conflict: expects -1
-    expect(await scheduler.addEventToUser(UID, EID)).toBe(-1);
+    expect(await scheduler.addEventToUser(UID, 3)).toBe(-1);
     // Case 3: UID valid, EID invalid: expects -2
     expect(await scheduler.addEventToUser(UID, -1)).toBe(-2);
     // Case 4: UID valid, EID valid, no conflict: expects 0
