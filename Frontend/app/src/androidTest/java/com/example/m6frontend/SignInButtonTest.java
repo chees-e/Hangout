@@ -36,5 +36,6 @@ public class SignInButtonTest {
         Espresso.onView(withId(R.id.sign_in_button)).perform(click());
         intended(hasComponent(SignInHubActivity.class.getName()));
 
+
     }
 }

@@ -1,7 +1,7 @@
 "use strict";
 const { MongoClient } = require("mongodb");
 const uri = "mongodb://127.0.0.1:27017/";
-const client = new MongoClient(uri);
+const client = new MongoClient(uri, { useUnifiedTopology: true });
 const dbname = "Hangout";
 const eventlib = require("./eventlib.js");
 var db = null;
@@ -9,6 +9,7 @@ var db = null;
 module.exports.init = async () => {
     await client.connect();
     db = await client.db(dbname);
+	console.log("Database initialized");
 };
 
 /* setData(path, obj)
