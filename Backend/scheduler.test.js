@@ -11,8 +11,8 @@ jest.mock("./database.js", () => {
         ["events", new Map()],
         ["users", new Map()],
         ["impls", new Map()],
-        ["nextID", 1],
-        ["lastID", null]
+        ["nextID", { value : 1 } ],
+        ["lastID", { value : null} ]
     ]);
     const datafn = jest
         .fn()
@@ -32,7 +32,7 @@ jest.mock("./database.js", () => {
                     return 0;
                 }
             } else {
-                testData.set(keys[0], obj);
+                testData.set(keys[0], { value : obj });
                 return 0;
             }
         });
@@ -128,7 +128,8 @@ test("Testing addEvent", async () => {
     const invalidEvent = new eventlib.Event(null, null, null, null, null, null);
 
     // Default event: scheduler.getEvent() with no events must not error
-    expect(await scheduler.getEvent()).toBe(null);
+    const defEvent = await scheduler.getEvent();
+    expect(defEvent).toStrictEqual(invalidEvent);
 
     // Add a valid event
     expect(await scheduler.addEvent("Test", evid, "TestDesc", start1, end1, location)).toBe(evid);
@@ -141,6 +142,7 @@ test("Testing addEvent", async () => {
 
     // getEvent with no argument should return the last added event
     let evnt1 = await scheduler.getEvent();
+    console.log(evnt1);
     expect(ev.equals(evnt1)).toBe(true);
 
     let newID = await scheduler.getNextID();

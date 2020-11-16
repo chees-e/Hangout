@@ -24,8 +24,6 @@ app.post("/event/", async function(req, res) {
     let evnt = new eventlib.Event(parseInt(req.body.id, 10), req.body.name, req.body.desc,
                                   new Date(req.body.start), new Date(req.body.end),
                                   req.body.location);
-	console.log(`Post request recieved: `);
-	//console.log(req);
     if (!evnt.isValid()) {
         rv = sched.addEvent(null, id, null, new Date(0), new Date(0), null);
     } else {
@@ -33,11 +31,9 @@ app.post("/event/", async function(req, res) {
     }
     rv.then((code) => {
         if ((!code) || (code <= 0)) {
-		console.log("error");
             res.status(409).send({msg:"Event exists"});
         } else {
-		console.log(`Event added!ID: ${id}`);
-            res.status(201).send({"id":`${id}`});
+            res.status(201).send({"id":`${code}`});
         }
     });
 });
@@ -47,7 +43,6 @@ app.get("/event/", function(req, res) {
         if (eventlist.length === 0){
             res.status(404).send({msg:"No events"});
         } else {
-		console.log("Get all events request received");
             res.send({
                 length : eventlist.length,
                 events : eventlist

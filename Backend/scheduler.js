@@ -108,7 +108,7 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => 
 
         if (await data.setData(`events/${id}`, newEvent) === 0) {
             await data.setData("lastID", id);
-            let nextID = await data.getData("nextID");
+            let nextID = await module.exports.getNextID();
             let tmp = Math.max(nextID - 1, id) + 1;
             await data.setData("nextID", tmp);
             await data.setData(`impls/${id}`, newImpl);
@@ -131,8 +131,13 @@ module.exports.deleteEvent = async (_id) => {
 *   returns: An ID which is guaranteed to be available.
 */
 module.exports.getNextID = async () => {
-    const id = await data.getData("nextID");
-    return Math.max(id, 1);
+    const next = await data.getData("nextID");
+    const id = next.value;
+    if ((!id) || (id == 1)) {
+	return 1;
+    } else {
+	return id;
+    }
 };
 
 /* getEvent(id)
