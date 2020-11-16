@@ -21,8 +21,10 @@ app.get("/time", function(req, res) {
 app.post("/event/", async function(req, res) {
     let rv = 0;
     let id = await sched.getNextID();
-    let evnt = new eventlib.Event(parseInt(req.body.id, 10), req.body.name, req.body.desc,
-                                  new Date(req.body.start), new Date(req.body.end),
+	//Summary = name
+	//to be added: host, attendees
+    let evnt = new eventlib.Event(id, req.body.name, req.body.desc,
+                                  new Date(req.body.start.dataTime), new Date(req.body.end.dataTime),
                                   req.body.location);
     if (!evnt.isValid()) {
         rv = sched.addEvent(null, id, null, new Date(0), new Date(0), null);
