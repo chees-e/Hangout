@@ -101,7 +101,7 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => 
         if (!_id) {
             id = await module.exports.getNextID();
         }
-        
+
         let newEvent = new eventlib.Event(id, _name, _desc, _start, _end, _location);
         let newImpl = new eventlib.EventImpl(id);
         newImpl.importEvent(newEvent);
@@ -146,10 +146,11 @@ module.exports.getNextID = async () => {
  */
 module.exports.getEvent = async (id) => {
     if (!id) {
-        if (!data.lastID) {
+        let lastID = await data.getData("lastID");
+        if (!lastID) {
             return null;
         } else {
-            return await getEventImpl(data.lastID);
+            return await getEventImpl(lastID);
         }
     } else {
         return await getEventImpl(id);

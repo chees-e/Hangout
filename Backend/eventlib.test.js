@@ -30,68 +30,68 @@ test("Testing Event.equals", () => {
 
 
 test("Testing User Friend handling", () => {
-	const u1 = new eventlib.User(1);
-	const u2 = new eventlib.User(2);
-	
-	// U1 becomes friends with U2
-	expect(u1.addFriend(2)).toBe(true);
-	expect(u1.isFriend(2)).toBe(true);
+    const u1 = new eventlib.User(1);
+    const u2 = new eventlib.User(2);
+    
+    // U1 becomes friends with U2
+    expect(u1.addFriend(2)).toBe(true);
+    expect(u1.isFriend(2)).toBe(true);
 
-	// addFriend should not change U2
-	expect(u2.isFriend(1)).toBe(false);
+    // addFriend should not change U2
+    expect(u2.isFriend(1)).toBe(false);
 
-	// U2 adding U1 should work
-	expect(u2.addFriend(1)).toBe(true);
-	expect(u2.isFriend(1)).toBe(true);
-	
-	// U1 adding U2 again should not work
-	expect(u1.addFriend(2)).toBe(false);
-	
-	// getFriends should return u2's id
-	let u1f = u1.getFriends();
-	expect(u1f.length).toBe(1);
-	expect(u1f[0]).toBe(2);
+    // U2 adding U1 should work
+    expect(u2.addFriend(1)).toBe(true);
+    expect(u2.isFriend(1)).toBe(true);
+    
+    // U1 adding U2 again should not work
+    expect(u1.addFriend(2)).toBe(false);
+    
+    // getFriends should return u2's id
+    let u1f = u1.getFriends();
+    expect(u1f.length).toBe(1);
+    expect(u1f[0]).toBe(2);
 
-	// getFriends should return a copy, not a reference
-	u1f[0] = 42;
-	expect(u1.getFriends()[0]).toBe(2);
+    // getFriends should return a copy, not a reference
+    u1f[0] = 42;
+    expect(u1.getFriends()[0]).toBe(2);
 });
 
 test("Testing User Event handling", () => {
-	const u1 = new eventlib.User(1);
-	
-	const e1 = new eventlib.Event(0, null, null, new Date(0), new Date(1), null);
-	const e2 = new eventlib.Event(1, null, null, new Date(0), new Date(1), null);
-	const e3 = new eventlib.Event(0, null, null, new Date(3), new Date(4), null);
-	
-	// e1 and e2 have different IDs, so adding them should work
-	expect(u1.addEvent(e1)).toBe(true);
-	expect(u1.addEvent(e2)).toBe(true);
-	expect(u1.addEvent(e3)).toBe(false);
-	
-	// getEvents should return [0, 1], which corresponds to e1 and e2
-	let events = u1.getEvents();
-	expect(events.length).toBe(2);
-	expect(events[0]).toBe(e1.id);
-	expect(events[1]).toBe(e2.id);
-	
-	// the array returned by getEvents should be a copy, not a reference
-	events[0] = 2;
-	expect(u1.getEvents()[0]).toBe(e1.id);
+    const u1 = new eventlib.User(1);
+    
+    const e1 = new eventlib.Event(0, null, null, new Date(0), new Date(1), null);
+    const e2 = new eventlib.Event(1, null, null, new Date(0), new Date(1), null);
+    const e3 = new eventlib.Event(0, null, null, new Date(3), new Date(4), null);
+    
+    // e1 and e2 have different IDs, so adding them should work
+    expect(u1.addEvent(e1)).toBe(true);
+    expect(u1.addEvent(e2)).toBe(true);
+    expect(u1.addEvent(e3)).toBe(false);
+    
+    // getEvents should return [0, 1], which corresponds to e1 and e2
+    let events = u1.getEvents();
+    expect(events.length).toBe(2);
+    expect(events[0]).toBe(e1.id);
+    expect(events[1]).toBe(e2.id);
+    
+    // the array returned by getEvents should be a copy, not a reference
+    events[0] = 2;
+    expect(u1.getEvents()[0]).toBe(e1.id);
 });
 
 test("Testing User getProfile", () => {
-	const u1 = new eventlib.User(1);
-	const e1 = new eventlib.Event(0, null, null, new Date(0), new Date(1), null);
+    const u1 = new eventlib.User(1);
+    const e1 = new eventlib.Event(0, null, null, new Date(0), new Date(1), null);
 
-	expect(u1.addEvent(e1)).toBe(true);
-	expect(u1.addFriend(2)).toBe(true);
-	
-	expect(u1.getProfile()).toBe(JSON.stringify({
-		id : 1,
-		events : [e1.id],
-		friends : [2]
-	}));
+    expect(u1.addEvent(e1)).toBe(true);
+    expect(u1.addFriend(2)).toBe(true);
+    
+    expect(u1.getProfile()).toBe(JSON.stringify({
+        id : 1,
+        events : [e1.id],
+        friends : [2]
+    }));
 });
 
 test("Testing EventImpl equals", () => {

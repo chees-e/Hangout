@@ -105,12 +105,12 @@ class User{
      * 
      */
     addEvent(event){
-		if (this.events.includes(event.id)) {
-			return false;
-		} else {
-			this.events.push(event.id);
-			return true;
-		}
+        if (this.events.includes(event.id)) {
+            return false;
+        } else {
+            this.events.push(event.id);
+            return true;
+        }
     }
 
     /* addFriend(id);

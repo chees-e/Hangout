@@ -21,13 +21,12 @@ app.get("/time", function(req, res) {
 app.post("/event/", async function(req, res) {
     let rv = 0;
     let id = await sched.getNextID();
-    let evnt = new eventlib.Event(parseInt(req.query.id, 10), req.query.name, req.query.desc,
-                                  new Date(req.query.start), new Date(req.query.end),
-                                  req.query.location);
+    let evnt = new eventlib.Event(parseInt(req.body.id, 10), req.body.name, req.body.desc,
+                                  new Date(req.body.start), new Date(req.body.end),
+                                  req.body.location);
     if (!evnt.isValid()) {
         rv = sched.addEvent(null, id, null, new Date(0), new Date(0), null);
     } else {
-        id = parseInt(req.query.id, 10);
         rv = sched.addEvent(evnt.name, evnt.id, evnt.desc, evnt.start, evnt.end, evnt.location);
     }
     rv.then((code) => {
