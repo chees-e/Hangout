@@ -81,6 +81,8 @@ class Event{
                 score += ATTENDEE_WEIGHT;
             }
         }
+        
+        return score;
 
     }
 }
@@ -385,7 +387,7 @@ class EventImpl{
             return false;
         }
         return mapEquals(this.timeslots, other.timeslots, (val1, val2) => {
-            return val1.every((elem, idx) => {
+            return (val1.length === val2.length) && val1.every((elem, idx) => {
                 let other = val2.slice(idx, idx+1)[0];
                 return other && ((elem.start === other.start)
                     && (elem.length === other.length)

@@ -7,6 +7,7 @@ test("Testing Event.equals", () => {
     let ev2 = new eventlib.Event(null, null, null, null, null, null);
     let location = { "lat" : 0, "long" : 0 };
     expect(ev.equals(ev2)).toBe(false); // Invalid events
+    expect(ev.hash()).toBe(null);       // Hash of invalid event
 
     ev = new eventlib.Event(1, null, null, new Date(), new Date(), location);
     ev2 = new eventlib.Event(ev.id, ev.name, ev.desc, ev.start, ev.end, location);
@@ -94,6 +95,23 @@ test("Testing User getProfile", () => {
     }));
 });
 
+test("Testing Event suggestion", () => {
+	const ATTENDEE_WEIGHT = 1;
+	const FRIEND_WEIGHT = 20;
+	
+	const u1 = new eventlib.User(1);
+	const u2 = new eventlib.User(2);
+	const u3 = new eventlib.User(3);
+    const e1 = new eventlib.Event(0, null, null, new Date(0), new Date(1), null);
+
+	expect(u1.addFriend(2)).toBe(true);
+	e1.attendees.push(2);
+	e1.attendees.push(3);
+	expect(e1.calculateScore(u1)).toBe(ATTENDEE_WEIGHT + FRIEND_WEIGHT);
+	e1.attendees.push(1);
+	expect(e1.calculateScore(u1)).toBe(-1);
+});
+
 test("Testing EventImpl equals", () => {
     const start1 = new Date(2020, 10, 24, 10, 45);
     const end1 = new Date(2020, 10, 24, 13, 50);
@@ -107,14 +125,19 @@ test("Testing EventImpl equals", () => {
     const ev2 = new eventlib.Event(2, null, null, start1, end1, location);
     const ev3 = new eventlib.Event(3, null, null, start2, end2, location);
     
-    // Identical events
     const evImpl = new eventlib.EventImpl(0);
     let evImpl2 = new eventlib.EventImpl(0);
     
     evImpl.importEvent(ev);
     evImpl2.importEvent(ev);
     
+    // Equal to self
+    expect(evImpl.equals(evImpl)).toBe(true);
+    
+    // Identical events
     expect(evImpl.equals(evImpl2)).toBe(true);
+    expect(evImpl2.equals(evImpl)).toBe(true);
+
     // Not an EventImpl
     expect(evImpl.equals(null)).toBe(false);
     
@@ -123,12 +146,20 @@ test("Testing EventImpl equals", () => {
     evImpl2.importEvent(ev2);
     
     expect(evImpl.equals(evImpl2)).toBe(false);
+    expect(evImpl2.equals(evImpl)).toBe(false);
+    
+    // Non-intersecting events
+    evImpl2 = new eventlib.EventImpl(0);
+    evImpl2.importEvent(ev3);
+    expect(evImpl.equals(evImpl2)).toBe(false);
+    expect(evImpl2.equals(evImpl)).toBe(false);
     
     // evImpl is a subset of evImpl2
     evImpl2 = new eventlib.EventImpl(0);
     evImpl2.importEvent(ev);
     evImpl2.importEvent(ev3);
     
+    expect(evImpl.equals(evImpl2)).toBe(false);
     expect(evImpl2.equals(evImpl)).toBe(false);
 });
 
@@ -153,19 +184,28 @@ test("Testing EventImpl attends", () => {
     evImpl2.importEvent(ev);
     
     expect(evImpl.attends(evImpl2)).toBe(true);
+    expect(evImpl2.attends(evImpl)).toBe(true);
 
     // Different event IDs
     evImpl2 = new eventlib.EventImpl(0);
     evImpl2.importEvent(ev2);
     
     expect(evImpl.attends(evImpl2)).toBe(false);
+    expect(evImpl2.attends(evImpl)).toBe(false);
     
+    // Non-intersecting events
+    evImpl2 = new eventlib.EventImpl(0);
+    evImpl2.importEvent(ev3);
+    expect(evImpl2.attends(evImpl)).toBe(false);
+    expect(evImpl.attends(evImpl2)).toBe(false);
+
     // evImpl is a subset of evImpl2
     evImpl2 = new eventlib.EventImpl(0);
     evImpl2.importEvent(ev);
     evImpl2.importEvent(ev3);
     
     expect(evImpl2.attends(evImpl)).toBe(true);
+    expect(evImpl.attends(evImpl2)).toBe(false);
 });
 
 test("Testing EventImpl conflicts", () => {
@@ -179,16 +219,20 @@ test("Testing EventImpl conflicts", () => {
     
     const ev = new eventlib.Event(1, null, null, start1, end1, location);
     const ev2 = new eventlib.Event(2, null, null, start2, end2, location);
+    const ev3 = new eventlib.Event(3, null, null, start1, end2, location);
     
     // Identical events
     const evImpl = new eventlib.EventImpl(0);
     const evImpl2 = new eventlib.EventImpl(0);
     const evImpl3 = new eventlib.EventImpl(0);
+    const evImpl4 = new eventlib.EventImpl(0);
     
     evImpl.importEvent(ev);
     evImpl2.importEvent(ev);
     evImpl2.importEvent(ev2);
     evImpl3.importEvent(ev2);
+    evImpl4.importEvent(ev3);
+    
     // Not an EventImpl
     expect(evImpl.conflicts(null)).toBe(false);
     
@@ -199,4 +243,8 @@ test("Testing EventImpl conflicts", () => {
     // evImpl is a subset of evImpl2
     expect(evImpl2.conflicts(evImpl3)).toBe(true);
     expect(evImpl3.conflicts(evImpl2)).toBe(true);
+    
+    // Overlapping events
+    expect(evImpl3.conflicts(evImpl4)).toBe(true);
+    expect(evImpl4.conflicts(evImpl3)).toBe(true);
 });
