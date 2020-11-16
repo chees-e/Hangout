@@ -105,19 +105,27 @@ class User{
      * 
      */
     addEvent(event){
-        this.events.push(event.id);
-        return true;
+		if (this.events.includes(event.id)) {
+			return false;
+		} else {
+			this.events.push(event.id);
+			return true;
+		}
     }
 
-    /* addEvent(event);
+    /* addFriend(id);
      *
-     * Params: event - type Event, event to add to the User's schedule
-     * Returns: true if the event was successfully added, false if there was a conflict
+     * Params: id - User id of friend to add
+     * Returns: true if the friend was successfully added, false otherwise
      * 
      */
     addFriend(id){
-        this.friends.push(id);
-        return true;
+        if (this.friends.includes(id)) {
+            return false;
+        } else {
+            this.friends.push(id);
+            return true;
+        }
     }
     /* getEvents();
      * 
@@ -138,7 +146,7 @@ class User{
      * Returns: whether the user is friend with the given user
      * used when determining the score of an event
     */
-    ifFriend(id) {
+    isFriend(id) {
         return this.friends.includes(id);
     }
     /* getProfile();
@@ -262,6 +270,7 @@ function conflicts(slot1, slot2) {
         if (sl2.done) {
             return false;
         }
+        
         if (compare(sl1, sl2.value) !== 0) {
             return true;
         }
@@ -283,12 +292,6 @@ class EventImpl{
     constructor(id){
         this.id = id;
         this.timeslots = new Map();
-    }
-    // Import User with table of events 
-    importUser(user){
-        for (let evnt of user.events) {
-            this.importEvent(evnt);
-        }
     }
     // Import single event into time slot table
     importEvent(event){
