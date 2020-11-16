@@ -157,7 +157,7 @@ jest.mock("./eventlib.js", () => {
                 conflicts : (other) => (other.id >= _id)
             };
         }
-    }
+    };
 });
 
 const eventlib = require("./eventlib.js");

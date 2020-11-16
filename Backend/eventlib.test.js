@@ -262,7 +262,5 @@ test("Testing EventImpl Serialize", () => {
     let json = evImpl.serialize();
     const entries = Array.from(evImpl.timeslots.entries());
     expect(json.id).toBe(0);
-    for (let i in json.timeslots) {
-        expect(json.timeslots[i]).toStrictEqual(entries[i]);
-    }
+    expect(json.timeslots).toStrictEqual(entries);
 });
