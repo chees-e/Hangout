@@ -26,6 +26,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
  */
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.api.Status;
 
 import com.google.android.libraries.places.api.Places;
@@ -42,8 +48,9 @@ import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 
 // TODO: implement adding additional users
@@ -129,42 +136,32 @@ public class AddEventActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
                 if (isEmpty(eventName) || isEmpty(locationName) || isEmpty(descriptionName) ||
                         isEmpty(startDate) || isEmpty(startTime) || isEmpty(endDate) || isEmpty(endTime)) {
                     Toast.makeText(AddEventActivity.this, "Please enter the required fields", Toast.LENGTH_LONG).show();
                     return;
                 }
+                String jsonString = null;
                 try {
-                    String jsonString = new JSONObject()
-                            .put("summary", eventName.getText())
+                    //#TODO Building the attendees param
+                     jsonString = new JSONObject()
+                             .put("host", currentUser.getEmail())
+                            .put("name", eventName.getText())
                             .put("location", locationName.getText())
                             .put("description", descriptionName.getText())
                             .put("start", new JSONObject().put("dateTime", startDate.getText() + "T" + startTime.getText()))
                             .put("end", new JSONObject().put("dateTime", endDate.getText() + "T" + endTime.getText()))
-                            .put("attendees", new JSONArray().put("email:" + currentUser.getEmail()))
+                            //.put("attendees", new JSONArray().put("email:" + currentUser.getEmail()))
                             .toString();
                     Toast.makeText(AddEventActivity.this, jsonString, Toast.LENGTH_LONG).show();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                /*
-                RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
-                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/";
 
-               String jsonString = null;
-                try {
-                     jsonString = new JSONObject()
-                            .put("id", currentUser.getUid())
-                            .put("name", eventName.getText())
-                            .put("desc", descriptionName.getText())
-                            .put("start",startDate.getText() + "T" + startTime.getText())
-                            .put("end", endDate.getText() + "T" + endTime.getText())
-                            .toString();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
+                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event/";
 
                 JSONObject jsonObject = null;
                 try {
@@ -188,9 +185,10 @@ public class AddEventActivity extends AppCompatActivity {
                         Log.e(TAG, "failed" + finalJsonObject.toString());
                     }
                 });
+
                 requestQueue.add(jsonRequest);
                 requestQueue.start();
-                 */
+
                 finish();
             }
         };
