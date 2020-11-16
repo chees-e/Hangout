@@ -148,7 +148,7 @@ public class AddEventActivity extends AppCompatActivity {
                     //#TODO Building the attendees param
                      jsonString = new JSONObject()
                              .put("host", currentUser.getEmail())
-                            .put("summary", eventName.getText())
+                            .put("name", eventName.getText())
                             .put("location", locationName.getText())
                             .put("description", descriptionName.getText())
                             .put("start", new JSONObject().put("dateTime", startDate.getText() + "T" + startTime.getText()))
@@ -161,7 +161,7 @@ public class AddEventActivity extends AppCompatActivity {
                 }
 
                 RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
-                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/";
+                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event/";
 
                 JSONObject jsonObject = null;
                 try {
