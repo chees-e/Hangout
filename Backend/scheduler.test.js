@@ -14,16 +14,10 @@ jest.mock("./database.js", () => {
         ["nextID", 1],
         ["lastID", null]
     ]);
-    return {
-        setData: async (path, obj) => {
-            const serialize = (obj) => {
-                if (obj instanceof require("./eventlib.js").EventImpl) {
-                    return obj.serialize();
-                } else {
-                    return obj;
-                }
-            };
-            obj = serialize(obj);
+    const datafn = jest
+        .fn()
+        .mockImplementationOnce((path, obj) => (-1))
+        .mockImplementation((path, obj) => {
             let keys = path.split("/");
             let firstVal = testData.get(keys[0]);
             if (firstVal instanceof Map) {
@@ -41,6 +35,17 @@ jest.mock("./database.js", () => {
                 testData.set(keys[0], obj);
                 return 0;
             }
+        });
+    return {
+        setData: async (path, obj) => {
+            const serialize = (obj) => {
+                if (obj instanceof require("./eventlib.js").EventImpl) {
+                    return obj.serialize();
+                } else {
+                    return obj;
+                }
+            };
+            return datafn(path, serialize(obj));
         },
         getData: async (path) => {
             let keys = path.split("/");
@@ -112,6 +117,9 @@ test("Testing addEvent", async () => {
     const end1 = new Date(2020, 10, 24, 13, 50);
     const location = {"lat":0, "long":0};
 
+    // Reset should fail the first time because of the mock
+    expect(await scheduler.reset()).toBe(-1);
+
     // Restore scheduler to known state
     expect(await scheduler.reset()).toBe(0);
 
@@ -122,8 +130,14 @@ test("Testing addEvent", async () => {
     // Default event: scheduler.getEvent() with no events must not error
     expect(await scheduler.getEvent()).toBe(null);
 
-    expect(await scheduler.addEvent("Test", evid, "TestDesc", start1, end1, location))
-        .toBe(evid);
+    // Add a valid event
+    expect(await scheduler.addEvent("Test", evid, "TestDesc", start1, end1, location)).toBe(evid);
+    
+    // Add the same event twice, should indicate a conflict
+    expect(await scheduler.addEvent("Test", evid, "TestDesc", start1, end1, location)).toBe(-1);
+
+    // Add an event which was predetermined to fail in the mock
+    expect(await scheduler.addEvent("Test", 10, "testDesc", start1, end1, location)).toBe(-1);
 
     // getEvent with no argument should return the last added event
     let evnt1 = await scheduler.getEvent();
@@ -140,6 +154,10 @@ test("Testing addEvent", async () => {
     await scheduler.addUser(newID);
     let events3 = await scheduler.getAllEvents();
     assertArrEqual(events3, [ev]);  // Adding users must not add events
+
+    // Add an invalid event, should reserve the next available ID
+    let nextID = await scheduler.getNextID();
+    expect(await scheduler.addEvent(null, null, null, null, null, null)).toBe(nextID);
 });
 
 test("Testing AddEventToUser", async () => {
@@ -154,21 +172,33 @@ test("Testing AddEventToUser", async () => {
     // Restore scheduler to known state
     expect(await scheduler.reset()).toBe(0);
 
+    // Add an event with start start1 and end end1
     const EID = await scheduler.getNextID();
     const ev = new eventlib.Event(EID, null, null, start1, end1, location);
     expect(await scheduler.addEvent(null, EID, null, start1, end1, location)).toBe(EID);
 
+    // Add an event with start start2 and end end2
     const EID2 = await scheduler.getNextID();
     expect(EID !== EID2).toBe(true);
     const ev2 = new eventlib.Event(EID2, null, null, start2, end2, location);    
     expect(await scheduler.addEvent(null, EID2, null, start2, end2, location)).toBe(EID2);
 
-    await scheduler.addUser(UID);
-    
+    // Add a user with id UID
+    expect(await scheduler.addUser(UID)).toBe(UID);
+    // Cannot add the same user twice
+    expect(await scheduler.addUser(UID)).toBe(-1);
+
+    // Case 1: UID valid, EID valid, no conflict: expects 0
     expect(await scheduler.addEventToUser(UID, EID)).toBe(0);
+    // Case 2: UID valid, EID valid, conflict: expects -1
     expect(await scheduler.addEventToUser(UID, EID)).toBe(-1);
+    // Case 3: UID valid, EID invalid: expects -2
     expect(await scheduler.addEventToUser(UID, -1)).toBe(-2);
+    // Case 4: UID valid, EID valid, no conflict: expects 0
     expect(await scheduler.addEventToUser(UID, EID2)).toBe(0);
+    // Case 5: UID invalid, EID valid: expects -2
+    expect(await scheduler.addEventToUser(-1, EID2)).toBe(-2);
+    
     let user = await scheduler.getUser(UID);
     expect(user.events.length).toBe(2);
     expect(user.events[0].toString()).toBe(EID.toString());

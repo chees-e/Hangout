@@ -294,16 +294,22 @@ class EventImpl{
         this.timeslots = new Map();
     }
     // Import single event into time slot table
-    importEvent(event){
-        var startSlot = getTimeslot(event.start);
-        var endSlot = getTimeslot(event.end);
+    importEvent(event) {
+        if (event.isValid()) {
+            var startSlot = getTimeslot(event.start);
+            var endSlot = getTimeslot(event.end);
+            this.addSlots(startSlot, endSlot, event.id);
+        }
+    }
+    // Helper to fill slots
+    addSlots(startSlot, endSlot, evid) {
         // At least one day where this event takes up the whole day
         if ((startSlot.day + 1) < (endSlot.day - 1)) {
             for (var i = startSlot.day + 1; i < (endSlot.day - 1); i++) {
                 this.addTS(i, {
                     start: 0,
                     length: dayLength,
-                    id: event.id
+                    id: evid
                 });
             }
         }
@@ -314,19 +320,19 @@ class EventImpl{
             this.addTS(startSlot.day, {
                 start: startSlot.slot,
                 length: dayLength - startSlot.slot,
-                id: event.id
+                id: evid
             });
             this.addTS(endSlot.day, {
                 start: 0,
                 length: endSlot.slot,
-                id: event.id
+                id: evid
             });
         } else {
             // This event is contained in a single day
             this.addTS(startSlot.day, {
                 start: startSlot.slot,
                 length: endSlot.slot - startSlot.slot,
-                id: event.id
+                id: evid
             });
         }
     }

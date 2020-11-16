@@ -101,7 +101,7 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => 
         if (!_id) {
             id = await module.exports.getNextID();
         }
-
+        
         let newEvent = new eventlib.Event(id, _name, _desc, _start, _end, _location);
         let newImpl = new eventlib.EventImpl(id);
         newImpl.importEvent(newEvent);
@@ -132,11 +132,7 @@ module.exports.deleteEvent = async (_id) => {
 */
 module.exports.getNextID = async () => {
     const id = await data.getData("nextID");
-    if (!id){
-        return 1;
-    } else {
-        return id;
-    }
+    return Math.max(id, 1);
 };
 
 /* getEvent(id)

@@ -101,9 +101,11 @@ test("Testing EventImpl equals", () => {
     const start2 = new Date(2020, 10, 24, 15, 20);
     const end2 = new Date(2020, 10, 24, 16, 30);
     
-    const ev = new eventlib.Event(1, null, null, start1, end1, null);
-    const ev2 = new eventlib.Event(2, null, null, start1, end1, null);
-    const ev3 = new eventlib.Event(3, null, null, start2, end2, null);
+    const location = { lat : 0, long : 0 };
+    
+    const ev = new eventlib.Event(1, null, null, start1, end1, location);
+    const ev2 = new eventlib.Event(2, null, null, start1, end1, location);
+    const ev3 = new eventlib.Event(3, null, null, start2, end2, location);
     
     // Identical events
     const evImpl = new eventlib.EventImpl(0);
@@ -137,9 +139,11 @@ test("Testing EventImpl attends", () => {
     const start2 = new Date(2020, 10, 24, 15, 20);
     const end2 = new Date(2020, 12, 24, 16, 30);
     
-    const ev = new eventlib.Event(1, null, null, start1, end1, null);
-    const ev2 = new eventlib.Event(2, null, null, start1, end1, null);
-    const ev3 = new eventlib.Event(3, null, null, start2, end2, null);
+    const location = { lat : 0, long : 0 };
+    
+    const ev = new eventlib.Event(1, null, null, start1, end1, location);
+    const ev2 = new eventlib.Event(2, null, null, start1, end1, location);
+    const ev3 = new eventlib.Event(3, null, null, start2, end2, location);
     
     // Identical eventimpls
     const evImpl = new eventlib.EventImpl(0);
@@ -171,8 +175,10 @@ test("Testing EventImpl conflicts", () => {
     const start2 = new Date(2020, 10, 24, 15, 20);
     const end2 = new Date(2020, 10, 24, 16, 30);
     
-    const ev = new eventlib.Event(1, null, null, start1, end1, null);
-    const ev2 = new eventlib.Event(2, null, null, start2, end2, null);
+    const location = { lat : 0, long : 0 };
+    
+    const ev = new eventlib.Event(1, null, null, start1, end1, location);
+    const ev2 = new eventlib.Event(2, null, null, start2, end2, location);
     
     // Identical events
     const evImpl = new eventlib.EventImpl(0);
