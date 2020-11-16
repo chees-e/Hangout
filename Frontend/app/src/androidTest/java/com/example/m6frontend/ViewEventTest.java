@@ -2,11 +2,15 @@ package com.example.m6frontend;
 
 
 import android.app.Instrumentation;
+import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.Espresso;
 import androidx.test.espresso.ViewInteraction;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -56,50 +60,30 @@ public class ViewEventTest {
 
     @Test
     public void ViewEventTest() throws UiObjectNotFoundException, InterruptedException {
-        ViewInteraction gc = onView(
-                allOf(withText("Sign In"),
-                        childAtPosition(
-                                allOf(withId(R.id.sign_in_button),
-                                        childAtPosition(
-                                                withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
-                                                0)),
-                                0),
-                        isDisplayed()));
-        gc.perform(click());
-
+        Espresso.onView(withId(R.id.sign_in_button)).perform(click());
         UiObject mText = mUiDevice.findObject(new UiSelector().text("gujohn1998@gmail.com"));
         mText.click();
-
         Thread.sleep(500);
-        ViewInteraction appCompatButton = onView(
-                allOf(withId(R.id.find_events_button), withText("Find Events"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(android.R.id.content),
-                                        0),
-                                2),
-                        isDisplayed()));
-        appCompatButton.perform(click());
+
+        Espresso.onView(withId(R.id.find_events_button)).perform(click());
+        Thread.sleep(500);
+
+        Espresso.onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.scrollToPosition(9));
+        Thread.sleep(500);
+
         pressBack();
         Thread.sleep(500);
-    }
 
-    private static Matcher<View> childAtPosition(
-            final Matcher<View> parentMatcher, final int position) {
+        Espresso.onView(withId(R.id.find_events_button)).perform(click());
+        Thread.sleep(500);
 
-        return new TypeSafeMatcher<View>() {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("Child at position " + position + " in parent ");
-                parentMatcher.describeTo(description);
-            }
+        Espresso.onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.scrollToPosition(9));
+        Thread.sleep(500);
 
-            @Override
-            public boolean matchesSafely(View view) {
-                ViewParent parent = view.getParent();
-                return parent instanceof ViewGroup && parentMatcher.matches(parent)
-                        && view.equals(((ViewGroup) parent).getChildAt(position));
-            }
-        };
+        Espresso.onView(withId(R.id.recyclerView)).perform(RecyclerViewActions.scrollToPosition(19));
+        Thread.sleep(500);
+
+        pressBack();
+        Thread.sleep(500);
     }
 }
