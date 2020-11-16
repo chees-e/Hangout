@@ -1,77 +1,15 @@
 "use strict";
-const fs = require("fs");
-const timeout = 60 * 1000; // Time between disk writes in milliseconds
+const { MongoClient } = require("mongodb");
+const uri = "mongodb://127.0.0.1:27017/";
+const client = new MongoClient(uri);
+const dbname = "Hangout";
+const eventlib = require("./eventlib.js");
+var db = null;
 
-/* stringifyWithMap
- * replacer for JSON.stringify, but it properly handles Maps
- */
-function stringifyWithMap(key, value) {
-    const obj = this[new String(key)];
-    if (obj instanceof Map) {
-        const temp = {
-            "_type" : "MAP",
-            "_values" : obj.values()
-        };
-        return temp;
-    } else {
-        return value;
-    }
-}
-
-/* parseWithMap
- * reviver for JSON.parse, but it properly handles Maps
-*/
-function parseWithMap(key, value) {
-    if (typeof value === "object" && value !== null) {
-        if (value._type === "MAP") {
-            return new Map(value._values);
-        }
-    }
-    return value;
-}
-
-/* updateData(filename, input)
- *  params:
- *    input     - object, object to save to JSON
- *  returns:
- *    -1 if the write fails
- *    0  if the write succeeds
- */
-function updateData(input) {
-    fs.writeFile("./data/scheduler.json", JSON.stringify(input, stringifyWithMap), (err) => {
-        if (err) {
-            return -1;
-        } else {
-            return 0;
-        }
-    });
-    
-    return 0;
-}
-
-const data = JSON.parse(fs.readFileSync("./data/scheduler.json", "utf-8"), parseWithMap);
-
-/* traverse(json, keys)
- *  params:
- *   json - Object representing JSON structure
- *   keys - Array of keys to traverse
- *  returns:
- *   the node corresponding to json[key1][key2][key3][etc] for 
- *   all key1...keyn in keys, or null if it does not exist
- */
-function traverse(json, keys) {
-    let node = json;
-    for (let key of keys) {
-        if ((node instanceof Map) && node.has(key)) {
-            node = node.get(key);
-        } else {
-            return null;
-        }
-    }
-    return node;
-}
-
-const interval = setInterval(updateData, timeout, data);
+module.exports.init = async () => {
+    await client.connect();
+    db = await client.db(dbname);
+};
 
 /* setData(path, obj)
  *  params:
@@ -80,21 +18,27 @@ const interval = setInterval(updateData, timeout, data);
  *  returns:
  *   a negative value on failure and 0 on success
 */
-module.exports.setData = (path, obj) => {
+module.exports.setData = async (path, obj) => {
     let keys = path.split("/");
+    let collection = null;
+    let query = {};
+    let update = {};
+    if (obj instanceof eventlib.EventImpl) {
+        obj = obj.serialize();
+    }
     if (keys.length <= 0) {
         return -1;
+    } else if (keys.length === 1) {
+        collection = "loosedata";
+        query = { name : keys[0] };
+        update = { name : keys[0], value: obj };
     } else {
-        let lastKey = keys.pop();
-        let node = traverse(data, keys);
-
-        if (node != null) {
-            node.set(lastKey, obj);
-            return 0;
-        } else {
-            return -1;
-        }
+        collection = keys[0];
+        query = { id : keys[1] };
+        update = obj;
     }
+    await db.collection(collection).replaceOne(query, update, { upsert : true });
+    return 0;
 };
 
 /* getData(path)
@@ -103,20 +47,37 @@ module.exports.setData = (path, obj) => {
  *  returns:
  *   the object on success, null on failure
 */
-module.exports.getData = (path) => {
+module.exports.getData = async (path) => {
     let keys = path.split("/");
+    let collection = null;
+    let query = {};
+    let update = {};
     if (keys.length <= 0) {
+        return -1;
+    } else if (keys.length === 1) {
+        collection = "loosedata";
+        query = { name : keys[0] };
+    } else {
+        collection = keys[0];
+        query = { id : keys[1] };
+    }
+    let results = await db.collection(collection).find(query).toArray();
+    if (results.length <= 0) {
         return null;
     } else {
-        let lastKey = keys.pop();
-        let node = traverse(data, keys);
-
-        if (node !== null) {
-            return node.get(lastKey);
-        } else {
-            return null;
-        }
+        return results[0];
     }
+};
+
+/* getKeys(collection)
+ *  params:
+ *   collection - string, collection in database.
+ *  returns:
+ *   Array of keys in the collection.
+ *  Available collections are events, users, and impls
+*/
+module.exports.getKeys = async (collection) => {
+    return await db.collection(collection).find().project({"id" : 1}).toArray();
 };
 
 /* hasKey(path)
@@ -125,6 +86,34 @@ module.exports.getData = (path) => {
  *  returns:
  *   true if the key exists, false otherwise
 */
-module.exports.hasKey = (path) => {
-    return (module.exports.getData(path) !== null);
+module.exports.hasKey = async (path) => {
+    let keys = path.split("/");
+    if (keys.length < 1) {
+        return false;
+    } else if (keys.length === 1) {
+        let dat = await module.exports.getData(keys[0]);
+        return (dat !== null);
+    } else {
+        let dat = await module.exports.getKeys(keys[0]);
+        return dat.some((_) => (_.id === keys[1]));
+    }
+};
+
+/* deleteKey(path)
+ *  params:
+ *   path - string representing element to be deleted, of the form
+ *          "collection/key", where collection is one of:
+ *          "events", "users", and "impls"
+ *  returns:
+ *   0 on success, -1 if the key does not exist, -2 if the arguments are bad
+*/
+module.exports.deleteKey = async (path) => {
+    let keys = path.split("/");
+    if (keys.length !== 2) {
+        return -2;
+    } else if (await module.exports.hasKey(path)){
+        return (await db.collection(keys[0]).deleteOne({ id : keys[1] })) === 1;
+    } else {
+        return -1;
+    }
 };

@@ -29,7 +29,7 @@ const FRIEND_WEIGHT = 20;
 
 class Event{
     constructor(id, name, desc, start, end, location){
-        this.id = id;
+        this.id = `${id}`;
         this.name = name;
         this.desc = desc;
         if (start < end) {
@@ -81,6 +81,8 @@ class Event{
                 score += ATTENDEE_WEIGHT;
             }
         }
+        
+        return score;
 
     }
 }
@@ -105,19 +107,27 @@ class User{
      * 
      */
     addEvent(event){
-        this.events.push(event.id);
-        return true;
+        if (this.events.includes(event.id)) {
+            return false;
+        } else {
+            this.events.push(event.id);
+            return true;
+        }
     }
 
-    /* addEvent(event);
+    /* addFriend(id);
      *
-     * Params: event - type Event, event to add to the User's schedule
-     * Returns: true if the event was successfully added, false if there was a conflict
+     * Params: id - User id of friend to add
+     * Returns: true if the friend was successfully added, false otherwise
      * 
      */
     addFriend(id){
-        this.friends.push(id);
-        return true;
+        if (this.friends.includes(id)) {
+            return false;
+        } else {
+            this.friends.push(id);
+            return true;
+        }
     }
     /* getEvents();
      * 
@@ -138,7 +148,7 @@ class User{
      * Returns: whether the user is friend with the given user
      * used when determining the score of an event
     */
-    ifFriend(id) {
+    isFriend(id) {
         return this.friends.includes(id);
     }
     /* getProfile();
@@ -262,6 +272,7 @@ function conflicts(slot1, slot2) {
         if (sl2.done) {
             return false;
         }
+        
         if (compare(sl1, sl2.value) !== 0) {
             return true;
         }
@@ -284,23 +295,23 @@ class EventImpl{
         this.id = id;
         this.timeslots = new Map();
     }
-    // Import User with table of events 
-    importUser(user){
-        for (let evnt of user.events) {
-            this.importEvent(evnt);
+    // Import single event into time slot table
+    importEvent(event) {
+        if (event.isValid()) {
+            var startSlot = getTimeslot(event.start);
+            var endSlot = getTimeslot(event.end);
+            this.addSlots(startSlot, endSlot, event.id);
         }
     }
-    // Import single event into time slot table
-    importEvent(event){
-        var startSlot = getTimeslot(event.start);
-        var endSlot = getTimeslot(event.end);
+    // Helper to fill slots
+    addSlots(startSlot, endSlot, evid) {
         // At least one day where this event takes up the whole day
         if ((startSlot.day + 1) < (endSlot.day - 1)) {
             for (var i = startSlot.day + 1; i < (endSlot.day - 1); i++) {
                 this.addTS(i, {
                     start: 0,
                     length: dayLength,
-                    id: event.id
+                    id: evid
                 });
             }
         }
@@ -311,19 +322,19 @@ class EventImpl{
             this.addTS(startSlot.day, {
                 start: startSlot.slot,
                 length: dayLength - startSlot.slot,
-                id: event.id
+                id: evid
             });
             this.addTS(endSlot.day, {
                 start: 0,
                 length: endSlot.slot,
-                id: event.id
+                id: evid
             });
         } else {
             // This event is contained in a single day
             this.addTS(startSlot.day, {
                 start: startSlot.slot,
                 length: endSlot.slot - startSlot.slot,
-                id: event.id
+                id: evid
             });
         }
     }
@@ -376,7 +387,7 @@ class EventImpl{
             return false;
         }
         return mapEquals(this.timeslots, other.timeslots, (val1, val2) => {
-            return val1.every((elem, idx) => {
+            return (val1.length === val2.length) && val1.every((elem, idx) => {
                 let other = val2.slice(idx, idx+1)[0];
                 return other && ((elem.start === other.start)
                     && (elem.length === other.length)
@@ -388,6 +399,13 @@ class EventImpl{
     // Check if other can be added to this
     conflicts(other){
         return this.apply((thisSlot, otherSlot) => conflicts(thisSlot, otherSlot), other, "any");
+    }
+    // Serialization for MongoDB
+    serialize(){
+        return {
+            id: this.id,
+            timeslots: Array.from(this.timeslots.entries())
+        };
     }
 }
 
