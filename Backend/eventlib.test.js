@@ -93,23 +93,24 @@ test("Testing User getProfile", () => {
         events : [e1.id],
         friends : [2]
     }));
+    
 });
 
 test("Testing Event suggestion", () => {
-	const ATTENDEE_WEIGHT = 1;
-	const FRIEND_WEIGHT = 20;
-	
-	const u1 = new eventlib.User(1);
-	const u2 = new eventlib.User(2);
-	const u3 = new eventlib.User(3);
+    const ATTENDEE_WEIGHT = 1;
+    const FRIEND_WEIGHT = 20;
+    
+    const u1 = new eventlib.User(1);
+    const u2 = new eventlib.User(2);
+    const u3 = new eventlib.User(3);
     const e1 = new eventlib.Event(0, null, null, new Date(0), new Date(1), null);
 
-	expect(u1.addFriend(2)).toBe(true);
-	e1.attendees.push(2);
-	e1.attendees.push(3);
-	expect(e1.calculateScore(u1)).toBe(ATTENDEE_WEIGHT + FRIEND_WEIGHT);
-	e1.attendees.push(1);
-	expect(e1.calculateScore(u1)).toBe(-1);
+    expect(u1.addFriend(2)).toBe(true);
+    e1.attendees.push(2);
+    e1.attendees.push(3);
+    expect(e1.calculateScore(u1)).toBe(ATTENDEE_WEIGHT + FRIEND_WEIGHT);
+    e1.attendees.push(1);
+    expect(e1.calculateScore(u1)).toBe(-1);
 });
 
 test("Testing EventImpl equals", () => {
@@ -247,4 +248,19 @@ test("Testing EventImpl conflicts", () => {
     // Overlapping events
     expect(evImpl3.conflicts(evImpl4)).toBe(true);
     expect(evImpl4.conflicts(evImpl3)).toBe(true);
+    
+});
+
+test("Testing EventImpl Serialize", () => {
+    const start1 = new Date(2020, 10, 24, 10, 45);
+    const end1 = new Date(2020, 10, 24, 13, 50);
+    const location = { lat : 0, long : 0 };
+    const ev = new eventlib.Event(1, null, null, start1, end1, location);
+    const evImpl = new eventlib.EventImpl(0);
+    evImpl.importEvent(ev);
+    
+    let json = evImpl.serialize();
+    const entries = Array.from(evImpl.timeslots.entries());
+    expect(json.id).toBe(0);
+    expect(json.timeslots).toStrictEqual(entries);
 });

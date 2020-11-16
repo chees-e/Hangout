@@ -148,11 +148,8 @@ module.exports.getNextID = async () => {
 module.exports.getEvent = async (id) => {
     if (!id) {
         let lastID = await data.getData("lastID");
-        if (!lastID) {
-            return null;
-        } else {
-            return await getEventImpl(lastID);
-        }
+	let _id = lastID.value;
+        return await getEventImpl(_id);
     } else {
         return await getEventImpl(id);
     }
