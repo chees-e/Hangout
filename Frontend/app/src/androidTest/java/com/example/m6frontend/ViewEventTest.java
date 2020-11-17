@@ -61,7 +61,7 @@ public class ViewEventTest {
     @Test
     public void ViewEventTest() throws UiObjectNotFoundException, InterruptedException {
         Espresso.onView(withId(R.id.sign_in_button)).perform(click());
-        UiObject mText = mUiDevice.findObject(new UiSelector().text("gujohn1998@gmail.com"));
+        UiObject mText = mUiDevice.findObject(new UiSelector().text("kellywong48357@gmail.com"));
         mText.click();
         Thread.sleep(500);
 
@@ -85,5 +85,8 @@ public class ViewEventTest {
 
         pressBack();
         Thread.sleep(500);
+
+        Espresso.onView(withId(R.id.sign_out_button)).perform(click());
+
     }
 }

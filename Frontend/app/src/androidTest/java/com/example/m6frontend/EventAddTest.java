@@ -1,6 +1,7 @@
 package com.example.m6frontend;
 
 
+import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -22,6 +23,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.pressBack;
@@ -51,9 +56,10 @@ public class EventAddTest {
     }
 
     @Test
-    public void eventAddTest() throws UiObjectNotFoundException, InterruptedException {
+    public void eventAddTest() throws UiObjectNotFoundException {
+        waitAsync(1000);
         ViewInteraction gc = onView(
-                allOf(withText("Sign In"),
+                allOf(withText("Sign in"),
                         childAtPosition(
                                 allOf(withId(R.id.sign_in_button),
                                         childAtPosition(
@@ -62,11 +68,12 @@ public class EventAddTest {
                                 0),
                         isDisplayed()));
         gc.perform(click());
+        waitAsync(1000);
 
         UiObject mText = mUiDevice.findObject(new UiSelector().text("kellywong48357@gmail.com"));
         mText.click();
 
-        Thread.sleep(500);
+        waitAsync(1000);
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.eventButton), withText("Add Event"),
                         childAtPosition(
@@ -76,7 +83,7 @@ public class EventAddTest {
                                 2),
                         isDisplayed()));
         appCompatButton.perform(click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatButton2 = onView(
                 allOf(withId(R.id.add_event_button), withText("Add Event"),
@@ -87,7 +94,7 @@ public class EventAddTest {
                                 11),
                         isDisplayed()));
         appCompatButton2.perform(click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatEditText = onView(
                 allOf(withId(R.id.editTextEvent),
@@ -100,7 +107,7 @@ public class EventAddTest {
         appCompatEditText.perform(replaceText("name"), closeSoftKeyboard());
 
 
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatButton3 = onView(
                 allOf(withId(R.id.add_event_button), withText("Add Event"),
@@ -111,7 +118,7 @@ public class EventAddTest {
                                 11),
                         isDisplayed()));
         appCompatButton3.perform(click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatEditText2 = onView(
                 allOf(withId(R.id.editTextLocation),
@@ -122,7 +129,7 @@ public class EventAddTest {
                                 5),
                         isDisplayed()));
         appCompatEditText2.perform(click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatEditText3 = onView(
                 allOf(withId(R.id.editTextLocation),
@@ -133,7 +140,7 @@ public class EventAddTest {
                                 5),
                         isDisplayed()));
         appCompatEditText3.perform(click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatEditText4 = onView(
                 allOf(withId(R.id.places_autocomplete_search_bar),
@@ -145,7 +152,7 @@ public class EventAddTest {
                                 1),
                         isDisplayed()));
         appCompatEditText4.perform(replaceText("ubc"), closeSoftKeyboard());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction recyclerView = onView(
                 allOf(withId(R.id.places_autocomplete_list),
@@ -153,7 +160,7 @@ public class EventAddTest {
                                 withId(R.id.places_autocomplete_content),
                                 3)));
         recyclerView.perform(actionOnItemAtPosition(0, click()));
-        Thread.sleep(500);
+        waitAsync(1000);
 
 
         ViewInteraction appCompatEditText5 = onView(
@@ -165,7 +172,7 @@ public class EventAddTest {
                                 3),
                         isDisplayed()));
         appCompatEditText5.perform(replaceText("desc"), closeSoftKeyboard());
-        Thread.sleep(500);
+        waitAsync(1000);
 
 
 
@@ -178,7 +185,7 @@ public class EventAddTest {
                                 11),
                         isDisplayed()));
         appCompatButton4.perform(click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatEditText6 = onView(
                 allOf(withId(R.id.editTextAddUsers),
@@ -189,7 +196,7 @@ public class EventAddTest {
                                 4),
                         isDisplayed()));
         appCompatEditText6.perform(click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatEditText7 = onView(
                 allOf(withId(R.id.editTextAddUsers),
@@ -200,7 +207,7 @@ public class EventAddTest {
                                 4),
                         isDisplayed()));
         appCompatEditText7.perform(replaceText("user"), closeSoftKeyboard());
-        Thread.sleep(500);
+        waitAsync(1000);
 
 
         ViewInteraction appCompatButton5 = onView(
@@ -212,7 +219,7 @@ public class EventAddTest {
                                 11),
                         isDisplayed()));
         appCompatButton5.perform(click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatEditText8 = onView(
                 allOf(withId(R.id.editTextStartDate),
@@ -224,7 +231,7 @@ public class EventAddTest {
                         isDisplayed()));
         appCompatEditText8.perform(click());
         appCompatEditText8.perform(click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatButton6 = onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
@@ -234,7 +241,7 @@ public class EventAddTest {
                                         0),
                                 3)));
         appCompatButton6.perform(scrollTo(), click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatEditText9 = onView(
                 allOf(withId(R.id.editTextStartTime),
@@ -246,7 +253,7 @@ public class EventAddTest {
                         isDisplayed()));
         appCompatEditText9.perform(click());
         appCompatEditText9.perform(click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatButton7 = onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
@@ -256,7 +263,7 @@ public class EventAddTest {
                                         0),
                                 3)));
         appCompatButton7.perform(scrollTo(), click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatEditText10 = onView(
                 allOf(withId(R.id.editTextEndDate),
@@ -268,7 +275,7 @@ public class EventAddTest {
                         isDisplayed()));
         appCompatEditText10.perform(click());
         appCompatEditText10.perform(click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatButton8 = onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
@@ -278,7 +285,7 @@ public class EventAddTest {
                                         0),
                                 3)));
         appCompatButton8.perform(scrollTo(), click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatEditText11 = onView(
                 allOf(withId(R.id.editTextEndTime),
@@ -290,7 +297,7 @@ public class EventAddTest {
                         isDisplayed()));
         appCompatEditText11.perform(click());
         appCompatEditText11.perform(click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatButton9 = onView(
                 allOf(withId(android.R.id.button1), withText("OK"),
@@ -300,7 +307,7 @@ public class EventAddTest {
                                         0),
                                 3)));
         appCompatButton9.perform(scrollTo(), click());
-        Thread.sleep(500);
+        waitAsync(1000);
 
         ViewInteraction appCompatButton10 = onView(
                 allOf(withId(R.id.add_event_button), withText("Add Event"),
@@ -341,5 +348,22 @@ public class EventAddTest {
                         && view.equals(((ViewGroup) parent).getChildAt(position));
             }
         };
+    }
+
+    public static void waitAsync(long milliseconds) {
+        try {
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    return null;
+                }
+            }.get(milliseconds, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
     }
 }

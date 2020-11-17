@@ -1,6 +1,7 @@
 package com.example.m6frontend;
 
 
+import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -26,21 +27,22 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.pressBack;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.VerificationModes.times;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
-import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -57,11 +59,11 @@ public class SignInTest {
         mUiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
     }
 
-
     @Test
-    public void signInTest() throws UiObjectNotFoundException {
-        ViewInteraction gc = onView(
-                allOf(withText("Sign In"),
+    public void SignInTest() throws UiObjectNotFoundException{
+        waitAsync(1000);
+        ViewInteraction gb = onView(
+                allOf(withText("Sign in"),
                         childAtPosition(
                                 allOf(withId(R.id.sign_in_button),
                                         childAtPosition(
@@ -69,12 +71,12 @@ public class SignInTest {
                                                 0)),
                                 0),
                         isDisplayed()));
-        gc.perform(click());
+        gb.perform(click());
         mUiDevice.pressBack();
 
 
-        ViewInteraction gc2 = onView(
-                allOf(withText("Sign In"),
+        ViewInteraction gb2 = onView(
+                allOf(withText("Sign in"),
                         childAtPosition(
                                 allOf(withId(R.id.sign_in_button),
                                         childAtPosition(
@@ -82,12 +84,14 @@ public class SignInTest {
                                                 0)),
                                 0),
                         isDisplayed()));
-        gc2.perform(click());
+        gb2.perform(click());
+        waitAsync(1000);
 
         UiObject mText = mUiDevice.findObject(new UiSelector().text("kellywong48357@gmail.com"));
         mText.click();
+        waitAsync(1000);
         pressBack();
-
+        waitAsync(1000);
         ViewInteraction appCompatButton = onView(
                 allOf(withId(R.id.sign_out_button), withText("Sign out"),
                         childAtPosition(
@@ -98,8 +102,8 @@ public class SignInTest {
                         isDisplayed()));
         appCompatButton.perform(click());
 
-        ViewInteraction gc3 = onView(
-                allOf(withText("Sign In"),
+        ViewInteraction gb3 = onView(
+                allOf(withText("Sign in"),
                         childAtPosition(
                                 allOf(withId(R.id.sign_in_button),
                                         childAtPosition(
@@ -107,7 +111,7 @@ public class SignInTest {
                                                 0)),
                                 0),
                         isDisplayed()));
-        gc3.perform(click());
+        gb3.perform(click());
         intended(hasComponent(SignInHubActivity.class.getName()), times(3));
     }
 
@@ -128,5 +132,22 @@ public class SignInTest {
                         && view.equals(((ViewGroup) parent).getChildAt(position));
             }
         };
+    }
+
+    public static void waitAsync(long milliseconds) {
+        try {
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    return null;
+                }
+            }.get(milliseconds, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
     }
 }
