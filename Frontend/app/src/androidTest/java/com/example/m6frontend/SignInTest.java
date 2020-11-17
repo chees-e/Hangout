@@ -112,6 +112,11 @@ public class SignInTest {
                                 0),
                         isDisplayed()));
         gb3.perform(click());
+        waitAsync(1000);
+
+        mText.click();
+        waitAsync(1000);
+
         intended(hasComponent(SignInHubActivity.class.getName()), times(3));
     }
 
