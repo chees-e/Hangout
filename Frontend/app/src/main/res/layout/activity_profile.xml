@@ -35,7 +35,7 @@
 
     <Button
         android:id="@+id/eventButton"
-        android:layout_width="0dp"
+        android:layout_width="210dp"
         android:layout_height="60dp"
         android:layout_weight="1"
         android:backgroundTint="#6603A9F4"
@@ -45,39 +45,39 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.821" />
+        app:layout_constraintVertical_bias="0.91" />
 
     <Button
         android:id="@+id/find_events_button"
-        android:layout_width="0dp"
+        android:layout_width="210dp"
         android:layout_height="60dp"
         android:layout_weight="1"
         android:backgroundTint="#662196F3"
         android:text="@string/find_event_caption"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.91" />
 
     <Button
         android:id="@+id/my_events_button"
-        android:layout_width="0dp"
+        android:layout_width="210dp"
         android:layout_height="60dp"
         android:layout_weight="1"
         android:backgroundTint="#6600BCD4"
         android:text="my events"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.731" />
+        app:layout_constraintVertical_bias="0.825" />
 
     <Button
         android:id="@+id/friend_button"
-        android:layout_width="0dp"
+        android:layout_width="210dp"
         android:layout_height="60dp"
         android:layout_weight="1"
         android:backgroundTint="#4D009688"
@@ -87,7 +87,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.642" />
+        app:layout_constraintVertical_bias="0.825" />
 
     <Button
         android:id="@+id/settingsButton"
@@ -100,5 +100,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.023" />
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="394dp"
+        android:layout_height="481dp"
+        app:layout_constraintBottom_toBottomOf="@+id/sign_out_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.647"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.292"
+        tools:context="com.example.mapwithmarker.MapsMarkerActivity" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
