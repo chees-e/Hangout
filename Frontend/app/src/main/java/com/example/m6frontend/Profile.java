@@ -1,16 +1,25 @@
 package com.example.m6frontend;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -28,19 +37,38 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
+import org.w3c.dom.Text;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 
 // TODO: add user settings
 // TODO: add permission checks
-public class Profile extends AppCompatActivity implements OnMapReadyCallback {
+public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
     private final static String TAG = "Profile";
 
     private GoogleMap map;
+    private Toolbar toolbar;
 
+    private NavigationView navigationView;
+    private DrawerLayout drawer;
+    private View navHeader;
+    private ImageView imgNavHeaderBg, imgProfile;
+    private TextView textName, textEmail;
+
+    // urls to load navigation header background image
+    // and profile image
+    private static final String urlNavHeaderBg = "https://api.androidhive.info/images/nav-menu-header-bg.jpg";
+    private static final String profileImg = "https://lh3.googleusercontent.com/eCtE_G34M9ygdkmOpYvCag1vBARCmZwnVS6rS5t4JLzJ6QgQSBquM0nuTsCpLhYbKljoyS-txg";
     // The entry point to the Fused Location Provider.
     private FusedLocationProviderClient fusedLocationProviderClient;
 
@@ -57,6 +85,10 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback {
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
 
+    Button signOutButton;
+    Button createEventButton;
+    Button findEventButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,9 +100,25 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback {
         Log.d(TAG, "Current User:" + currentUser.getDisplayName());
 
         GoogleSignInAccount currentAccount = GoogleSignIn.getLastSignedInAccount(this);
-        if (currentAccount != null) {
-            email.setText("Welcome, " + currentAccount.getEmail() + "!");
-        }
+
+        ImageButton settingsButton = findViewById(R.id.settings);
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent settingsIntent = new Intent(Profile.this, SettingsActivity.class);
+                startActivity(settingsIntent);
+            }
+        });
+
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM  d, YYYY");
+
+        TextView currentDate = findViewById(R.id.currentDate);
+        currentDate.setText(dateFormat.format(calendar.getTime()));
+        TextView currentDay = findViewById(R.id.currentDay);
+        currentDay.setText(dayFormat.format(calendar.getTime()));
+
 
         // Construct a FusedLocationProviderClient.
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -81,7 +129,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback {
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        Button signOutButton = findViewById(R.id.sign_out_button);
+        signOutButton = findViewById(R.id.sign_out_button);
         signOutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,7 +137,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
-        Button createEventButton = findViewById(R.id.eventButton);
+        createEventButton = findViewById(R.id.eventButton);
         createEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,7 +146,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
-        Button findEventButton = findViewById(R.id.find_events_button);
+        findEventButton = findViewById(R.id.find_events_button);
         findEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,34 +154,6 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback {
                 startActivity(findEventIntent);
             }
         });
-
-        Button myEventsButton = findViewById(R.id.my_events_button);
-        myEventsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent myEventIntent = new Intent(Profile.this, MyEventsActivity.class);
-                startActivity(myEventIntent);
-            }
-        });
-
-        Button friendButton = findViewById(R.id.friend_button);
-        friendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent friendIntent = new Intent(Profile.this, FriendsActivity.class);
-                startActivity(friendIntent);
-            }
-        });
-
-        Button settingsButton = findViewById(R.id.settingsButton);
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent settingsIntent = new Intent(Profile.this, SettingsActivity.class);
-                startActivity(settingsIntent);
-            }
-        });
-
         FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
             @Override
             public void onComplete(@NonNull Task<InstanceIdResult> task) {
@@ -145,13 +165,145 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback {
                 String message = getString(R.string.token_prefix, token);
                 Log.d(TAG, message);
                 // TODO: change message to something meaningful
-               // Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG).show();
+                // Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG).show();
             }
         });
 
         if (!checkGooglePlayServices()) {
             Log.w(TAG, "Device doesn't have google play services");
         }
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+
+        // Navigation view header
+        navHeader = navigationView.getHeaderView(0);
+        textName = (TextView) navHeader.findViewById(R.id.name);
+        textEmail = (TextView) navHeader.findViewById(R.id.email);
+        imgNavHeaderBg = (ImageView) navHeader.findViewById(R.id.img_header_bg);
+        imgProfile = (ImageView) navHeader.findViewById(R.id.img_profile);
+
+        // load nav menu header data
+        loadNavHeader(currentAccount);
+
+        // initializing navigation menu
+        setUpNavigationView();
+
+    }
+
+    private void loadNavHeader( GoogleSignInAccount currentAccount) {
+
+
+        if (currentAccount == null) {
+            textName.setText("First Last");
+            textEmail.setText("www.test.com");
+
+            // Loading profile image
+            Glide.with(this).load(profileImg)
+                    .crossFade()
+                    .thumbnail(0.5f)
+                    .bitmapTransform(new CircleTransform(this))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(imgProfile);
+
+            // loading header background image
+            Glide.with(this).load(urlNavHeaderBg)
+                    .crossFade()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(imgNavHeaderBg);
+
+        } else {
+            textName.setText(currentAccount.getGivenName() + " " + currentAccount.getFamilyName());
+            textEmail.setText(currentAccount.getEmail());
+
+            // Loading profile image
+            Glide.with(this)
+                    .load(currentAccount.getPhotoUrl())
+                    .crossFade()
+                    .thumbnail(0.5f)
+                    .bitmapTransform(new CircleTransform(this))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(imgProfile);
+
+            // loading header background image
+            Glide.with(this).load(urlNavHeaderBg)
+                    .crossFade()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(imgNavHeaderBg);
+        }
+
+    }
+
+
+    private void setUpNavigationView() {
+        //Setting Navigation View Item Selected Listener to handle the item click of the navigation menu
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+
+            // This method will trigger on item Click of navigation menu
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+
+                //Check to see which item was being clicked and perform appropriate action
+                switch (menuItem.getItemId()) {
+                    //Replacing the main content with ContentFragment Which is our Inbox View;
+                    case R.id.nav_profile:
+                        Intent profileSettingsIntent = new Intent(Profile.this, ProfileSettingsActivity.class);
+                        startActivity(profileSettingsIntent);
+                        break;
+                    case R.id.nav_friends:
+                        Intent friendIntent = new Intent(Profile.this, FriendsActivity.class);
+                        startActivity(friendIntent);
+                        break;
+                    case R.id.nav_groups:
+                        break;
+                    case R.id.nav_browse_users:
+                        break;
+                    case R.id.nav_my_events:
+                        Intent myEventIntent = new Intent(Profile.this, MyEventsActivity.class);
+                        startActivity(myEventIntent);
+                        break;
+                }
+
+                //Checking if the item is in checked state or not, if not make it in checked state
+                if (menuItem.isChecked()) {
+                    menuItem.setChecked(false);
+                } else {
+                    menuItem.setChecked(true);
+                }
+                menuItem.setChecked(true);
+
+                return true;
+            }
+        });
+
+
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.openDrawer,  R.string.closeDrawer) {
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                signOutButton.bringToFront();
+                createEventButton.bringToFront();
+                findEventButton.bringToFront();
+                super.onDrawerClosed(drawerView);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                navigationView.bringToFront();
+                drawer.bringToFront();
+                super.onDrawerOpened(drawerView);
+            }
+        };
+
+        //Setting the actionbarToggle to drawer layout
+        drawer.setDrawerListener(actionBarDrawerToggle);
+
+        //calling sync state is necessary or else your hamburger icon wont show up
+        actionBarDrawerToggle.syncState();
     }
 
     private boolean checkGooglePlayServices() {
@@ -229,4 +381,5 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback {
         }
         super.onSaveInstanceState(outState);
     }
+
 }

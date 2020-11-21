@@ -7,17 +7,38 @@
     android:background="#322196F3"
     tools:context=".Profile">
 
-    <TextView
-        android:id="@+id/email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        app:layout_constraintBottom_toTopOf="@+id/sign_out_button"
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:foregroundGravity="top"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.361" />
+        tools:openDrawer="start"
+        android:elevation="2dp">
+
+        <include
+            layout="@layout/tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            android:fitsSystemWindows="true"
+            app:headerLayout="@layout/nav_header_main"
+            app:menu="@menu/main_drawer">
+
+
+
+        </com.google.android.material.navigation.NavigationView>
+
+    </androidx.drawerlayout.widget.DrawerLayout>
 
     <Button
         android:id="@+id/sign_out_button"
@@ -25,6 +46,7 @@
         android:layout_height="60dp"
         android:layout_weight="1"
         android:backgroundTint="#663F51B5"
+        android:foregroundGravity="top"
         android:text="Sign out"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -39,6 +61,7 @@
         android:layout_height="60dp"
         android:layout_weight="1"
         android:backgroundTint="#6603A9F4"
+        android:foregroundGravity="top"
         android:text="@string/add_event_btn_caption"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -53,6 +76,7 @@
         android:layout_height="60dp"
         android:layout_weight="1"
         android:backgroundTint="#662196F3"
+        android:foregroundGravity="top"
         android:text="@string/find_event_caption"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -61,58 +85,20 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.91" />
 
-    <Button
-        android:id="@+id/my_events_button"
-        android:layout_width="210dp"
-        android:layout_height="60dp"
-        android:layout_weight="1"
-        android:backgroundTint="#6600BCD4"
-        android:text="my events"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.825" />
-
-    <Button
-        android:id="@+id/friend_button"
-        android:layout_width="210dp"
-        android:layout_height="60dp"
-        android:layout_weight="1"
-        android:backgroundTint="#4D009688"
-        android:text="Friends"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.825" />
-
-    <Button
-        android:id="@+id/settingsButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Settings"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.981"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.023" />
-
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="394dp"
-        android:layout_height="481dp"
+        android:layout_width="384dp"
+        android:layout_height="572dp"
         app:layout_constraintBottom_toBottomOf="@+id/sign_out_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.647"
+        app:layout_constraintHorizontal_bias="0.473"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.292"
-        tools:context="com.example.mapwithmarker.MapsMarkerActivity" />
+        app:layout_constraintVertical_bias="0.4"
+        tools:context="com.example.mapwithmarker.MapsMarkerActivity">
+
+    </androidx.fragment.app.FragmentContainerView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
