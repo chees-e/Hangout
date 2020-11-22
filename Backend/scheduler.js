@@ -133,7 +133,7 @@ module.exports.deleteEvent = async (_id) => {
 module.exports.getNextID = async () => {
     const next = await data.getData("nextID");
     const id = next.value;
-    if ((!id) || (id == 1)) {
+    if ((!id) || (id === 1)) {
 	return 1;
     } else {
 	return id;

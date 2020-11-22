@@ -32,14 +32,7 @@ jest.mock("./database.js", () => {
         });
     return {
         setData: async (path, obj) => {
-            const serialize = (obj) => {
-                if (obj instanceof require("./eventlib.js").EventImpl) {
-                    return obj.serialize();
-                } else {
-                    return obj;
-                }
-            };
-            return datafn(path, serialize(obj));
+            return datafn(path, obj);
         },
         getData: async (path) => {
             let keys = path.split("/");
@@ -95,67 +88,80 @@ jest.mock("./database.js", () => {
 });
 
 jest.mock("./eventlib.js", () => {
-    let userEvents = [];
-    let userFriends = [];
     return {
-        Event : function (_id) {
-            let attendees = [];
-            return {
-                id : _id,
-                attendees : attendees,
-                isValid: () => (_id !== null),
-                equals: (other) => (other.id === _id),
-                calculateScore : (user) => {
-                    const FRIEND_WEIGHT = 20;
-                    const ATTENDEE_WEIGHT = 1;
-                    if (attendees.includes(user)) {
-                        return -1;
-                    }
-                    let score = 0;
-                    for (let otherUser of this.attendees) {
-                        if (user.isFriend(otherUser)) {
-                            score += FRIEND_WEIGHT;
-                        } else {
-                            score += ATTENDEE_WEIGHT;
-                        }
-                    }
-                    return score;
+        Event : class Event{
+			constructor(_id) {
+				this.id = _id;
+				this.attendees = [];
+			}
+            isValid() {
+				return this.id !== null;
+			}
+			equals(other) {
+				return other.id === this.id;
+			}
+			calculateScore(user) {
+                const FRIEND_WEIGHT = 20;
+                const ATTENDEE_WEIGHT = 1;
+                if (this.attendees.includes(user)) {
+                    return -1;
                 }
-            };
-        },
-        User : function (_id) {
-            return {
-                id : _id,
-                events : userEvents,
-                friends : userFriends,
-                addEvent : (event) => {
-                    if (userEvents.includes(event.id)) {
-                        return false;
+                let score = 0;
+                for (let otherUser of this.attendees) {
+                    if (user.isFriend(otherUser)) {
+                        score += FRIEND_WEIGHT;
                     } else {
-                        userEvents.push(event.id);
-                        return true;
+                        score += ATTENDEE_WEIGHT;
                     }
-                },
-                addFriend : (_id) => {
-                    if (userFriends.includes(_id)) {
-                        return false;
-                    } else {
-                        userFriends.push(_id);
-                        return true;
-                    }
-                },
-                getEvents : () => (userEvents.slice()),
-                getFriends : () => (userFriends.slice()),
-                isFriend : (_id) => (userFriends.includes(_id))
-            };
+                }
+                return score;
+            }
         },
-        EventImpl : function (_id) {
-            return {
-                id : _id,
-                importEvent : (event) => (true),
-                equals : (other) => (other.id === _id),
-                conflicts : (other) => (other.id >= _id)
-            };
+        User : class User {
+			constructor(_id) {
+				this.id = _id;
+				this.events = [];
+				this.friends = [];
+			}
+			addEvent(event) {
+				if (this.events.includes(event.id)) {
+					return false;
+				} else {
+                    this.events.push(event.id);
+                    return true;
+                }
+			}
+            addFriend(_id) {
+                if (this.friends.includes(_id)) {
+                    return false;
+                } else {
+                    this.friends.push(_id);
+                    return true;
+                }
+            }
+            getEvents(){
+				return this.events.slice();
+			}
+            getFriends(){
+				return this.friends.slice();
+			}
+            isFriend(_id) {
+				return this.friends.includes(_id);
+			}
+        },
+        EventImpl : class EventImpl {
+			constructor(_id) {
+				this.id = _id;
+			}
+            importEvent(event) {
+				return true;
+			}
+            equals(other) {
+				return other.id === this.id;
+			}
+            conflicts(other) {
+				return other.id >= this.id;
+			}
         }
     };
 });
@@ -169,11 +175,7 @@ function assertArrEqual(ev1, ev2){
     expect(ev1.length).toBe(ev2.length);
     expect(ev1.every((elem, idx) => {
         let other = ev2.slice(idx, idx+1)[0];
-        if (elem.hasOwnProperty("equals")) {
-            return elem.equals(other);
-        } else {
-            return elem === other;
-        }
+        return elem.equals(other);
     })).toBe(true);
 }
 
