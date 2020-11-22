@@ -9,7 +9,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,21 +30,16 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
-import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -61,7 +55,6 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
 
     private NavigationView navigationView;
     private DrawerLayout drawer;
-    private View navHeader;
     private ImageView imgNavHeaderBg, imgProfile;
     private TextView textName, textEmail;
 
@@ -173,19 +166,19 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
             Log.w(TAG, "Device doesn't have google play services");
         }
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        drawer = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
 
 
         // Navigation view header
-        navHeader = navigationView.getHeaderView(0);
-        textName = (TextView) navHeader.findViewById(R.id.name);
-        textEmail = (TextView) navHeader.findViewById(R.id.email);
-        imgNavHeaderBg = (ImageView) navHeader.findViewById(R.id.img_header_bg);
-        imgProfile = (ImageView) navHeader.findViewById(R.id.img_profile);
+        View navHeader = navigationView.getHeaderView(0);
+        textName = navHeader.findViewById(R.id.name);
+        textEmail = navHeader.findViewById(R.id.email);
+        imgNavHeaderBg = navHeader.findViewById(R.id.img_header_bg);
+        imgProfile = navHeader.findViewById(R.id.img_profile);
 
         // load nav menu header data
         loadNavHeader(currentAccount);
@@ -261,19 +254,17 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
                     case R.id.nav_groups:
                         break;
                     case R.id.nav_browse_users:
+                        Intent browseUsersIntent = new Intent(Profile.this, BrowseUsersActivity.class);
+                        startActivity(browseUsersIntent);
                         break;
                     case R.id.nav_my_events:
-                        Intent myEventIntent = new Intent(Profile.this, MyEventsActivity.class);
-                        startActivity(myEventIntent);
+                        Intent myEventsIntent = new Intent(Profile.this, MyEventsActivity.class);
+                        startActivity(myEventsIntent);
                         break;
                 }
 
                 //Checking if the item is in checked state or not, if not make it in checked state
-                if (menuItem.isChecked()) {
-                    menuItem.setChecked(false);
-                } else {
-                    menuItem.setChecked(true);
-                }
+                menuItem.setChecked(!menuItem.isChecked());
                 menuItem.setChecked(true);
 
                 return true;
@@ -374,7 +365,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
      * Saves the state of the map when the activity is paused.
      */
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         if (map != null) {
             outState.putParcelable(KEY_CAMERA_POSITION, map.getCameraPosition());
             outState.putParcelable(KEY_LOCATION, lastKnownLocation);

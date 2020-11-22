@@ -28,8 +28,7 @@
                 android:adjustViewBounds="true"
                 android:background="@drawable/circle"
                 android:padding="3dp"
-                android:scaleType="centerInside"
-                android:contentDescription="@string/profilepicture" />
+                android:scaleType="centerInside" />
 
         </RelativeLayout>
 
@@ -41,23 +40,9 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="15sp"
             android:fontFamily="sans-serif-light"
-            android:text="@string/first_last"
+            android:text="First Last"
             android:textColor="@color/white"
             android:textSize="32sp" />
-
-
-        <ImageButton
-            android:id="@+id/settingsButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="15dp"
-            android:layout_marginEnd="15dp"
-            android:adjustViewBounds="true"
-            android:background="@color/fui_transparent"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_settings_black_24dp"
-            android:contentDescription="@string/settings" />
 
     </RelativeLayout>
 
@@ -66,8 +51,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/rellay1"
-        android:orientation="horizontal"
-        android:baselineAligned="false">
+        android:orientation="horizontal">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -89,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
-                    android:text="@string/_0"
+                    android:text="0"
                     android:textColor="@color/white"
                     android:textSize="25sp" />
 
@@ -97,7 +81,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
-                    android:text="@string/friends"
+                    android:text="Friends"
                     android:textAllCaps="true"
                     android:textColor="@color/white"
                     android:textSize="13sp" />
@@ -126,7 +110,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
-                    android:text="@string/_0"
+                    android:text="0"
                     android:textColor="@color/white"
                     android:textSize="25sp" />
 
@@ -134,12 +118,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
-                    android:text="@string/events"
+                    android:text="Events"
                     android:textAllCaps="true"
                     android:textColor="@color/white"
                     android:textSize="13sp" />
+
             </LinearLayout>
+
         </RelativeLayout>
+
     </LinearLayout>
 
 
@@ -194,7 +181,7 @@
                     android:textColor="@color/headings"
                     android:textSize="13sp" />
 
-                <EditText
+                <TextView
                     android:id="@+id/profileLocation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -223,15 +210,14 @@
                     android:textColor="@color/headings"
                     android:textSize="13sp" />
 
-                <EditText
+                <TextView
                     android:id="@+id/profileDescription"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
                     android:text=""
                     android:textColor="#000000"
-                    android:textSize="18sp"
-                    android:autofillHints="Add Description" />
+                    android:textSize="18sp" />
 
                 <View
                     android:layout_width="match_parent"
@@ -242,10 +228,10 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/profileConfirm"
+                android:id="@+id/profileViewConfirm"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/save_profile" />
+                android:text="Add Friend" />
 
 
         </LinearLayout>

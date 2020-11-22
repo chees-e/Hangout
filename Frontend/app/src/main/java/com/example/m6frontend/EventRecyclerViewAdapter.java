@@ -19,7 +19,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private ArrayList<JSONObject> mDataSet;
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
@@ -27,12 +27,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public RecyclerViewAdapter(ArrayList<JSONObject> dataSet, Context context) {
+    public EventRecyclerViewAdapter(ArrayList<JSONObject> dataSet, Context context) {
         mDataSet = dataSet;
         this.context = context;
     }
 
     // Create new views (invoked by the layout manager)
+    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                   int viewType) {
@@ -40,12 +41,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         if (viewType == VIEW_TYPE_ITEM) {
             View v =  LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.eventcard, parent, false);
-            FindEventViewHolder vh = new FindEventViewHolder(v);
-            return vh;
+            return new FindEventViewHolder(v);
         } else {
             View v =  LayoutInflater.from(parent.getContext()).inflate(R.layout.event_loading, parent, false);
-            LoadingViewHolder vh = new LoadingViewHolder(v);
-            return vh;
+            return new LoadingViewHolder(v);
         }
 
     }
@@ -105,7 +104,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-    private class LoadingViewHolder extends RecyclerView.ViewHolder {
+    private static class LoadingViewHolder extends RecyclerView.ViewHolder {
 
         private ProgressBar progressBar;
 

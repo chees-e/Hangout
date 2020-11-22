@@ -18,7 +18,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ProfileSettingsActivity"></activity>
+        <activity android:name=".ViewProfileActivity" />
+        <activity android:name=".BrowseUsersActivity" />
+        <activity android:name=".ProfileSettingsActivity" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
@@ -33,7 +35,8 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/GOOGLE_MAPS_API_KEY" />
 
-        <service android:name=".FirebaseMessagingService">
+        <service android:name=".FirebaseMessagingService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
