@@ -21,8 +21,11 @@ app.post("/event/", async function(req, res) {
     let id = await sched.getNextID();
     //Summary = name
     //to be added: host, attendees
-    let evnt = new eventlib.Event(id, req.body.name, req.body.desc,
-                                  new Date(req.body.start.dataTime), new Date(req.body.end.dataTime),
+	//
+	console.log(req.body.start)
+	console.log(new Date(req.body.start))
+    let evnt = new eventlib.Event(id, req.body.name, req.body.description,
+                                  new Date(req.body.start), new Date(req.body.end),
                                   req.body.location);
     if (!evnt.isValid()) {
         rv = sched.addEvent(null, id, null, new Date(0), new Date(0), null);
@@ -114,5 +117,21 @@ app.post("/user/:uid/event/:eid", function(req, res) {
         }
     });
 });
+
+//To be removed
+app.get("/deleteallevents/confirm", function(req, res) {
+    sched.getAllEvents().then( (eventlist) => {
+        for(let i = 0; i < eventlist.length; i++) {
+		let id = eventlist[0]["id"]
+    		sched.deleteEvent(id).then((code) => {
+        		if (code < 0) {
+            			res.status(404).send({msg:"Event not found"});
+        		}
+    		});
+	}
+        res.send({msg:"Event deleted successfully"});
+    });
+});
+
 
 module.exports = app;
