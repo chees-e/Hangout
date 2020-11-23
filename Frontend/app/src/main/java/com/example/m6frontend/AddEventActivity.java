@@ -147,13 +147,21 @@ public class AddEventActivity extends AppCompatActivity {
                 try {
                     //#TODO Building the attendees param
 
+                     String start = startTime.getText().toString();
+                     if (start.length() < 5) {
+                         start = "0" + start;
+                     }
+                     String end = startTime.getText().toString();
+                     if (end.length() < 5) {
+                         end = "0" + end;
+                     }
                      jsonString = new JSONObject()
                              .put("host", currentUser.getEmail())
                             .put("name", eventName.getText())
                             .put("location", locationName.getText())
                             .put("description", descriptionName.getText())
-                            .put("start",startDate.getText() + "T" + startTime.getText())
-                            .put("end", endDate.getText() + "T" + endTime.getText())
+                            .put("start",startDate.getText() + "T" + start)
+                            .put("end", endDate.getText() + "T" + end)
                             //.put("attendees", new JSONArray().put("email:" + currentUser.getEmail()))
                             .toString();
                     Toast.makeText(AddEventActivity.this, jsonString, Toast.LENGTH_LONG).show();
