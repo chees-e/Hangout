@@ -51,10 +51,6 @@ public class FindEventActivity extends AppCompatActivity {
 
         int startEvents = 10;
         dataSet = initEventData(startEvents);
-
-
-        initAdapter();
-        initScrollListener();
     }
 
     private void initAdapter() {
@@ -128,7 +124,7 @@ public class FindEventActivity extends AppCompatActivity {
 
 
     private ArrayList<JSONObject> initEventData(int num) {
-        final ArrayList<JSONObject> dataSet = new ArrayList<>();
+        final ArrayList<JSONObject> _dataSet = new ArrayList<>();
 
         RequestQueue requestQueue = Volley.newRequestQueue(FindEventActivity.this);
         String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event/";
@@ -139,7 +135,6 @@ public class FindEventActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(JSONObject response) {
-                        System.out.println(response.toString());
                         try {
                             JSONArray events = response.getJSONArray("events");
                             int length = response.getInt("length");
@@ -147,18 +142,20 @@ public class FindEventActivity extends AppCompatActivity {
                             //stuff show up after a longgg time
                             Uri tempurl = currentAccount.getPhotoUrl();
                             for (int i = 0; i < length; i++) {
-                                dataSet.add(new JSONObject());
-                                dataSet.get(i).put("name", events.getJSONObject(i).getString("name"));
-                                dataSet.get(i).put("desc", events.getJSONObject(i).getString("desc"));
-                                dataSet.get(i).put("location", events.getJSONObject(i).getString("location"));
-                                dataSet.get(i).put("start", events.getJSONObject(i).getString("start"));
-                                dataSet.get(i).put("end", events.getJSONObject(i).getString("end"));
-                                dataSet.get(i).put("attendees", "TODO");
-                                dataSet.get(i).put("ownerPicture", tempurl); // TODO: get owner picture
+                                _dataSet.add(new JSONObject());
+                                _dataSet.get(i).put("name", events.getJSONObject(i).getString("name"));
+                                _dataSet.get(i).put("desc", events.getJSONObject(i).getString("desc"));
+                                _dataSet.get(i).put("location", events.getJSONObject(i).getString("location"));
+                                _dataSet.get(i).put("start", events.getJSONObject(i).getString("start"));
+                                _dataSet.get(i).put("end", events.getJSONObject(i).getString("end"));
+                                _dataSet.get(i).put("attendees", "TODO");
+                                _dataSet.get(i).put("ownerPicture", tempurl); // TODO: get owner picture
                                 numEvents++;
                                 Log.d(TAG, "event added");
 
                             }
+                            initAdapter();
+                            initScrollListener();
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -175,7 +172,7 @@ public class FindEventActivity extends AppCompatActivity {
         requestQueue.add(jsonObjectRequest);
         requestQueue.start();
 
-        return dataSet;
+        return _dataSet;
 
         /*
         // Server code
