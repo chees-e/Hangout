@@ -90,17 +90,17 @@ jest.mock("./database.js", () => {
 jest.mock("./eventlib.js", () => {
     return {
         Event : class Event{
-			constructor(_id) {
-				this.id = _id;
-				this.attendees = [];
-			}
+            constructor(_id) {
+                this.id = _id;
+                this.attendees = [];
+            }
             isValid() {
-				return this.id !== null;
-			}
-			equals(other) {
-				return other.id === this.id;
-			}
-			calculateScore(user) {
+                return this.id !== null;
+            }
+            equals(other) {
+                return other.id === this.id;
+            }
+            calculateScore(user) {
                 const FRIEND_WEIGHT = 20;
                 const ATTENDEE_WEIGHT = 1;
                 if (this.attendees.includes(user)) {
@@ -118,19 +118,19 @@ jest.mock("./eventlib.js", () => {
             }
         },
         User : class User {
-			constructor(_id) {
-				this.id = _id;
-				this.events = [];
-				this.friends = [];
-			}
-			addEvent(event) {
-				if (this.events.includes(event.id)) {
-					return false;
-				} else {
+            constructor(_id) {
+                this.id = _id;
+                this.events = [];
+                this.friends = [];
+            }
+            addEvent(event) {
+                if (this.events.includes(event.id)) {
+                    return false;
+                } else {
                     this.events.push(event.id);
                     return true;
                 }
-			}
+            }
             addFriend(_id) {
                 if (this.friends.includes(_id)) {
                     return false;
@@ -140,28 +140,28 @@ jest.mock("./eventlib.js", () => {
                 }
             }
             getEvents(){
-				return this.events.slice();
-			}
+                return this.events.slice();
+            }
             getFriends(){
-				return this.friends.slice();
-			}
+                return this.friends.slice();
+            }
             isFriend(_id) {
-				return this.friends.includes(_id);
-			}
+                return this.friends.includes(_id);
+            }
         },
         EventImpl : class EventImpl {
-			constructor(_id) {
-				this.id = _id;
-			}
+            constructor(_id) {
+                this.id = _id;
+            }
             importEvent(event) {
-				return true;
-			}
+                return true;
+            }
             equals(other) {
-				return other.id === this.id;
-			}
+                return other.id === this.id;
+            }
             conflicts(other) {
-				return other.id >= this.id;
-			}
+                return other.id >= this.id;
+            }
         }
     };
 });

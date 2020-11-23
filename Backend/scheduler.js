@@ -134,9 +134,9 @@ module.exports.getNextID = async () => {
     const next = await data.getData("nextID");
     const id = next.value;
     if ((!id) || (id === 1)) {
-	return 1;
+    return 1;
     } else {
-	return id;
+    return id;
     }
 };
 
@@ -148,7 +148,7 @@ module.exports.getNextID = async () => {
 module.exports.getEvent = async (id) => {
     if (!id) {
         let lastID = await data.getData("lastID");
-	let _id = lastID.value;
+    let _id = lastID.value;
         return await getEventImpl(_id);
     } else {
         return await getEventImpl(id);

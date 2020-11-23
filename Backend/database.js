@@ -1,14 +1,25 @@
 "use strict";
 const { MongoClient } = require("mongodb");
-const uri = "mongodb://127.0.0.1:27017/";
-const client = new MongoClient(uri, { useUnifiedTopology: true });
-const dbname = "Hangout";
 const eventlib = require("./eventlib.js");
+var client = null;
 var db = null;
 
-module.exports.init = async () => {
+module.exports.init = async (uri, dbname) => {
+    client = new MongoClient(uri, { useUnifiedTopology: true });
     await client.connect();
     db = await client.db(dbname);
+};
+
+module.exports.clear = async () => {
+    if (db) {
+        await db.dropDatabase();
+    }
+};
+
+module.exports.close = async () => {
+    if (client) {
+        await client.close();
+    }
 };
 
 /* setData(path, obj)
