@@ -8,8 +8,8 @@
   "scripts": {
     "start": "node server.js",
     "devstart": "nodemon server.js",
-    "test": "jest",
-    "coverage": "jest --coverage"
+    "test": "jest --runInBand",
+    "coverage": "jest --runInBand --coverage"
   },
   "dependencies": {
     "express": "^4.16.4",
