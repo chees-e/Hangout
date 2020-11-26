@@ -23,7 +23,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 
 public class FindEventActivity extends AppCompatActivity {
@@ -127,6 +130,10 @@ public class FindEventActivity extends AppCompatActivity {
         final ArrayList<JSONObject> _dataSet = new ArrayList<>();
 
         RequestQueue requestQueue = Volley.newRequestQueue(FindEventActivity.this);
+        //This url needs to be changed so that it gets the events that users are not in
+        //Or make the response include whether the user has already participated or not so that
+        //it can be displayed differently
+        //I will work on it so DW about this part
         String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event/";
 
         //Getting all events
@@ -139,16 +146,25 @@ public class FindEventActivity extends AppCompatActivity {
                             JSONArray events = response.getJSONArray("events");
                             int length = response.getInt("length");
 
-                            //stuff show up after a longgg time
                             Uri tempurl = currentAccount.getPhotoUrl();
                             for (int i = 0; i < length; i++) {
+                                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                                Date startdate = format.parse( events.getJSONObject(i).getString("start").substring(0,10) + " " +  events.getJSONObject(i).getString("start").substring(11,17));
+                                Date enddate = format.parse( events.getJSONObject(i).getString("end").substring(0,10) + " " +  events.getJSONObject(i).getString("end").substring(11,17));
+                                //TODO: Formating the date
+                                //So change these two
+                                //Rn for some reason it is displaying start time twice instead of start and end,
+                                //Also there is a big black space in each entry => idk why but it is a problem
+                                String startstr = startdate.toString() + " - ";
+                                String endstr = enddate.toString();
+
                                 _dataSet.add(new JSONObject());
                                 _dataSet.get(i).put("name", events.getJSONObject(i).getString("name"));
                                 _dataSet.get(i).put("desc", events.getJSONObject(i).getString("desc"));
-                                _dataSet.get(i).put("location", events.getJSONObject(i).getString("location"));
-                                _dataSet.get(i).put("start", events.getJSONObject(i).getString("start"));
-                                _dataSet.get(i).put("end", events.getJSONObject(i).getString("end"));
-                                _dataSet.get(i).put("attendees", "TODO");
+                                _dataSet.get(i).put("location", "Location: " + events.getJSONObject(i).getString("location"));
+                                _dataSet.get(i).put("start", startstr);
+                                _dataSet.get(i).put("end", endstr);
+                                _dataSet.get(i).put("attendees", "TODO: attendees");
                                 _dataSet.get(i).put("ownerPicture", tempurl); // TODO: get owner picture
                                 numEvents++;
                                 Log.d(TAG, "event added");
@@ -157,6 +173,9 @@ public class FindEventActivity extends AppCompatActivity {
                             initAdapter();
                             initScrollListener();
                         } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        catch (ParseException e) {
                             e.printStackTrace();
                         }
                     }

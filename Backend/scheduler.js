@@ -132,11 +132,15 @@ module.exports.deleteEvent = async (_id) => {
 */
 module.exports.getNextID = async () => {
     const next = await data.getData("nextID");
-    const id = next.value;
-    if ((!id) || (id === 1)) {
-    return 1;
+    if (!next) {
+        return 1;
     } else {
-    return id;
+        const id = next.value;
+        if (id <= 1) {
+            return 1;
+        } else {
+            return id;
+        }
     }
 };
 
@@ -210,6 +214,45 @@ module.exports.addEventToUser = async (_uid, _eid) => {
         
         await data.setData(`users/${_uid}`, user);
         await data.setData(`impls/${_uid}`, uimpl);
+        return 0;
+    }
+};
+
+/* removeEventFromUser(uid, eid)
+ *  params:
+ *   uid: user id
+ *   eid: event id
+ *  returns:
+ *   negative value on failure and 0 on success
+*/
+module.exports.removeEventFromUser = async (_uid, _eid) => {
+    const user = await getUserImpl(_uid);
+    const uimpl = await getImpl(_uid);
+    const eimpl = await getImpl(_eid);
+    if (!user) {
+        return -1;
+    } else {
+        const eidx = user.events.findIndex((elem) => (elem === _eid));
+        const evnt = await getEventImpl(user.events[parseInt(eidx, 10)]); 
+        if (!evnt.isValid()){
+            return -1;
+        }
+
+        const newUser = new eventlib.User(_uid);
+        const newUimpl = new eventlib.EventImpl(_uid);
+        newUser.events = user.events;
+        newUser.friends = user.friends;
+        newUser.events.splice(eidx, 1);
+
+        for (const evid of user.events) {
+            const ev = await getEventImpl(evid);
+            newUser.addEvent(ev);
+            newUimpl.importEvent(ev);
+        }
+        
+        await data.setData(`users/${_uid}`, newUser);
+        await data.setData(`impls/${_uid}`, newUimpl);
+        
         return 0;
     }
 };

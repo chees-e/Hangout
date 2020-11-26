@@ -151,7 +151,7 @@ public class AddEventActivity extends AppCompatActivity {
                      if (start.length() < 5) {
                          start = "0" + start;
                      }
-                     String end = startTime.getText().toString();
+                     String end = endTime.getText().toString();
                      if (end.length() < 5) {
                          end = "0" + end;
                      }

@@ -21,9 +21,7 @@ app.post("/event/", async function(req, res) {
     let id = await sched.getNextID();
     //Summary = name
     //to be added: host, attendees
-	//
-	console.log(req.body.start)
-	console.log(new Date(req.body.start))
+    //
     let evnt = new eventlib.Event(id, req.body.name, req.body.description,
                                   new Date(req.body.start), new Date(req.body.end),
                                   req.body.location);
@@ -119,6 +117,16 @@ app.post("/user/:uid/event/:eid", function(req, res) {
     });
 });
 
+app.delete("/user/:uid/event/:eid", function(req, res) {
+    sched.removeEventFromUser(req.params.uid, req.params.eid).then((code) => {
+        if (code < 0) {
+            res.status(404).send({msg:"Invalid IDs"});
+        } else {
+            res.send({msg:"Success"});
+        }
+    });
+});
+
 app.get("/user/", function(req, res) {
     sched.getAllUsers().then( (userlist) => {
         if (userlist.length === 0){
@@ -163,19 +171,18 @@ app.delete("/user/:uid/friend/:fid", function(req, res) {
 			}
 		}
     });
-});
 
 //To be removed
 app.get("/deleteallevents/confirm", function(req, res) {
     sched.getAllEvents().then( (eventlist) => {
         for(let i = 0; i < eventlist.length; i++) {
-		let id = eventlist[0]["id"]
-    		sched.deleteEvent(id).then((code) => {
-        		if (code < 0) {
-            			res.status(404).send({msg:"Event not found"});
-        		}
-    		});
-	}
+            let id = eventlist[0]["id"];
+            sched.deleteEvent(id).then((code) => {
+                if (code < 0) {
+                        res.status(404).send({msg:"Event not found"});
+                }
+            });
+        }
         res.send({msg:"Event deleted successfully"});
     });
 });
