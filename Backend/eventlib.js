@@ -95,8 +95,9 @@ class Event{
  * User details such as name and information is stored elsewhere in the backend.
 */
 class User{
-    constructor(id){
+    constructor(id, name){
         this.id = id;
+		this.name = name;
         this.events = [];
         this.friends = [];
     }

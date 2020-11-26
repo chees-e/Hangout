@@ -81,8 +81,8 @@ app.get("/event/:id", function(req, res) {
     });
 });
 
-app.post("/user/:id", function(req, res) {
-    sched.addUser(req.params.id).then((code) => {
+app.post("/user/", function(req, res) {
+    sched.addUser(req.params.id, req.params.name).then((code) => {
         if (code < 0) {
             res.status(409).send({msg:"User already exists"});
         } else {
@@ -96,10 +96,25 @@ app.get("/user/:id", function(req, res) {
         if (!user) {
             res.status(404).send({msg:"User not found"});
         } else {
+			let friendids = user.getFriends();
+			let friendlist = [];
+			for (let i = 0; i < friendids.length; i++) {
+    			sched.getUser(friendids[i]).then((friend) => {
+				
+        			if (!friend) {
+            			res.status(404).send({msg:"Friend not found"});
+					}
+					frindlist.push({
+						id: friend.id,
+						name: friend.name
+					});
+				});
+			}
             res.send({
                 id: user.id,
+				name: user.name,
                 events: user.events,
-				friends: user.friends
+				friends: friendlist
             });
         }
     });
@@ -147,10 +162,17 @@ app.post("/user/:uid/friend/:fid", function(req, res) {
             res.status(404).send({msg:"User not found"});
         } else {
 			//Should friend already exist return an error?
-			let _success = user.addFriend(req.param.fid);
-            res.send({
-      			success: _success
-            });
+			user.addFriend(req.param.fid);
+			sched.getUser(req.params.fid).then((friend) => {
+            	if (!friend) {
+            		res.status(404).send({msg:"Friend not found"});
+				} else {
+					friend.addFriend(req.param.uid);
+					res.send({
+						msg: "success"
+					});
+				}
+			});
         }
     });
 });
@@ -162,13 +184,19 @@ app.delete("/user/:uid/friend/:fid", function(req, res) {
         } else {
 			//Should friend already exist return an error?
 			let _success = user.deleteFriend(req.param.fid);
-            if (_success) {
-				res.send({
-      				msg: "success"
-            	});
-        	} else {
+            if (!_success) {
             	res.status(404).send({msg:"Friend not found"});
 			}
+			sched.getUser(req.params.fid).then((friend) => {
+				_success = friend.deleteFriend(req.param.uid);
+            	if (!_success) {
+            		res.status(404).send({msg:"Friend not found"});
+				} else {
+					res.send({
+						msg: "success"
+					});
+				}
+			});
 		}
     });
 });

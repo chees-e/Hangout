@@ -55,7 +55,8 @@ async function getUserImpl(_id) {
     if ((!_id) || (!userData)) {
         return null;
     } else {
-        let user = new eventlib.User(userData.id);
+        let user = new eventlib.User(userData.id, userData.name);
+		user.name = userData.name;
         user.events = userData.events;
         user.friends = userData.friends;
         return user;
@@ -176,16 +177,17 @@ module.exports.getAllEvents = async () => {
     return evts;
 };
 
-/* addUser(_id)
+/* addUser(_id, _name)
  *  params: _id - user id, must not collide with event ids
+ *  _name: name of the user
  *  returns: negative value on failure and _id on success
 */
-module.exports.addUser = async (_id) => {
+module.exports.addUser = async (_id, _name) => {
     let has = await data.hasKey(`users/${_id}`);
     if (has) {
         return -1;
     } else {
-        await data.setData(`users/${_id}`, new eventlib.User(_id));
+        await data.setData(`users/${_id}`, new eventlib.User(_id, _name));
         await data.setData(`impls/${_id}`, new eventlib.EventImpl(_id));
         
         return _id;
