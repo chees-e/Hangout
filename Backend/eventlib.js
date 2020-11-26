@@ -129,6 +129,21 @@ class User{
             return true;
         }
     }
+    /* deleteFriend(id);
+     *
+     * Params: id - User id of friend to add
+     * Returns: true if the friend was successfully delete, false if the friend doesn't exist
+     * 
+     */
+    deleteFriend(id){
+        if (this.friends.includes(id)) {
+            return false;
+        } else {
+			let index = this.friends.indexOf(id);
+            this.friends.splice(index, 1);
+            return true;
+        }
+    }
     /* getEvents();
      * 
      * Returns: the events the user currently attends

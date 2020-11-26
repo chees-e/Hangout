@@ -224,3 +224,20 @@ module.exports.getUser = async (_uid) => {
     let dat = await getUserImpl(_uid);
     return dat;
 };
+
+/* getAllUsers()
+ *  params: none
+ *  returns: array containing all users in the database
+ *
+ */
+module.exports.getAllEvents = async () => {
+    var users = new Array();
+    const usermap = await data.getKeys("users");
+    for (const _ of usermap) {
+        const value = await getUserImpl(_.id);
+        if (value.isValid()) {
+            users.push(value);
+        }
+    }
+    return users;
+};

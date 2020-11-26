@@ -100,7 +100,8 @@ app.get("/user/:id", function(req, res) {
         } else {
             res.send({
                 id: user.id,
-                events: user.events
+                events: user.events,
+				friends: user.friends
             });
         }
     });
@@ -115,6 +116,52 @@ app.post("/user/:uid/event/:eid", function(req, res) {
         } else {
             res.send({msg:"Success"});
         }
+    });
+});
+
+app.get("/user/", function(req, res) {
+    sched.getAllUsers().then( (userlist) => {
+        if (userlist.length === 0){
+            res.status(404).send({msg:"No users"});
+        } else {
+            res.send({
+                length : userlist.length,
+                users : userlist
+            });
+        }
+    });
+	
+});
+
+app.post("/user/:uid/friend/:fid", function(req, res) {
+    sched.getUser(req.params.uid).then((user) => {
+        if (!user) {
+            res.status(404).send({msg:"User not found"});
+        } else {
+			//Should friend already exist return an error?
+			let _success = user.addFriend(req.param.fid);
+            res.send({
+      			success: _success
+            });
+        }
+    });
+});
+
+app.delete("/user/:uid/friend/:fid", function(req, res) {
+    sched.getUser(req.params.uid).then((user) => {
+        if (!user) {
+            res.status(404).send({msg:"User not found"});
+        } else {
+			//Should friend already exist return an error?
+			let _success = user.deleteFriend(req.param.fid);
+            if (_success) {
+				res.send({
+      				msg: "success"
+            	});
+        	} else {
+            	res.status(404).send({msg:"Friend not found"});
+			}
+		}
     });
 });
 
