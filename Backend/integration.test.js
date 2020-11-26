@@ -156,9 +156,36 @@ test("Testing Add Event To User", async () => {
 });
 
 test("Testing Remove Event From User", async () => {
-    assert(false);
-});
+    // Preparation: Add event and a test user
+    const EV1Res = await request(app).post("/event/").send(ev1);
+    expect(EV1Res.statusCode).toBe(201);
 
+    const post1 = await request(app).post("/user/TestUser").send({});
+    expect(post1.statusCode).toBe(201);
+
+    // Test case 1: Deleting event from empty user should return 404
+    const del1 = await request(app).delete(`/user/TestUser/event/${EV1Res.body.id}`);
+    expect(del1.statusCode).toBe(404);
+
+    const post2 = await request(app).post(`/user/TestUser/event/${EV1Res.body.id}`);
+    expect(post2.statusCode).toBe(200);
+
+    // Test case 2: Deleting event that the user attends should return 200
+    const del2 = await request(app).delete(`/user/TestUser/event/${EV1Res.body.id}`);
+    expect(del2.statusCode).toBe(200);
+
+    // Test case 3: Deleted event should be removed from the user
+    const get1 = await request(app).get("/user/TestUser");
+    expect(get1.statusCode).toBe(200);
+    expect(get1.body).toEqual({
+        id : "TestUser",
+        events: []
+    }); 
+    
+    // Test case 4: Deleted event should no longer conflict
+    const post3 = await request(app).post(`/user/TestUser/event/${EV1Res.body.id}`);
+    expect(post3.statusCode).toBe(200);
+});
 test("Testing Friend Requests", async () => {
     assert(false);
 });

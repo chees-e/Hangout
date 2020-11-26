@@ -116,6 +116,16 @@ app.post("/user/:uid/event/:eid", function(req, res) {
     });
 });
 
+app.delete("/user/:uid/event/:eid", function(req, res) {
+    sched.removeEventFromUser(req.params.uid, req.params.eid).then((code) => {
+        if (code < 0) {
+            res.status(404).send({msg:"Invalid IDs"});
+        } else {
+            res.send({msg:"Success"});
+        }
+    });
+});
+
 //To be removed
 app.get("/deleteallevents/confirm", function(req, res) {
     sched.getAllEvents().then( (eventlist) => {
