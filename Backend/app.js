@@ -171,6 +171,7 @@ app.delete("/user/:uid/friend/:fid", function(req, res) {
 			}
 		}
     });
+});
 
 //To be removed
 app.get("/deleteallevents/confirm", function(req, res) {
