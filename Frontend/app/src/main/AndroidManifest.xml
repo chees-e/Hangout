@@ -19,12 +19,12 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity android:name=".ViewProfileActivity" />
-        <activity android:name=".BrowseUsersActivity" />
+        <activity android:name=".BrowseUsersActivity"
+            android:noHistory="true"/>
         <activity android:name=".ProfileSettingsActivity" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity android:name=".FriendsActivity" />
         <activity android:name=".DisplayEventActivity" />
 
         <meta-data

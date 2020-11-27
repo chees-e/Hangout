@@ -2,10 +2,10 @@ package com.example.m6frontend;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -24,10 +24,12 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
     private Context context;
+    private String activity;
 
-    public UserRecyclerViewAdapter(ArrayList<JSONObject> dataSet, Context context) {
+    public UserRecyclerViewAdapter(ArrayList<JSONObject> dataSet, Context context, String activity) {
         mDataSet = dataSet;
         this.context = context;
+        this.activity = activity;
     }
 
 
@@ -35,9 +37,17 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         if (viewType == VIEW_TYPE_ITEM) {
-            View v =  LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.user_card, parent, false);
-            return new FindUserViewHolder(v);
+            View v;
+            if (activity.equals("friends")) {
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.friend_card, parent, false);
+            } else {
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.user_card, parent, false);
+            }
+            return new FindUserViewHolder(v, activity);
+
+
         } else {
             View v =  LayoutInflater.from(parent.getContext()).inflate(R.layout.event_loading, parent, false);
             return new LoadingViewHolder(v);
@@ -56,6 +66,9 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             @Override
             public void onClick(View v) {
                 Intent ViewProfileIntent = new Intent(context, ViewProfileActivity.class);
+
+                ViewProfileIntent.putExtra("activity", activity);
+
                 context.startActivity(ViewProfileIntent);
             }
         });
@@ -80,13 +93,19 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         public TextView profileEmail;
         public TextView profileLocation;
         public ImageView profileUri;
+        public Button messageButton;
 
-        public FindUserViewHolder(View itemView) {
+        public FindUserViewHolder(View itemView, String activity) {
             super(itemView);
             profileName = itemView.findViewById(R.id.profileCardName);
-            profileEmail = itemView.findViewById(R.id.profileCardEmail);
-            profileLocation = itemView.findViewById(R.id.profileCardLocation);
             profileUri = itemView.findViewById(R.id.profileCardPicture);
+
+            if (activity.equals("friends")) {
+                profileEmail = itemView.findViewById(R.id.profileCardEmail);
+                profileLocation = itemView.findViewById(R.id.profileCardLocation);
+                messageButton = itemView.findViewById(R.id.message_button);
+            }
+
         }
     }
 
@@ -103,9 +122,22 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     private void populateEvents(UserRecyclerViewAdapter.FindUserViewHolder holder, int position) {
         try {
             holder.profileName.setText(mDataSet.get(position).get("name").toString());
-            holder.profileLocation.setText(mDataSet.get(position).get("location").toString());
-            holder.profileEmail.setText(mDataSet.get(position).get("email").toString());
             holder.profileUri.setImageURI(null);
+
+            if (activity.equals("friends")) {
+                holder.profileLocation.setText(mDataSet.get(position).get("location").toString());
+                holder.profileEmail.setText(mDataSet.get(position).get("email").toString());
+                holder.messageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent messageIntent = new Intent(context, ChatActivity.class);
+                        context.startActivity(messageIntent);
+                    }
+                });
+
+            }
+
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

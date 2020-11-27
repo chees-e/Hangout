@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -29,6 +30,8 @@ public class BrowseUsersActivity extends AppCompatActivity {
     private boolean isLoading = false;
     private final int numLoad = 10;
     private final int maxUsers = 30;
+    Intent intent;
+    String activity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,8 @@ public class BrowseUsersActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.userRecyclerView);
         numUsers = 0;
         currentAccount = GoogleSignIn.getLastSignedInAccount(this);
+        intent = getIntent();
+        activity = intent.getStringExtra("activity");
 
         int startUsers = 10;
         dataSet = initUserData(startUsers);
@@ -47,7 +52,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
     }
 
     private void initAdapter() {
-        recyclerViewAdapter = new UserRecyclerViewAdapter(dataSet, this);
+        recyclerViewAdapter = new UserRecyclerViewAdapter(dataSet, this, activity );
         recyclerView.setAdapter(recyclerViewAdapter);
     }
 
@@ -93,9 +98,12 @@ public class BrowseUsersActivity extends AppCompatActivity {
                 while (currentSize - 1 < nextLimit && currentSize - 1 < maxUsers) {
                     dataSet.add(new JSONObject());
                     try {
+
                         dataSet.get(currentSize).put("name","name" + numUsers);
-                        dataSet.get(currentSize).put("email", "email" + numUsers);
-                        dataSet.get(currentSize).put("location","location"+ numUsers);
+                        if (activity.equals("friends")) {
+                            dataSet.get(currentSize).put("email", "email" + numUsers);
+                            dataSet.get(currentSize).put("location","location"+ numUsers);
+                        }
                         // TODO: get user picture
                         numUsers++;
                     } catch (JSONException e) {
@@ -120,11 +128,13 @@ public class BrowseUsersActivity extends AppCompatActivity {
             try {
                 dataSet.add(new JSONObject());
                 dataSet.get(i).put("name","name" + numUsers);
-                dataSet.get(i).put("email", "email" + numUsers);
-                dataSet.get(i).put("location","location"+ numUsers);
+                if (activity.equals("friends")){
+                    dataSet.get(i).put("email", "email" + numUsers);
+                    dataSet.get(i).put("location","location"+ numUsers);
+                }
                  // TODO: get owner picture
                 numUsers++;
-                Log.d(TAG, "event added");
+                Log.d(TAG, "user added");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
