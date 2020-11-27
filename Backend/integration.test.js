@@ -39,6 +39,18 @@ const ev3 = {
     end: end2,
     location: {"lat":0, "long":0}
 };
+const user1 = {
+	id: "TestUser1",
+	name: "TestUser1"
+};
+const user2 = {
+	id: "TestUser2",
+	name: "TestUser2"
+};
+const user3 = {
+	id: "TestUser3",
+	name: "TestUser3"
+};
 
 beforeAll(() => {
     return db.init(uri, dbname);
@@ -54,19 +66,17 @@ afterAll(() => {
 
 test("Testing Login", async () => {    
     // Test Case 1: Add user, should work
-    const post1 = await request(app).post("/user/TestUser").send({});
+    const post1 = await request(app).post("/user/").send(user1);
     expect(post1.statusCode).toBe(201);
 
     // Test Case 2: Adding the same user should detect a conflict
-    const post2 = await request(app).post("/user/TestUser").send({});
+    const post2 = await request(app).post("/user/").send(user1);
     expect(post2.statusCode).toBe(409);
 
-    const get1 = await request(app).get("/user/TestUser");
+    const get1 = await request(app).get("/user/TestUser1");
     expect(get1.statusCode).toBe(200);
-    expect(get1.body).toEqual({
-        id : "TestUser",
-        events: []
-    });
+    expect(get1.body.id).toBe("TestUser1");
+    expect(get1.body.events).toEqual([]);
 });
 
 test("Testing Create Event", async () => {
@@ -100,10 +110,7 @@ test("Testing Create Event", async () => {
     expected[1].id = `${addResponse3.body.id}`;
     
     const getResponse = await request(app).get("/event/");
-    expect(getResponse.body).toEqual({
-        length : 2,
-        events : expected
-    });
+    expect(getResponse.body.events).toEqual(expected);
 });
 
 test("Testing Delete Event", async () => {
@@ -128,31 +135,28 @@ test("Testing Add Event To User", async () => {
     const EV3Res = await request(app).post("/event/").send(ev3);
     expect(EV3Res.statusCode).toBe(201);
 
-    const post1 = await request(app).post("/user/TestUser").send({});
+    const post1 = await request(app).post("/user/").send(user1);
     expect(post1.statusCode).toBe(201);
 
     // Test Case 1: Adding an event that does not exist should return 404
-    const post2 = await request(app).post("/user/TestUser/event/-1").send({});
+    const post2 = await request(app).post("/user/TestUser1/event/-1").send({});
     expect(post2.statusCode).toBe(404);
     
     // Test Case 2: Adding a valid event to an empty user should work
-    const post3 = await request(app).post(`/user/TestUser/event/${EV1Res.body.id}`);
+    const post3 = await request(app).post(`/user/TestUser1/event/${EV1Res.body.id}`);
     expect(post3.statusCode).toBe(200);
     
     // Test Case 3: ev3 and ev1 conflict, which should be indicated in the response
-    const post4 = await request(app).post(`/user/TestUser/event/${EV3Res.body.id}`);
+    const post4 = await request(app).post(`/user/TestUser1/event/${EV3Res.body.id}`);
     expect(post4.statusCode).toBe(409);
     
     // Test Case 4: ev1 and ev2 do not conflict, so ev2 should be added
-    const post5 = await request(app).post(`/user/TestUser/event/${EV2Res.body.id}`);
+    const post5 = await request(app).post(`/user/TestUser1/event/${EV2Res.body.id}`);
     expect(post5.statusCode).toBe(200);
 
-    const get1 = await request(app).get("/user/TestUser");
+    const get1 = await request(app).get("/user/TestUser1");
     expect(get1.statusCode).toBe(200);
-    expect(get1.body).toEqual({
-        id : "TestUser",
-        events: [EV1Res.body.id, EV2Res.body.id]
-    });
+    expect(get1.body.events).toEqual([EV1Res.body.id, EV2Res.body.id]);
 });
 
 test("Testing Remove Event From User", async () => {
@@ -160,36 +164,107 @@ test("Testing Remove Event From User", async () => {
     const EV1Res = await request(app).post("/event/").send(ev1);
     expect(EV1Res.statusCode).toBe(201);
 
-    const post1 = await request(app).post("/user/TestUser").send({});
+    const post1 = await request(app).post("/user/").send(user1);
     expect(post1.statusCode).toBe(201);
 
     // Test case 1: Deleting event from empty user should return 404
-    const del1 = await request(app).delete(`/user/TestUser/event/${EV1Res.body.id}`);
+    const del1 = await request(app).delete(`/user/TestUser1/event/${EV1Res.body.id}`);
     expect(del1.statusCode).toBe(404);
 
-    const post2 = await request(app).post(`/user/TestUser/event/${EV1Res.body.id}`);
+    const post2 = await request(app).post(`/user/TestUser1/event/${EV1Res.body.id}`);
     expect(post2.statusCode).toBe(200);
 
     // Test case 2: Deleting event that the user attends should return 200
-    const del2 = await request(app).delete(`/user/TestUser/event/${EV1Res.body.id}`);
+    const del2 = await request(app).delete(`/user/TestUser1/event/${EV1Res.body.id}`);
     expect(del2.statusCode).toBe(200);
 
     // Test case 3: Deleted event should be removed from the user
-    const get1 = await request(app).get("/user/TestUser");
+    const get1 = await request(app).get("/user/TestUser1");
     expect(get1.statusCode).toBe(200);
-    expect(get1.body).toEqual({
-        id : "TestUser",
-        events: []
-    }); 
+    expect(get1.body.events).toEqual([]);
     
     // Test case 4: Deleted event should no longer conflict
-    const post3 = await request(app).post(`/user/TestUser/event/${EV1Res.body.id}`);
+    const post3 = await request(app).post(`/user/TestUser1/event/${EV1Res.body.id}`);
     expect(post3.statusCode).toBe(200);
 });
+
 test("Testing Friend Requests", async () => {
-    assert(false);
+	// Preparation: Add 3 users
+	const post1 = await request(app).post("/user/").send(user1);
+    expect(post1.statusCode).toBe(201);
+    
+    const post2 = await request(app).post("/user/").send(user2);
+    expect(post2.statusCode).toBe(201);
+    
+    const post3 = await request(app).post("/user/").send(user3);
+    expect(post3.statusCode).toBe(201);
+    
+    // Test case 1: Add a fake user as a friend, must fail
+    const friend1 = await request(app).post("/user/TestUser1/friend/FakeUser");
+    expect(friend1.statusCode).toBe(404);
+    
+    // Test case 2: Adding yourself as a friend should fail
+    const friend2 = await request(app).post("/user/TestUser1/friend/TestUser1");
+    expect(friend2.statusCode).toBe(409);
+    
+    // Test case 3: Adding a valid user as a friend should succeed
+    const friend3 = await request(app).post("/user/TestUser1/friend/TestUser2");
+    expect(friend3.statusCode).toBe(200);
+    
+    // Test case 4: Adding the same user twice as a friend should fail
+    const friend4 = await request(app).post("/user/TestUser1/friend/TestUser2");
+    expect(friend4.statusCode).toBe(409);
+    
+    // Test case 5: Adding another user as a friend should succeed
+    const friend5 = await request(app).post("/user/TestUser1/friend/TestUser2");
+    expect(friend5.statusCode).toBe(200);
+
+	// Test case 6: Accepting a friend request should add the friend to your friends list
+    const friend6 = await request(app).post("/user/TestUser2/friend/TestUser1");
+    const userData = await request(app).get("/user/TestUser1");
+    expect(friend6.statusCode).toBe(200);
+    expect(userData.statusCode).toBe(200);
+    expect(userData.body.friends.includes("TestUser2"));
 });
 
 test("Testing Remove Friend", async () => {
-    assert(false);
+	// Preparation: Add 3 users and add TestUser1 as friend to TestUser2
+	const post1 = await request(app).post("/user/").send(user1);
+    expect(post1.statusCode).toBe(201);
+    
+    const post2 = await request(app).post("/user/").send(user2);
+    expect(post2.statusCode).toBe(201);
+    
+    const post3 = await request(app).post("/user/").send(user3);
+    expect(post3.statusCode).toBe(201);
+    
+    const friend1 = await request(app).post("/user/TestUser1/friend/TestUser2");
+    expect(friend1.statusCode).toBe(200);
+    
+    const friend2 = await request(app).post("/user/TestUser2/friend/TestUser1");
+    expect(friend2.statusCode).toBe(200);
+    
+    // Test case 1: Trying to remove invalid user should fail
+    const delete1 = await request(app).delete("/user/TestUser1/friend/InvalidUser");
+    expect(delete1.statusCode).toBe(404);
+    
+    // Test case 2: Trying to remove yourself should fail
+    const delete2 = await request(app).delete("/user/TestUser1/friend/TestUser1");
+    expect(delete2.statusCode).toBe(405);
+    
+    // Test case 3: Trying to remove a user you are not friends with should fail
+    const delete3 = await request(app).delete("/user/TestUser1/friend/TestUser3");
+    expect(delete3.statusCode).toBe(404);
+    
+    // Test case 4: Removing a user you are friends with should succeed
+    const delete4 = await request(app).delete("/user/TestUser1/friend/TestUser2");
+    expect(delete4.statusCode).toBe(200);
+    
+    // Test case 5: After you remove the other user, it should not be in either user's friend list
+    const get1 = await request(app).get("/user/TestUser1");
+    const get2 = await request(app).get("/user/TestUser2");
+    expect(get1.statusCode).toBe(200);
+    expect(get2.statusCode).toBe(200);
+    expect(!get1.body.friends.includes("TestUser2"));
+    expect(!get2.body.friends.includes("TestUser1"));
 });
