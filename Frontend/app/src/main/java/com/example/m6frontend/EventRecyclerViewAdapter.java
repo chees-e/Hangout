@@ -1,6 +1,7 @@
 package com.example.m6frontend;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,12 +25,14 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
     private Context context;
+    private String activity;
 
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public EventRecyclerViewAdapter(ArrayList<JSONObject> dataSet, Context context) {
+    public EventRecyclerViewAdapter(ArrayList<JSONObject> dataSet, Context context, String activity) {
         mDataSet = dataSet;
         this.context = context;
+        this.activity = activity;
     }
 
     // Create new views (invoked by the layout manager)
@@ -39,9 +42,16 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
                                                   int viewType) {
         // create a new view
         if (viewType == VIEW_TYPE_ITEM) {
-            View v =  LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.eventcard, parent, false);
+            View v;
+            if (activity.equals("findEvent")) {
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.find_event_card, parent, false);
+            } else {
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.my_event_card, parent, false);
+            }
             return new FindEventViewHolder(v);
+
         } else {
             View v =  LayoutInflater.from(parent.getContext()).inflate(R.layout.event_loading, parent, false);
             return new LoadingViewHolder(v);
@@ -125,12 +135,14 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
             holder.endDate.setText(mDataSet.get(position).get("end").toString());
             holder.endTime.setText(mDataSet.get(position).get("end").toString());
             holder.attendees.setText(mDataSet.get(position).get("attendees").toString());
-            holder.eventInterestButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    confirmInterest();
-                }
-            });
+            if (activity.equals("findEvent")) {
+                holder.eventInterestButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        confirmInterest();
+                    }
+                });
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

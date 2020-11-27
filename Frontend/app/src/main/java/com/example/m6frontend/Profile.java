@@ -4,9 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -112,7 +116,6 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
         TextView currentDay = findViewById(R.id.currentDay);
         currentDay.setText(dayFormat.format(calendar.getTime()));
 
-
         // Construct a FusedLocationProviderClient.
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -143,7 +146,8 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
         findEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent findEventIntent = new Intent(Profile.this, FindEventActivity.class);
+                Intent findEventIntent = new Intent(Profile.this, DisplayEventActivity.class);
+                findEventIntent.putExtra("activity", "findEvent");
                 startActivity(findEventIntent);
             }
         });
@@ -258,7 +262,8 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
                         startActivity(browseUsersIntent);
                         break;
                     case R.id.nav_my_events:
-                        Intent myEventsIntent = new Intent(Profile.this, MyEventsActivity.class);
+                        Intent myEventsIntent = new Intent(Profile.this, DisplayEventActivity.class);
+                        myEventsIntent.putExtra("activity", "myEvent");
                         startActivity(myEventsIntent);
                         break;
                 }
@@ -332,6 +337,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
          * Get the best and most recent location of the device, which may be null in rare
          * cases when a location is not available.
          */
+        checkPermission();
         try {
             Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
             locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
@@ -373,4 +379,14 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
         super.onSaveInstanceState(outState);
     }
 
+    public void checkPermission(){
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ){
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    123);
+        }
+    }
 }

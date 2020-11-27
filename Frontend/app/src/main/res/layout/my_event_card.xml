@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="wrap_content"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
@@ -35,17 +33,6 @@
                 android:layout_marginStart="5dp"
                 android:layout_marginEnd="16dp"
                 android:contentDescription="@string/event_owner_picture" />
-
-            <ImageButton
-                android:id="@+id/event_interest_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="5dp"
-                android:layout_toEndOf="@id/eventName"
-                android:src="@drawable/ic_baseline_add_24"
-                android:contentDescription="@string/eventInterestButton" />
 
             <TextView
                 android:id="@+id/findLocationName"

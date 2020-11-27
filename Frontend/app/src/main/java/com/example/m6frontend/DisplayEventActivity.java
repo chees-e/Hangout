@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,9 +30,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 
-public class FindEventActivity extends AppCompatActivity {
+public class DisplayEventActivity extends AppCompatActivity {
 
-    private final String TAG = "FindEventActivity";
+    private final String TAG = "DisplayEventActivity";
     // private final String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
     // RequestQueue queue;
     private int numEvents;
@@ -42,22 +43,32 @@ public class FindEventActivity extends AppCompatActivity {
     private boolean isLoading = false;
     private final int numLoad = 10;
     private final int maxEvents = 30;
+    Intent intent;
+    String activity;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_event);
+        intent = getIntent();
+        activity = intent.getStringExtra("activity");
+
         recyclerView =  findViewById(R.id.recyclerView);
         numEvents = 0;
         currentAccount = GoogleSignIn.getLastSignedInAccount(this);
 
+
         int startEvents = 10;
         dataSet = initEventData(startEvents);
+
+        initAdapter();
+        initScrollListener();
     }
 
     private void initAdapter() {
-        recyclerViewAdapter = new EventRecyclerViewAdapter(dataSet, this);
+
+        recyclerViewAdapter = new EventRecyclerViewAdapter(dataSet, this, activity);
         recyclerView.setAdapter(recyclerViewAdapter);
 
     }
@@ -129,13 +140,13 @@ public class FindEventActivity extends AppCompatActivity {
     private ArrayList<JSONObject> initEventData(int num) {
         final ArrayList<JSONObject> _dataSet = new ArrayList<>();
 
-        RequestQueue requestQueue = Volley.newRequestQueue(FindEventActivity.this);
+        RequestQueue requestQueue = Volley.newRequestQueue(DisplayEventActivity.this);
         //This url needs to be changed so that it gets the events that users are not in
         //Or make the response include whether the user has already participated or not so that
         //it can be displayed differently
         //I will work on it so DW about this part
         String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event/";
-
+        /*
         //Getting all events
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -146,6 +157,12 @@ public class FindEventActivity extends AppCompatActivity {
                             JSONArray events = response.getJSONArray("events");
                             int length = response.getInt("length");
 
+                            // TODO: add backend
+                            if (activity == "myEvent") {
+                                // TODO: display my events
+                            } else  {
+                                // TODO: displays all events
+                            }
                             Uri tempurl = currentAccount.getPhotoUrl();
                             for (int i = 0; i < length; i++) {
                                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -192,41 +209,28 @@ public class FindEventActivity extends AppCompatActivity {
         requestQueue.start();
 
         return _dataSet;
-
-        /*
-        // Server code
-        final JSONObject data = new JSONObject();
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            data.put("name",response.getString("name"));
-                            data.put("id",response.getString("id"));
-                            data.put("desc",response.getString("desc"));
-                            data.put("start",response.getString("start"));
-                            data.put("end",response.getString("end"));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        Log.d(TAG, response.toString());
-                        Log.d(TAG, "Event info received");
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // TODO: Handle error
-                        Log.e(TAG, "Event info can not be received");
-                    }
-                });
-
-        // Add the request to the RequestQueue.
-        queue.add(jsonObjectRequest);
-
-        return data;
         */
+        // debugging code
+        ArrayList<JSONObject> dataSet = new ArrayList<>();
+        for (int i = 0; i < num; i++) {
+            try {
+                dataSet.add(new JSONObject());
+                dataSet.get(i).put("name","name" + numEvents);
+                dataSet.get(i).put("desc","desc"+ numEvents);
+                dataSet.get(i).put("location","location"+ numEvents);
+                dataSet.get(i).put("start","start"+ numEvents);
+                dataSet.get(i).put("end","end"+ numEvents);
+                dataSet.get(i).put("attendees","attendees"+ numEvents);
+                dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl()); // TODO: get owner picture
+                numEvents++;
+                Log.d(TAG, "event added");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        return dataSet;
 
     }
 }
