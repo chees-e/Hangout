@@ -12,9 +12,11 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -46,11 +48,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 // TODO: implement adding additional users
@@ -63,7 +71,8 @@ public class AddEventActivity extends AppCompatActivity {
     private EditText eventName;
     private EditText locationName;
     private EditText descriptionName;
-    //private EditText usersName;
+    private DateFormat dateFormat;
+    private DateFormat timeFormat;
 
     private EditText startDate;
     private EditText startTime;
@@ -95,6 +104,19 @@ public class AddEventActivity extends AppCompatActivity {
         endTime = findViewById(R.id.editTextEndTime);
         endDate.setInputType(InputType.TYPE_NULL);
         endTime.setInputType(InputType.TYPE_NULL);
+
+        List<String> friendList = new ArrayList<>();
+        // TODO: integrate backend, add friend list
+        friendList.add("friend1");
+        friendList.add("friend2");
+
+        final MultiSpinner multiSpinner =  findViewById(R.id.addUsersSpinner);
+        multiSpinner.setItems(friendList, " ", new MultiSpinner.MultiSpinnerListener() {
+            @Override
+            public void onItemsSelected(boolean[] selected) {
+                Log.i(TAG, String.valueOf(multiSpinner.items));
+            }
+        });
 
 
         // gets location
@@ -129,6 +151,7 @@ public class AddEventActivity extends AppCompatActivity {
         // TODO: connect to backend
         // TODO: error checking
 
+
         addEventButton.setOnClickListener(createAddEventButton());
     }
 
@@ -138,14 +161,54 @@ public class AddEventActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
+
                 if (isEmpty(eventName) || isEmpty(locationName) || isEmpty(descriptionName) ||
                         isEmpty(startDate) || isEmpty(startTime) || isEmpty(endDate) || isEmpty(endTime)) {
                     Toast.makeText(AddEventActivity.this, "Please enter the required fields", Toast.LENGTH_LONG).show();
                     return;
                 }
+
+
+
+                Date dateEnd = null;
+                Date dateStart = null;
+                Date timeEnd = null;
+                Date timeStart = null;
+
+                try {
+                    dateEnd = DateFormat.getDateInstance().parse(endDate.getText().toString());
+                    dateStart = DateFormat.getDateInstance().parse(startDate.getText().toString());
+                    timeEnd = DateFormat.getTimeInstance().parse(endTime.getText().toString());
+                    timeStart = DateFormat.getTimeInstance().parse(startTime.getText().toString());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+
+                //Log.i(TAG, dateEnd.toString() + " " +  dateStart.toString() + " " + timeEnd.toString() + " " + timeStart.toString());
+                assert dateEnd != null;
+                if (dateEnd.before(dateStart)) {
+                        Toast.makeText(AddEventActivity.this, "End date is before start date", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                if (dateEnd.equals(dateStart)) {
+                    assert timeEnd != null;
+                    if (timeEnd.before(timeStart)) {
+                           Toast.makeText(AddEventActivity.this, "End time is before start time", Toast.LENGTH_LONG).show();
+                           return;
+                       }
+                }
+
+
+
+
+
+                List<String> attendees = new ArrayList<>();
+                // TODO: add user and added users
+                // TODO: send to backend
                 String jsonString = null;
                 try {
-                    //#TODO Building the attendees param
 
                      String start = startTime.getText().toString();
                      if (start.length() < 5) {
@@ -197,7 +260,7 @@ public class AddEventActivity extends AppCompatActivity {
 
                 requestQueue.add(jsonRequest);
                 requestQueue.start();
-
+                
                 finish();
             }
         };

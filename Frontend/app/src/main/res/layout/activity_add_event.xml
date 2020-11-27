@@ -63,8 +63,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.307" />
 
-    <EditText
-        android:id="@+id/editTextAddUsers"
+    <com.example.m6frontend.MultiSpinner
+        android:id="@+id/addUsersSpinner"
         android:layout_width="362dp"
         android:layout_height="42dp"
         android:ems="10"
@@ -74,7 +74,8 @@
         app:layout_constraintHorizontal_bias="0.673"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.416" />
+        app:layout_constraintVertical_bias="0.416"
+        style="@style/Widget.AppCompat.Spinner.Underlined"/>
 
     <EditText
         android:id="@+id/editTextLocation"
