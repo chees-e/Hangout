@@ -1,7 +1,6 @@
 package com.example.m6frontend;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -93,11 +95,9 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
         public TextView locationName;
         public TextView eventDescription;
         public TextView startDate;
-        public TextView startTime;
         public TextView endDate;
-        public TextView endTime;
         public TextView attendees;
-        public ImageButton eventInterestButton;
+        public ImageButton eventconfirmButton;
         public FindEventViewHolder(View itemView) {
             super(itemView);
             eventName = itemView.findViewById(R.id.eventName);
@@ -105,11 +105,9 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
             locationName = itemView.findViewById(R.id.findLocationName);
             eventDescription = itemView.findViewById(R.id.findDescription);
             startDate = itemView.findViewById(R.id.findStartDate);
-            startTime = itemView.findViewById(R.id.findStartTime);
             endDate = itemView.findViewById(R.id.findEndDate);
-            endTime = itemView.findViewById(R.id.findEndTime);
             attendees = itemView.findViewById(R.id.findAttendees);
-            eventInterestButton = itemView.findViewById(R.id.event_interest_button);
+            eventconfirmButton = itemView.findViewById(R.id.event_confirm_button);
 
         }
     }
@@ -126,26 +124,45 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
     private void populateEvents(FindEventViewHolder holder, int position) {
         try {
+
+            Glide.with(context)
+                    .load(mDataSet.get(position).get("ownerPicture"))
+                    .crossFade()
+                    .thumbnail(0.5f)
+                    .bitmapTransform(new CircleTransform(context))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(holder.eventOwnerPicture);
+
             holder.eventName.setText(mDataSet.get(position).get("name").toString());
-            holder.eventOwnerPicture.setImageResource(R.drawable.ic_launcher_foreground); // TODO: get owner picture
             holder.locationName.setText(mDataSet.get(position).get("location").toString());
             holder.eventDescription.setText(mDataSet.get(position).get("desc").toString());
             holder.startDate.setText(mDataSet.get(position).get("start").toString());
-            holder.startTime.setText(mDataSet.get(position).get("start").toString());
             holder.endDate.setText(mDataSet.get(position).get("end").toString());
-            holder.endTime.setText(mDataSet.get(position).get("end").toString());
             holder.attendees.setText(mDataSet.get(position).get("attendees").toString());
             if (activity.equals("findEvent")) {
-                holder.eventInterestButton.setOnClickListener(new View.OnClickListener() {
+                holder.eventconfirmButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         confirmInterest();
+                    }
+                });
+            } else {
+                holder.eventconfirmButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        deleteEvent();
                     }
                 });
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void deleteEvent() {
+        DeleteEventDialog dialog = new DeleteEventDialog();
+        dialog.show(((AppCompatActivity)this.context).getSupportFragmentManager(), " delete event button");
+
     }
 
     private void confirmInterest() {

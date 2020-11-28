@@ -25,7 +25,8 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity android:name=".DisplayEventActivity" />
+        <activity android:name=".DisplayEventActivity"
+            android:noHistory="true"/>
 
         <meta-data
             android:name="com.google.android.gms.version"

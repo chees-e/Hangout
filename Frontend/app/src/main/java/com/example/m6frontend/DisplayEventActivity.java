@@ -62,8 +62,6 @@ public class DisplayEventActivity extends AppCompatActivity {
         int startEvents = 10;
         dataSet = initEventData(startEvents);
 
-        initAdapter();
-        initScrollListener();
     }
 
     private void initAdapter() {
@@ -146,7 +144,7 @@ public class DisplayEventActivity extends AppCompatActivity {
         //it can be displayed differently
         //I will work on it so DW about this part
         String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event/";
-        /*
+
         //Getting all events
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -182,7 +180,7 @@ public class DisplayEventActivity extends AppCompatActivity {
                                 _dataSet.get(i).put("start", startstr);
                                 _dataSet.get(i).put("end", endstr);
                                 _dataSet.get(i).put("attendees", "TODO: attendees");
-                                _dataSet.get(i).put("ownerPicture", tempurl); // TODO: get owner picture
+                                _dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl()); // TODO: get owner picture
                                 numEvents++;
                                 Log.d(TAG, "event added");
 
@@ -209,7 +207,8 @@ public class DisplayEventActivity extends AppCompatActivity {
         requestQueue.start();
 
         return _dataSet;
-        */
+
+        /*
         // debugging code
         ArrayList<JSONObject> dataSet = new ArrayList<>();
         for (int i = 0; i < num; i++) {
@@ -231,6 +230,6 @@ public class DisplayEventActivity extends AppCompatActivity {
 
 
         return dataSet;
-
+        */
     }
 }
