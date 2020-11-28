@@ -23,11 +23,10 @@ import java.util.ArrayList;
 
 
 public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private ArrayList<JSONObject> mDataSet;
+    private final ArrayList<JSONObject> mDataSet;
     private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_LOADING = 1;
-    private Context context;
-    private String activity;
+    private final Context context;
+    private final String activity;
 
 
     // Provide a suitable constructor (depends on the kind of dataset)
@@ -40,8 +39,8 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
     // Create new views (invoked by the layout manager)
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                  int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                                                      int viewType) {
         // create a new view
         if (viewType == VIEW_TYPE_ITEM) {
             View v;
@@ -63,7 +62,7 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
 
         if (holder instanceof FindEventViewHolder) {
@@ -81,6 +80,7 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
     @Override
     public int getItemViewType(int position) {
+        int VIEW_TYPE_LOADING = 1;
         return mDataSet.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
     }
 
@@ -114,11 +114,9 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
     private static class LoadingViewHolder extends RecyclerView.ViewHolder {
 
-        private ProgressBar progressBar;
-
         public LoadingViewHolder(@NonNull View itemView) {
             super(itemView);
-            progressBar = itemView.findViewById(R.id.findProgressBar);
+            ProgressBar progressBar = itemView.findViewById(R.id.findProgressBar);
         }
     }
 

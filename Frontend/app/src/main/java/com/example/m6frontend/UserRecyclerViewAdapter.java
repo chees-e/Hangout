@@ -13,6 +13,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -20,11 +23,10 @@ import java.util.ArrayList;
 
 public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private ArrayList<JSONObject> mDataSet;
+    private final ArrayList<JSONObject> mDataSet;
     private final int VIEW_TYPE_ITEM = 0;
-    private final int VIEW_TYPE_LOADING = 1;
-    private Context context;
-    private String activity;
+    private final Context context;
+    private final String activity;
 
     public UserRecyclerViewAdapter(ArrayList<JSONObject> dataSet, Context context, String activity) {
         mDataSet = dataSet;
@@ -33,6 +35,7 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     }
 
 
+    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -57,7 +60,7 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
         if (holder instanceof UserRecyclerViewAdapter.FindUserViewHolder) {
             populateEvents((UserRecyclerViewAdapter.FindUserViewHolder) holder, position);
@@ -84,6 +87,7 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     @Override
     public int getItemViewType(int position) {
+        int VIEW_TYPE_LOADING = 1;
         return mDataSet.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
     }
 
@@ -92,13 +96,13 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         public TextView profileName;
         public TextView profileEmail;
         public TextView profileLocation;
-        public ImageView profileUri;
+        public ImageView profilePicture;
         public Button messageButton;
 
         public FindUserViewHolder(View itemView, String activity) {
             super(itemView);
             profileName = itemView.findViewById(R.id.profileCardName);
-            profileUri = itemView.findViewById(R.id.profileCardPicture);
+            profilePicture = itemView.findViewById(R.id.profileCardPicture);
 
             if (activity.equals("friends")) {
                 profileEmail = itemView.findViewById(R.id.profileCardEmail);
@@ -109,20 +113,24 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
-    private class LoadingViewHolder extends RecyclerView.ViewHolder {
-
-        private ProgressBar progressBar;
+    private static class LoadingViewHolder extends RecyclerView.ViewHolder {
 
         public LoadingViewHolder(@NonNull View itemView) {
             super(itemView);
-            progressBar = itemView.findViewById(R.id.findProgressBar);
+            ProgressBar progressBar = itemView.findViewById(R.id.findProgressBar);
         }
     }
 
     private void populateEvents(UserRecyclerViewAdapter.FindUserViewHolder holder, int position) {
         try {
             holder.profileName.setText(mDataSet.get(position).get("name").toString());
-            holder.profileUri.setImageURI(null);
+            Glide.with(context)
+                    .load(mDataSet.get(position).get("ownerPicture"))
+                    .crossFade()
+                    .thumbnail(0.5f)
+                    .bitmapTransform(new CircleTransform(context))
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(holder.profilePicture);
 
             if (activity.equals("friends")) {
                 holder.profileLocation.setText(mDataSet.get(position).get("location").toString());

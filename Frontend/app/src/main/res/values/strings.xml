@@ -77,5 +77,6 @@
     <string name="_0">0</string>
     <string name="events">Events</string>
     <string name="save_profile">Save Profile</string>
+    <string name="message">Message</string>
 
 </resources>

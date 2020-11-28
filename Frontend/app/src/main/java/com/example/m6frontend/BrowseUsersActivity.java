@@ -19,7 +19,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class BrowseUsersActivity extends AppCompatActivity {
-    private final String TAG = "BrowseUsersActivity";
     // private final String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
     // RequestQueue queue;
     private int numUsers;
@@ -105,6 +104,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
                             dataSet.get(currentSize).put("location","location"+ numUsers);
                         }
                         // TODO: get user picture
+                        dataSet.get(currentSize).put("ownerPicture", currentAccount.getPhotoUrl());
                         numUsers++;
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -133,7 +133,9 @@ public class BrowseUsersActivity extends AppCompatActivity {
                     dataSet.get(i).put("location","location"+ numUsers);
                 }
                  // TODO: get owner picture
+                dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl());
                 numUsers++;
+                String TAG = "BrowseUsersActivity";
                 Log.d(TAG, "user added");
             } catch (JSONException e) {
                 e.printStackTrace();

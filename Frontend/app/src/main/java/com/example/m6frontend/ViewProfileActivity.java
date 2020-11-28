@@ -6,11 +6,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 public class ViewProfileActivity extends AppCompatActivity {
 
-    private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     Intent intent;
     String activity;
 
@@ -21,6 +26,9 @@ public class ViewProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         intent = getIntent();
         activity = intent.getStringExtra("activity");
+        // TODO: get profile picture
+        GoogleSignInAccount currentAccount =  GoogleSignIn.getLastSignedInAccount(this);
+
 
         if (activity.equals("friends")) {
             setContentView(R.layout.view_friend_profile);
@@ -31,6 +39,7 @@ public class ViewProfileActivity extends AppCompatActivity {
                     deleteFriendConfirm();
                 }
             });
+
         } else {
             setContentView(R.layout.view_user_profile);
             Button profileViewConfirm = findViewById(R.id.profileViewConfirm);
@@ -41,10 +50,14 @@ public class ViewProfileActivity extends AppCompatActivity {
                 }
             });
         }
-
-
-
-    
+        ImageView profilePicture = findViewById(R.id.profileViewPicture);
+        Glide.with(this)
+                .load(currentAccount.getPhotoUrl())
+                .crossFade()
+                .thumbnail(0.5f)
+                .bitmapTransform(new CircleTransform(this))
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(profilePicture);
     }
 
     private void addFriendConfirm() {

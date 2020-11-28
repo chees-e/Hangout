@@ -11,9 +11,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.Status;
@@ -80,7 +83,15 @@ public class ProfileSettingsActivity extends AppCompatActivity {
             }
         });
 
-
+        // TODO: get profile picture
+        ImageView profilePicture = findViewById(R.id.profileViewPicture);
+        Glide.with(this)
+                .load(currentAccount.getPhotoUrl())
+                .crossFade()
+                .thumbnail(0.5f)
+                .bitmapTransform(new CircleTransform(this))
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(profilePicture);
 
     }
 

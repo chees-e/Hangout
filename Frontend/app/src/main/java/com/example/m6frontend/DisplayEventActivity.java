@@ -187,10 +187,7 @@ public class DisplayEventActivity extends AppCompatActivity {
                             }
                             initAdapter();
                             initScrollListener();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        catch (ParseException e) {
+                        } catch (JSONException | ParseException e) {
                             e.printStackTrace();
                         }
                     }

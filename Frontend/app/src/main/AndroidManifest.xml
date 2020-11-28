@@ -18,10 +18,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ViewProfileActivity" />
+        <activity android:name=".ViewProfileActivity"
+            android:screenOrientation="portrait"/>
         <activity android:name=".BrowseUsersActivity"
             android:noHistory="true"/>
-        <activity android:name=".ProfileSettingsActivity" />
+        <activity android:name=".ProfileSettingsActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
@@ -42,9 +44,12 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".AddEventActivity" />
-        <activity android:name=".ChatActivity" />
-        <activity android:name=".Profile" />
+        <activity android:name=".AddEventActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ChatActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".Profile"
+            android:screenOrientation="portrait"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

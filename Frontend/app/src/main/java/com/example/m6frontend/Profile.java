@@ -48,6 +48,8 @@ import com.google.firebase.iid.InstanceIdResult;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import static com.google.firebase.iid.FirebaseInstanceId.*;
+
 
 // TODO: add user settings
 // TODO: add permission checks
@@ -91,7 +93,6 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        TextView email = findViewById(R.id.email);
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         assert currentUser != null;
         Log.d(TAG, "Current User:" + currentUser.getDisplayName());
@@ -151,7 +152,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
                 startActivity(findEventIntent);
             }
         });
-        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+        getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
             @Override
             public void onComplete(@NonNull Task<InstanceIdResult> task) {
                 if (!task.isSuccessful()) {
@@ -196,6 +197,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
 
 
         if (currentAccount == null) {
+            // TODO: get name + email
             textName.setText("First Last");
             textEmail.setText("www.test.com");
 
@@ -214,7 +216,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
                     .into(imgNavHeaderBg);
 
         } else {
-            textName.setText(currentAccount.getGivenName() + " " + currentAccount.getFamilyName());
+            textName.setText(String.format("%s %s", currentAccount.getGivenName(), currentAccount.getFamilyName()));
             textEmail.setText(currentAccount.getEmail());
 
             // Loading profile image
@@ -242,7 +244,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
 
             // This method will trigger on item Click of navigation menu
             @Override
-            public boolean onNavigationItemSelected(MenuItem menuItem) {
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
                 //Check to see which item was being clicked and perform appropriate action
                 switch (menuItem.getItemId()) {
