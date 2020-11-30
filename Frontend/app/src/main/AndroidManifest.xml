@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.m6frontend">
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -13,6 +14,7 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
+        tools:replace="android:label"
         android:label="@string/empty"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
