@@ -99,11 +99,11 @@ class User{
     constructor(id, name, device){
         this.id = id;
 		this.name = name;
+		this.device = device;
         this.events = [];
         this.friends = [];
 		this.requestin = [];
 		this.requestout = [];
-		this.device = device;
     }
     /* addEvent(event);
      *

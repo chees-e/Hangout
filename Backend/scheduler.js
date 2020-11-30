@@ -12,7 +12,7 @@ const data = require("./database.js");
  * 
 */
 module.exports.reset = async () => {
-    let initialState = new Map([
+    /*let initialState = new Map([
         ["events", new Map()],
         ["users", new Map()],
         ["impls", new Map()],
@@ -24,7 +24,11 @@ module.exports.reset = async () => {
             return -1;
         }
     }
-    return 0;
+    return 0;*/
+
+	data.clear();
+	return 0;
+
 };
 
 /* getEventImpl(_id)
@@ -185,7 +189,7 @@ module.exports.getAllEvents = async () => {
 module.exports.addUser = async (_id, _name, _device) => {
     let has = await data.hasKey(`users/${_id}`);
     if (has) {
-    	const user = await getUserImpl(_uid);
+    	const user = await getUserImpl(_id);
        	user.updateDevice(_device); 
 		await data.setData(`users/${_id}`, user);
         return -1;

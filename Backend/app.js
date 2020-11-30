@@ -82,6 +82,7 @@ app.get("/event/:id", function(req, res) {
 });
 
 app.post("/user/", function(req, res) {
+	console.log(req)
     sched.addUser(req.body.id, req.body.name, req.body.device).then((code) => {
         if (code < 0) {
             res.status(409).send({msg:"User already exists"});
@@ -100,8 +101,8 @@ app.get("/user/:id", function(req, res) {
 			let friendlist = [];
 			for (let i = 0; i < friendids.length; i++) {
 				frindlist.push({
-					id: friend.id,
-					name: friend.name
+					id: friendids[i].id,
+					name: friendids[i].name
 				});
 			}
             res.send({
@@ -206,19 +207,10 @@ app.delete("/user/:uid/request/:fid", function(req, res) {
 });
 
 //To be removed
-app.get("/deleteallevents/confirm", function(req, res) {
-    sched.getAllEvents().then( (eventlist) => {
-        for(let i = 0; i < eventlist.length; i++) {
-            let id = eventlist[0]["id"];
-            sched.deleteEvent(id).then((code) => {
-                if (code < 0) {
-                        res.status(404).send({msg:"Event not found"});
-						return;
-                }
-            });
-        }
-        res.send({msg:"Event deleted successfully"});
-    });
+app.get("/reset/confirm", function(req, res) {
+    sched.reset().then((code) => {
+    	if (code >= 0) { res.send({msg:"Everythin deleted successfully"}); }
+	});
 });
 
 
