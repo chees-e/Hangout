@@ -24,6 +24,7 @@
  * in equals
 */
 
+
 const ATTENDEE_WEIGHT = 1;
 const FRIEND_WEIGHT = 20;
 
@@ -95,11 +96,14 @@ class Event{
  * User details such as name and information is stored elsewhere in the backend.
 */
 class User{
-    constructor(id, name){
+    constructor(id, name, device){
         this.id = id;
 		this.name = name;
         this.events = [];
         this.friends = [];
+		this.requestin = [];
+		this.requestout = [];
+		this.device = device;
     }
     /* addEvent(event);
      *
@@ -122,13 +126,14 @@ class User{
      * Returns: true if the friend was successfully added, false otherwise
      * 
      */
-    addFriend(id){
-        if (this.friends.includes(id)) {
-            return false;
-        } else {
-            this.friends.push(id);
-            return true;
-        }
+    addFriend(id, name, device){
+		for (let i = 0; i < this.friends.length; i++) {
+			if (this.friends[i].id == id) {
+				return false
+			}
+		}
+        this.friends.push(new Friend(id, name, device));
+        return true;
     }
     /* deleteFriend(id);
      *
@@ -137,13 +142,14 @@ class User{
      * 
      */
     deleteFriend(id){
-        if (this.friends.includes(id)) {
-            return false;
-        } else {
-			let index = this.friends.indexOf(id);
-            this.friends.splice(index, 1);
-            return true;
-        }
+		for (let i = 0; i < this.friends.length; i++) {
+			if (this.friends[i].id == id) {
+				
+            	this.friends.splice(i, 1);
+				return true;
+			}
+		}
+        return false;
     }
     /* getEvents();
      * 
@@ -165,7 +171,12 @@ class User{
      * used when determining the score of an event
     */
     isFriend(id) {
-        return this.friends.includes(id);
+		for (let i = 0; i < this.friends.length; i++) {
+			if (this.friends[i].id == id) {
+				return true;
+			}
+		}
+        return false;
     }
     /* getProfile();
      * 
@@ -177,9 +188,66 @@ class User{
     getProfile(){
         return JSON.stringify(this);
     }
+
+	//0 => in, 1 => out
+	//have to ensure friend is valid
+	addRequest(id, name, device, out) {
+		if (out) {
+			this.requestout.push(new Friend(id, name, device));
+			return true;
+		} else {
+			this.requestin.push(new Friend(id, name, device));
+			return true;
+		}
+	}
+	
+	deleteRequest(id, out) {
+		if (out) {
+			for (let i = 0; i < this.requestout.length; i++) {
+				if (this.requestout[i].id == id) {
+					
+					this.requestout.splice(i, 1);
+					return true;
+				}
+			}
+			return false;
+		} else {
+			for (let i = 0; i < this.requestin.length; i++) {
+				if (this.requestin[i].id == id) {
+					
+					this.requestin.splice(i, 1);
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+	//TODO
+	sendNotification(msg) {
+		return
+	}
+
+	updateDevice(device) {
+		this.device = device;
+		return;
+	}
 }
 
+/* TODO: add a description
+ *
+ * THis is added to avoid circular objects
+ * */
+class Friend {
+    constructor(id, name, device){
+        this.id = id;
+		this.name = name;
+		this.device = device;
+	}
 
+	sendNotification(msg) {
+		return
+	}
+}
 
 /* Class EventImpl: Represents the "Design 2" format of an event or a user.
  * 

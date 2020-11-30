@@ -182,12 +182,15 @@ module.exports.getAllEvents = async () => {
  *  _name: name of the user
  *  returns: negative value on failure and _id on success
 */
-module.exports.addUser = async (_id, _name) => {
+module.exports.addUser = async (_id, _name, _device) => {
     let has = await data.hasKey(`users/${_id}`);
     if (has) {
+    	const user = await getUserImpl(_uid);
+       	user.updateDevice(_device); 
+		await data.setData(`users/${_id}`, user);
         return -1;
     } else {
-        await data.setData(`users/${_id}`, new eventlib.User(_id, _name));
+        await data.setData(`users/${_id}`, new eventlib.User(_id, _name, _device));
         await data.setData(`impls/${_id}`, new eventlib.EventImpl(_id));
         
         return _id;
@@ -258,6 +261,75 @@ module.exports.removeEventFromUser = async (_uid, _eid) => {
         return 0;
     }
 };
+
+//User accepts friend
+module.exports.addFriend = async (_uid, _fid) => {
+    const user = await getUserImpl(_uid);
+    const friend = await getUserImpl(_fid);
+	if (!user){ return -1; }
+	if (!friend){ return -1; }
+
+	user.addFriend(friend.id, friend.name, friend.device);
+	friend.addFriend(user.id, user.name, user.device);
+	friend.sendNotification(`${user.name} has accepted your friend request`);
+	
+
+    await data.setData(`users/${_uid}`, user);
+    await data.setData(`users/${_pid}`, friend);
+	return 0;
+}
+
+module.exports.deleteFriend = async (_uid, _fid) => {
+    const user = await getUserImpl(_uid);
+    const friend = await getUserImpl(_fid);
+	if (!user){ return -1; }
+	if (!friend){ return -1; }
+
+	let rv = true;
+	rv = user.deleteFriend(friend.id);
+	if (!rv) { return -1; }
+	rv = friend.delteFriend(user.id);
+	if (!rv) { return -1; }
+
+    await data.setData(`users/${_uid}`, user);
+    await data.setData(`users/${_pid}`, friend);
+	return 0;
+	
+}
+
+module.exports.addRequest = async (_uid, _fid) => {
+    const user = await getUserImpl(_uid);
+    const friend = await getUserImpl(_fid);
+	if (!user){ return -1; }
+	if (!friend){ return -1; }
+
+	user.addRequest(friend.id, friend.name, friend.device, true);
+	friend.addRequest(user.id, user.name, user.device, false);
+	friend.sendNotification(`${user.name} has sent you a friend request`);
+	
+
+    await data.setData(`users/${_uid}`, user);
+    await data.setData(`users/${_pid}`, friend);
+	return 0;
+}
+
+module.exports.deleteRequest = async (_uid, _fid) => {
+    const user = await getUserImpl(_uid);
+    const friend = await getUserImpl(_fid);
+	if (!user){ return -1; }
+	if (!friend){ return -1; }
+
+	let rv = true;
+	rv = user.deleteRequest(friend.id, true);
+	if (!rv) { return -1; }
+	rv = friend.delteRequest(user.id, false);
+	if (!rv) { return -1; }
+
+    await data.setData(`users/${_uid}`, user);
+    await data.setData(`users/${_pid}`, friend);
+	return 0;
+	
+}
 
 /* getUser(id)
  *  params:

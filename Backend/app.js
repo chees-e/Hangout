@@ -82,7 +82,7 @@ app.get("/event/:id", function(req, res) {
 });
 
 app.post("/user/", function(req, res) {
-    sched.addUser(req.params.id, req.params.name).then((code) => {
+    sched.addUser(req.body.id, req.body.name, req.body.device).then((code) => {
         if (code < 0) {
             res.status(409).send({msg:"User already exists"});
         } else {
@@ -99,22 +99,18 @@ app.get("/user/:id", function(req, res) {
 			let friendids = user.getFriends();
 			let friendlist = [];
 			for (let i = 0; i < friendids.length; i++) {
-    			sched.getUser(friendids[i]).then((friend) => {
-				
-        			if (!friend) {
-            			res.status(404).send({msg:"Friend not found"});
-					}
-					frindlist.push({
-						id: friend.id,
-						name: friend.name
-					});
+				frindlist.push({
+					id: friend.id,
+					name: friend.name
 				});
 			}
             res.send({
                 id: user.id,
 				name: user.name,
                 events: user.events,
-				friends: friendlist
+				friends: friendlist,
+				requestin: user.requestin,
+				requestout: user.requestout
             });
         }
     });
@@ -142,6 +138,15 @@ app.delete("/user/:uid/event/:eid", function(req, res) {
     });
 });
 
+//TODO
+app.get("/user/:uid/event/", function(req, res) {
+
+});
+//Detect invalid requests
+app.get("/user/:uid/findevent/", function(req, res) {
+
+});
+
 app.get("/user/", function(req, res) {
     sched.getAllUsers().then( (userlist) => {
         if (userlist.length === 0){
@@ -157,48 +162,47 @@ app.get("/user/", function(req, res) {
 });
 
 app.post("/user/:uid/friend/:fid", function(req, res) {
-    sched.getUser(req.params.uid).then((user) => {
-        if (!user) {
-            res.status(404).send({msg:"User not found"});
-        } else {
-			//Should friend already exist return an error?
-			user.addFriend(req.param.fid);
-			sched.getUser(req.params.fid).then((friend) => {
-            	if (!friend) {
-            		res.status(404).send({msg:"Friend not found"});
-				} else {
-					friend.addFriend(req.param.uid);
-					res.send({
-						msg: "success"
-					});
-				}
-			});
-        }
-    });
+	sched.addFriend(req.param.uid, req.param.fid).then((code) => {
+		if (code < 0) {
+			res.status(404).send({msg:"User/Friend not found"});
+		} else {
+			sched.deleteRequest(req.param.uid, req.param.fid);
+        	res.send({msg: "Friend added successfully"});
+		}
+
+	});
 });
 
 app.delete("/user/:uid/friend/:fid", function(req, res) {
-    sched.getUser(req.params.uid).then((user) => {
-        if (!user) {
-            res.status(404).send({msg:"User not found"});
-        } else {
-			//Should friend already exist return an error?
-			let _success = user.deleteFriend(req.param.fid);
-            if (!_success) {
-            	res.status(404).send({msg:"Friend not found"});
-			}
-			sched.getUser(req.params.fid).then((friend) => {
-				_success = friend.deleteFriend(req.param.uid);
-            	if (!_success) {
-            		res.status(404).send({msg:"Friend not found"});
-				} else {
-					res.send({
-						msg: "success"
-					});
-				}
-			});
+	sched.deleteFriend(req.param.uid, req.param.fid).then((code) => {
+		if (code < 0) {
+			res.status(404).send({msg:"User/Friend not found"});
+		} else {
+        	res.send({msg: "Friend deleted successfully"});
 		}
-    });
+
+	});
+});
+
+//from uid to fid
+app.post("/user/:uid/request/:fid", function(req, res) {
+	sched.addRequest(req.param.uid, req.param.fid).then( (code) => {
+		if (code < 0) {
+			res.status(404).send({msg:"User/Friend not found"});
+		} else {
+        	res.send({msg:"Request added successfully"});
+		}
+	});
+});
+
+app.delete("/user/:uid/request/:fid", function(req, res) {
+	sched.deleteRequest(req.param.uid, req.param.fid).then( (code) => {
+		if (code < 0) {
+			res.status(404).send({msg:"User/Friend not found"});
+		} else {
+        	res.send({msg:"Request deleted successfully"});
+		}
+	});
 });
 
 //To be removed
@@ -209,6 +213,7 @@ app.get("/deleteallevents/confirm", function(req, res) {
             sched.deleteEvent(id).then((code) => {
                 if (code < 0) {
                         res.status(404).send({msg:"Event not found"});
+						return;
                 }
             });
         }
