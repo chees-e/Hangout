@@ -14,6 +14,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -28,6 +29,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -91,28 +96,23 @@ public class MainActivity extends AppCompatActivity {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
-                GoogleSignInAccount account = task.getResult(ApiException.class);
+                final GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account.getIdToken());
-                //Add user to the user database
-                //The backend automatically checks for duplicate
-                RequestQueue queue = Volley.newRequestQueue(this);
-                StringBuilder urlBuilder = new StringBuilder();
-                urlBuilder.append("http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + account.getId());
-                String url = urlBuilder.toString();
 
-                StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                        new Response.Listener<String>() {
+                FirebaseMessaging.getInstance().getToken()
+                        .addOnCompleteListener(new OnCompleteListener<String>() {
                             @Override
-                            public void onResponse(String response) {
-                                //
+                            public void onComplete(@NonNull Task<String> task) {
+                                if (!task.isSuccessful()) {
+                                    Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                                    return;
+                                }
+
+                                // Get new FCM registration token
+                                String token = task.getResult();
+                                updateServer(token, account);
                             }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        //doesn't matter
-                    }
-                });
-                queue.add(stringRequest);
+                        });
 
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
@@ -157,5 +157,39 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void updateServer(String token, GoogleSignInAccount account) {
+        //Add user to the user database
+        //The backend automatically checks for duplicate
+        final RequestQueue queue = Volley.newRequestQueue(this);
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.append("http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" );
+        String url = urlBuilder.toString();
 
+        String jsonString = null;
+        JSONObject jsonObject = null;
+
+        try {
+            jsonString = new JSONObject()
+                    .put("id", account.getEmail())
+                    .put("name", account.getDisplayName())
+                    .put("device", token)
+                    .toString();
+            jsonObject = new JSONObject(jsonString);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+            }
+        });
+
+        queue.add(jsonRequest);
+    }
 }
