@@ -208,6 +208,7 @@ public class AddEventActivity extends AppCompatActivity {
                 // TODO: add user and added users
                 // TODO: send to backend
                 String jsonString = null;
+                JSONObject jsonObject = null;
                 try {
 
                      String start = startTime.getText().toString();
@@ -228,19 +229,13 @@ public class AddEventActivity extends AppCompatActivity {
                             //.put("attendees", new JSONArray().put("email:" + currentUser.getEmail()))
                             .toString();
                     Toast.makeText(AddEventActivity.this, jsonString, Toast.LENGTH_LONG).show();
+                    jsonObject = new JSONObject(jsonString);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
                 RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
                 String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event/";
-
-                JSONObject jsonObject = null;
-                try {
-                    jsonObject = new JSONObject(jsonString);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
 
                 final JSONObject finalJsonObject = jsonObject;
                 JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
