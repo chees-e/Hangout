@@ -121,15 +121,13 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
-    private void populateEvents(UserRecyclerViewAdapter.FindUserViewHolder holder, int position) {
+    private void populateEvents(FindUserViewHolder holder, int position) {
         try {
             holder.profileName.setText(mDataSet.get(position).get("name").toString());
             Glide.with(context)
                     .load(mDataSet.get(position).get("ownerPicture"))
-                    .crossFade()
                     .thumbnail(0.5f)
-                    .bitmapTransform(new CircleTransform(context))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .circleCrop()
                     .into(holder.profilePicture);
 
             if (activity.equals("friends")) {

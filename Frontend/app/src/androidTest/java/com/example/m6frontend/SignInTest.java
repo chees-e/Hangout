@@ -62,60 +62,33 @@ public class SignInTest {
     @Test
     public void SignInTest() throws UiObjectNotFoundException{
         waitAsync(1000);
-        ViewInteraction gb = onView(
-                allOf(withText("Sign in"),
-                        childAtPosition(
-                                allOf(withId(R.id.sign_in_button),
-                                        childAtPosition(
-                                                withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
-                                                0)),
-                                0),
-                        isDisplayed()));
+        ViewInteraction gb = onView(allOf(withId(R.id.sign_in_button)));
         gb.perform(click());
+        waitAsync(1000);
         mUiDevice.pressBack();
 
 
-        ViewInteraction gb2 = onView(
-                allOf(withText("Sign in"),
-                        childAtPosition(
-                                allOf(withId(R.id.sign_in_button),
-                                        childAtPosition(
-                                                withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
-                                                0)),
-                                0),
-                        isDisplayed()));
-        gb2.perform(click());
+        gb.perform(click());
         waitAsync(1000);
 
         UiObject mText = mUiDevice.findObject(new UiSelector().text("kellywong48357@gmail.com"));
         mText.click();
+
         waitAsync(1000);
         pressBack();
+
         waitAsync(1000);
         ViewInteraction appCompatButton = onView(
-                allOf(withId(R.id.sign_out_button), withText("Sign out"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(android.R.id.content),
-                                        0),
-                                1),
-                        isDisplayed()));
+                allOf(withId(R.id.sign_out_button)));
         appCompatButton.perform(click());
 
-        ViewInteraction gb3 = onView(
-                allOf(withText("Sign in"),
-                        childAtPosition(
-                                allOf(withId(R.id.sign_in_button),
-                                        childAtPosition(
-                                                withClassName(is("androidx.constraintlayout.widget.ConstraintLayout")),
-                                                0)),
-                                0),
-                        isDisplayed()));
-        gb3.perform(click());
+        gb.perform(click());
         waitAsync(1000);
 
         mText.click();
         waitAsync(1000);
+
+        appCompatButton.perform(click());
 
         intended(hasComponent(SignInHubActivity.class.getName()), times(3));
     }

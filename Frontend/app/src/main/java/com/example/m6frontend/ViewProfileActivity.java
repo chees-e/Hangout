@@ -33,30 +33,17 @@ public class ViewProfileActivity extends AppCompatActivity {
         if (activity.equals("friends")) {
             setContentView(R.layout.view_friend_profile);
             Button deleteFriend = findViewById(R.id.deleteFriendButton);
-            deleteFriend.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    deleteFriendConfirm();
-                }
-            });
+            deleteFriend.setOnClickListener(v -> deleteFriendConfirm());
 
         } else {
             setContentView(R.layout.view_user_profile);
             Button profileViewConfirm = findViewById(R.id.profileViewConfirm);
-            profileViewConfirm.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    addFriendConfirm();
-                }
-            });
+            profileViewConfirm.setOnClickListener(v -> addFriendConfirm());
         }
         ImageView profilePicture = findViewById(R.id.profileViewPicture);
         Glide.with(this)
                 .load(currentAccount.getPhotoUrl())
-                .crossFade()
-                .thumbnail(0.5f)
-                .bitmapTransform(new CircleTransform(this))
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .circleCrop()
                 .into(profilePicture);
     }
 

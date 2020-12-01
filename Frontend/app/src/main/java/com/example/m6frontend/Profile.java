@@ -203,15 +203,11 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
 
             // Loading profile image
             Glide.with(this).load(profileImg)
-                    .crossFade()
-                    .thumbnail(0.5f)
-                    .bitmapTransform(new CircleTransform(this))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .circleCrop()
                     .into(imgProfile);
 
             // loading header background image
             Glide.with(this).load(urlNavHeaderBg)
-                    .crossFade()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(imgNavHeaderBg);
 
@@ -222,15 +218,13 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
             // Loading profile image
             Glide.with(this)
                     .load(currentAccount.getPhotoUrl())
-                    .crossFade()
-                    .thumbnail(0.5f)
-                    .bitmapTransform(new CircleTransform(this))
+                    .circleCrop()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(imgProfile);
 
             // loading header background image
             Glide.with(this).load(urlNavHeaderBg)
-                    .crossFade()
+
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(imgNavHeaderBg);
         }

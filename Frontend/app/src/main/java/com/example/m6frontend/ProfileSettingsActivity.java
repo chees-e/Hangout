@@ -87,10 +87,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         ImageView profilePicture = findViewById(R.id.profileViewPicture);
         Glide.with(this)
                 .load(currentAccount.getPhotoUrl())
-                .crossFade()
-                .thumbnail(0.5f)
-                .bitmapTransform(new CircleTransform(this))
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .circleCrop()
                 .into(profilePicture);
 
     }
