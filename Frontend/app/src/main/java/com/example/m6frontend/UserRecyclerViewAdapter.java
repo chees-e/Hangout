@@ -68,6 +68,7 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             public void onClick(View v) {
                 Intent ViewProfileIntent = new Intent(context, ViewProfileActivity.class);
                 ViewProfileIntent.putExtra("activity", activity);
+                // TODO: send info to ViewProfileIntent
                 if (activity.equals("friends")) {
                     //position is 0 indexed right
                     try {
