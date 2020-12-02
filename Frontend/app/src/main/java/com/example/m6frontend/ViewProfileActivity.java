@@ -19,6 +19,8 @@ public class ViewProfileActivity extends AppCompatActivity {
     private Intent intent;
     private String activity;
     private String friendid;
+    private String friendname;
+    private String friendpfp;
     // private static final String TAG = "ProfileSettingsActivity";
 
     @Override
@@ -30,6 +32,12 @@ public class ViewProfileActivity extends AppCompatActivity {
 
         GoogleSignInAccount currentAccount =  GoogleSignIn.getLastSignedInAccount(this);
         friendid = intent.getStringExtra("friendid");
+        friendname = intent.getStringExtra("friendname");
+        friendpfp = intent.getStringExtra("friendpfp");
+        System.out.println("AAAAAAAA" + friendid);
+        System.out.println("AAAAAAAA" + friendname);
+        System.out.println("AAAAAAAA" + friendpfp);
+
         TextView profileDescription = findViewById(R.id.profileDescription);
 
 
@@ -37,20 +45,19 @@ public class ViewProfileActivity extends AppCompatActivity {
             setContentView(R.layout.view_friend_profile);
             Button deleteFriend = findViewById(R.id.deleteFriendButton);
             deleteFriend.setOnClickListener(v -> deleteFriendConfirm());
-            // TODO: get profile picture
-
+            TextView profileEmail = (TextView) findViewById(R.id.profileEmail);
+            TextView profileLocation = (TextView) findViewById(R.id.profileLocation);
+            profileEmail.setText(friendid);
         } else {
             setContentView(R.layout.view_user_profile);
             Button profileViewConfirm = findViewById(R.id.profileViewConfirm);
             profileViewConfirm.setOnClickListener(v -> addFriendConfirm());
-           TextView profileEmail = findViewById(R.id.profileEmail);
-           TextView profileLocation = findViewById(R.id.profileLocation);
-           // TODO: add profileEmail and profileLocation
-
         }
-        ImageView profilePicture = findViewById(R.id.profileViewPicture);
+        TextView profileName = (TextView) findViewById(R.id.profileName);
+        profileName.setText(friendname);
+        ImageView profilePicture = (ImageView) findViewById(R.id.profileViewPicture);
         Glide.with(this)
-                .load(currentAccount.getPhotoUrl()) // TODO: set profilePicture
+                .load(friendpfp)
                 .circleCrop()
                 .into(profilePicture);
     }

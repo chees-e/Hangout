@@ -222,7 +222,7 @@ public class DisplayEventActivity extends AppCompatActivity {
             requestQueue.add(jsonObjectRequest);
             requestQueue.start();
         } else {
-            String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail() + "/event/";//"/findevent/";
+            String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail() + "/findevent/";
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                     (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
