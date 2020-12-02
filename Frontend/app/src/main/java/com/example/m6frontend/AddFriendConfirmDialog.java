@@ -10,8 +10,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 
 public class AddFriendConfirmDialog extends AppCompatDialogFragment {
     private final String TAG = "AddFriendConfirmDialog";

@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -116,7 +115,6 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
         public LoadingViewHolder(@NonNull View itemView) {
             super(itemView);
-            ProgressBar progressBar = itemView.findViewById(R.id.findProgressBar);
         }
     }
 

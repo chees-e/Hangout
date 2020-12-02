@@ -2,13 +2,11 @@ package com.example.m6frontend;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -96,7 +94,6 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         public TextView profileEmail;
         public TextView profileLocation;
         public ImageView profilePicture;
-        public Button messageButton;
 
         public FindUserViewHolder(View itemView, String activity) {
             super(itemView);
@@ -106,7 +103,6 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             if (activity.equals("friends")) {
                 profileEmail = itemView.findViewById(R.id.profileCardEmail);
                 profileLocation = itemView.findViewById(R.id.profileCardLocation);
-                messageButton = itemView.findViewById(R.id.message_button);
             }
 
         }
@@ -131,14 +127,6 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             if (activity.equals("friends")) {
                 holder.profileLocation.setText(mDataSet.get(position).get("location").toString());
                 holder.profileEmail.setText(mDataSet.get(position).get("email").toString());
-                holder.messageButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent messageIntent = new Intent(context, ChatActivity.class);
-                        context.startActivity(messageIntent);
-                    }
-                });
-
             }
 
 

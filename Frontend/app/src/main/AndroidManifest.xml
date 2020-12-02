@@ -48,8 +48,6 @@
 
         <activity android:name=".AddEventActivity"
             android:screenOrientation="portrait"/>
-        <activity android:name=".ChatActivity"
-            android:screenOrientation="portrait"/>
         <activity android:name=".Profile"
             android:screenOrientation="portrait"/>
         <activity android:name=".MainActivity">
