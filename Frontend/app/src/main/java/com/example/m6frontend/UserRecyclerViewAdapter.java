@@ -70,7 +70,14 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             public void onClick(View v) {
                 Intent ViewProfileIntent = new Intent(context, ViewProfileActivity.class);
                 ViewProfileIntent.putExtra("activity", activity);
-
+                if (activity.equals("friends")) {
+                    //position is 0 indexed right
+                    try {
+                        ViewProfileIntent.putExtra("friendid", mDataSet.get(position).getString("email"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
                 context.startActivity(ViewProfileIntent);
             }
         });

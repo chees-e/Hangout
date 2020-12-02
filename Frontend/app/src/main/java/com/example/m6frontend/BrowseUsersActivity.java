@@ -133,7 +133,6 @@ public class BrowseUsersActivity extends AppCompatActivity {
         RequestQueue requestQueue = Volley.newRequestQueue(BrowseUsersActivity.this);
 
         if (activity.equals("friends")) {
-
             String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail();
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -141,11 +140,8 @@ public class BrowseUsersActivity extends AppCompatActivity {
                         @Override
                         public void onResponse(JSONObject response) {
                             try {
-                                //TODO: add photo
-                                //Contains friends emails and Name
                                 JSONArray friends = response.getJSONArray("friends");
 
-                                Uri tempurl = currentAccount.getPhotoUrl();
                                 for (int i = 0; i < friends.length(); i++) {
                                     _dataSet.add(new JSONObject());
                                     _dataSet.get(i).put("name", friends.getJSONObject(i).getString("name"));

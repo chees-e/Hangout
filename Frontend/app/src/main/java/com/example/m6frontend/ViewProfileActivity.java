@@ -15,7 +15,7 @@ public class ViewProfileActivity extends AppCompatActivity {
 
     private Intent intent;
     private String activity;
-
+    private String friendid;
     // private static final String TAG = "ProfileSettingsActivity";
 
     @Override
@@ -25,7 +25,7 @@ public class ViewProfileActivity extends AppCompatActivity {
         activity = intent.getStringExtra("activity");
         // TODO: get profile picture
         GoogleSignInAccount currentAccount =  GoogleSignIn.getLastSignedInAccount(this);
-
+        friendid = intent.getStringExtra("friendid");
 
         if (activity.equals("friends")) {
             setContentView(R.layout.view_friend_profile);
@@ -46,6 +46,9 @@ public class ViewProfileActivity extends AppCompatActivity {
 
     private void addFriendConfirm() {
         AddFriendConfirmDialog dialog = new AddFriendConfirmDialog();
+        Bundle args = new Bundle();
+        args.putString("friendid", friendid);
+        dialog.setArguments(args);
         dialog.show(getSupportFragmentManager(), "add friend confirm button");
 
     }
