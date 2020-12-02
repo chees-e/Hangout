@@ -26,7 +26,9 @@ module.exports.reset = async () => {
     }
     return 0;*/
 
-	data.clear();
+	//The mock data base prob doesn't have clear()
+	//So we can't have the following line when testing
+	//data.clear();
 	return 0;
 
 };
@@ -181,12 +183,66 @@ module.exports.getAllEvents = async () => {
     return evts;
 };
 
+//TODO THe following 
+/* getHostEvents()
+ *  params: id
+ *  returns: array containing all valid events the user 
+ *			 is hosting
+ */
+module.exports.getHostEvents = async (_id) => {
+    var evts = new Array();
+    const eventmap = await data.getKeys("events");
+    for (const _ of eventmap) {
+        const value = await getEventImpl(_.id);
+        if (value.isValid()) {
+			if (value.host.includes("REPLACE THIS")){
+            	evts.push(value);
+			}
+        }
+    }
+    return evts;
+};
+
+/* getAttendeeEvents()
+ *  params: id
+ *  returns: array containing all valid events the user 
+ *			 is attending
+ */
+module.exports.getAttendeeEvents = async (_id) => {
+    var evts = new Array();
+    const eventmap = await data.getKeys("events");
+    for (const _ of eventmap) {
+        const value = await getEventImpl(_.id);
+        if (value.isValid()) {
+            evts.push(value);
+        }
+    }
+    return evts;
+};
+
+/* SearchEvents()
+ *  params: id
+ *  returns: array containing all valid events the user 
+ *			 is not attending
+ */
+module.exports.getHostEvents = async () => {
+    var evts = new Array();
+    const eventmap = await data.getKeys("events");
+    for (const _ of eventmap) {
+        const value = await getEventImpl(_.id);
+        if (value.isValid()) {
+            evts.push(value);
+        }
+    }
+    return evts;
+};
+
 /* addUser(_id, _name)
  *  params: _id - user id, must not collide with event ids
  *  _name: name of the user
  *  returns: negative value on failure and _id on success
 */
-module.exports.addUser = async (_id, _name, _device) => {
+module.exports.addUser = async (_id, _name, _device, _pfp) => {
     let has = await data.hasKey(`users/${_id}`);
     if (has) {
     	const user = await getUserImpl(_id);
@@ -194,7 +250,7 @@ module.exports.addUser = async (_id, _name, _device) => {
 		await data.setData(`users/${_id}`, user);
         return -1;
     } else {
-        await data.setData(`users/${_id}`, new eventlib.User(_id, _name, _device));
+        await data.setData(`users/${_id}`, new eventlib.User(_id, _name, _device, _pfp));
         await data.setData(`impls/${_id}`, new eventlib.EventImpl(_id));
         
         return _id;
@@ -273,8 +329,8 @@ module.exports.addFriend = async (_uid, _fid) => {
 	if (!user){ return -1; }
 	if (!friend){ return -1; }
 
-	user.addFriend(friend.id, friend.name, friend.device);
-	friend.addFriend(user.id, user.name, user.device);
+	user.addFriend(friend.id, friend.name, friend.device, friend.pfp);
+	friend.addFriend(user.id, user.name, user.device, user.pfp);
 	friend.sendNotification(`${user.name} has accepted your friend request`);
 	
 
@@ -307,8 +363,8 @@ module.exports.addRequest = async (_uid, _fid) => {
 	if (!user){ return -1; }
 	if (!friend){ return -1; }
 
-	user.addRequest(friend.id, friend.name, friend.device, true);
-	friend.addRequest(user.id, user.name, user.device, false);
+	user.addRequest(friend.id, friend.name, friend.device, friend.pfp, true);
+	friend.addRequest(user.id, user.name, user.device, user.pfp, false);
 	friend.sendNotification(`${user.name} has sent you a friend request`);
 	
 
