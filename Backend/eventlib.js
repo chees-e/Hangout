@@ -96,10 +96,11 @@ class Event{
  * User details such as name and information is stored elsewhere in the backend.
 */
 class User{
-    constructor(id, name, device){
+    constructor(id, name, device, pfp){
         this.id = id;
 		this.name = name;
 		this.device = device;
+		this.pfp = pfp;
         this.events = [];
         this.friends = [];
 		this.requestin = [];
@@ -126,13 +127,13 @@ class User{
      * Returns: true if the friend was successfully added, false otherwise
      * 
      */
-    addFriend(id, name, device){
+    addFriend(id, name, device, pfp){
 		for (let i = 0; i < this.friends.length; i++) {
 			if (this.friends[i].id == id) {
 				return false
 			}
 		}
-        this.friends.push(new Friend(id, name, device));
+        this.friends.push(new Friend(id, name, device, pfp));
         return true;
     }
     /* deleteFriend(id);
@@ -191,12 +192,12 @@ class User{
 
 	//0 => in, 1 => out
 	//have to ensure friend is valid
-	addRequest(id, name, device, out) {
+	addRequest(id, name, device, pfp, out) {
 		if (out) {
-			this.requestout.push(new Friend(id, name, device));
+			this.requestout.push(new Friend(id, name, device, pfp));
 			return true;
 		} else {
-			this.requestin.push(new Friend(id, name, device));
+			this.requestin.push(new Friend(id, name, device, pfp));
 			return true;
 		}
 	}
@@ -238,10 +239,11 @@ class User{
  * THis is added to avoid circular objects
  * */
 class Friend {
-    constructor(id, name, device){
+    constructor(id, name, device, pfp){
         this.id = id;
 		this.name = name;
 		this.device = device;
+		this.pfp = pfp;
 	}
 
 	sendNotification(msg) {

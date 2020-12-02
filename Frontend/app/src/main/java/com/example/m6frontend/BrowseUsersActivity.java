@@ -6,17 +6,28 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class BrowseUsersActivity extends AppCompatActivity {
     // private final String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
@@ -44,10 +55,6 @@ public class BrowseUsersActivity extends AppCompatActivity {
 
         int startUsers = 10;
         dataSet = initUserData(startUsers);
-
-
-        initAdapter();
-        initScrollListener();
     }
 
     private void initAdapter() {
@@ -121,7 +128,57 @@ public class BrowseUsersActivity extends AppCompatActivity {
 
 
     private ArrayList<JSONObject> initUserData(int num) {
+        final ArrayList<JSONObject> _dataSet = new ArrayList<>();
 
+        RequestQueue requestQueue = Volley.newRequestQueue(BrowseUsersActivity.this);
+
+        if (activity.equals("friends")) {
+
+            String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail();
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                //TODO: add photo
+                                //Contains friends emails and Name
+                                JSONArray friends = response.getJSONArray("friends");
+
+                                Uri tempurl = currentAccount.getPhotoUrl();
+                                for (int i = 0; i < friends.length(); i++) {
+                                    _dataSet.add(new JSONObject());
+                                    _dataSet.get(i).put("name", friends.getJSONObject(i).getString("name"));
+                                    _dataSet.get(i).put("email", friends.getJSONObject(i).getString("id"));
+                                    _dataSet.get(i).put("ownerPicture", friends.getJSONObject(i).getString("pfp"));
+                                }
+                                initAdapter();
+                                initScrollListener();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // TODO: Handle error
+
+                        }
+                    });
+            requestQueue.add(jsonObjectRequest);
+            requestQueue.start();
+
+        } else {
+            //TODO find friends
+
+        }
+
+        return _dataSet;
+
+
+
+/*
         // debugging code
         ArrayList<JSONObject> dataSet = new ArrayList<>();
         for (int i = 0; i < num; i++) {
@@ -145,7 +202,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
 
 
         return dataSet;
-
+*/
     }
 }
 

@@ -83,7 +83,7 @@ app.get("/event/:id", function(req, res) {
 
 app.post("/user/", function(req, res) {
 	console.log(req)
-    sched.addUser(req.body.id, req.body.name, req.body.device).then((code) => {
+    sched.addUser(req.body.id, req.body.name, req.body.device, req.body.pfp).then((code) => {
         if (code < 0) {
             res.status(409).send({msg:"User already exists"});
         } else {
@@ -102,7 +102,8 @@ app.get("/user/:id", function(req, res) {
 			for (let i = 0; i < friendids.length; i++) {
 				frindlist.push({
 					id: friendids[i].id,
-					name: friendids[i].name
+					name: friendids[i].name,
+					pfp: friendids[i].pfp
 				});
 			}
             res.send({
