@@ -1,5 +1,5 @@
 "use strict";
-
+require("dotenv").config()
 /* Eventlib: The backend's scheduling code, used to generate user profiles.
  * Right now, it is events are suggested and conflicts are resolved as if
  * all events occur on the same day.
@@ -18,19 +18,23 @@
  * 
  * "Design 1" events are represented as a tuple (id, name, desc, start, end, location),
  * where id is an integer, name and desc are strings, start and end are Dates,
- * and location is an object with format {"lat" : <latitude>, "long" : <longitude>}.
+ * and location is string which can be converted into an object with format 
+ * {"lat" : <latitude>, "long" : <longitude>} with google's geocoding api.
  * 
  * name and desc should be entirely determined by id, so they are not compared
  * in equals
 */
 
-
+const request = require('request');
+const geourl = "https://maps.googleapis.com/maps/api/geocode/json?address=";
+const token = process.env.TOKEN;
 const ATTENDEE_WEIGHT = 1;
 const FRIEND_WEIGHT = 20;
 
 class Event{
-    constructor(id, name, desc, start, end, location){
+    constructor(id, host, name, desc, start, end, location, attendees){
         this.id = `${id}`;
+		this.host = host;
         this.name = name;
         this.desc = desc;
         if (start < end) {
@@ -41,7 +45,7 @@ class Event{
             this.end = start;
         }
         this.location = location;
-        this.attendees = [];
+        this.attendees = attendees;
     }
     
     // Check if event is valid
@@ -68,7 +72,7 @@ class Event{
     }
 
     calculateScore(user) {
-        if (this.attendees.includes(user.id)) {
+        if (this.attendees.includes(user.id) || this.host == user.id) {
             //User already attends this event, no need for recommendation
             return -1;
         }
@@ -86,7 +90,17 @@ class Event{
         return score;
 
     }
+
+	calculateLongLat(){
+		let url = geourl + this.location.split(" ").join("+") + "key=" + token;
+		request({url:geourl, qs:{address: this.location.split(" ").join("+"), key: token}}, function (error, response, body) {
+  			if (error) return null;	
+			else return body["results"]["geometry"]["location"];
+		});
+	}
 }
+
+
 
 /* Class User: Represents the "Design 1" format of a person, as used in the scheduler.
  * 
