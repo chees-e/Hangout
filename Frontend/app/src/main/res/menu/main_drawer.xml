@@ -22,6 +22,12 @@
             android:id="@+id/nav_my_events"
             android:icon="@drawable/ic_event_note_24px"
             android:title="@string/nav_my_events" />
+
+        <item
+            android:id="@+id/nav_friend_requests"
+            android:icon= "@drawable/ic_person_add_24px"
+            android:title="@string/friend_requests"
+        />
     </group>
 
 

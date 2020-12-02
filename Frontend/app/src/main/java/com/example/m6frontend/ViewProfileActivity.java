@@ -31,7 +31,7 @@ public class ViewProfileActivity extends AppCompatActivity {
         GoogleSignInAccount currentAccount =  GoogleSignIn.getLastSignedInAccount(this);
         friendid = intent.getStringExtra("friendid");
         TextView profileDescription = findViewById(R.id.profileDescription);
-
+        // TODO: get profile description
 
         if (activity.equals("friends")) {
             setContentView(R.layout.view_friend_profile);

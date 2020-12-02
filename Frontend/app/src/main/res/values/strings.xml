@@ -80,5 +80,6 @@
     <string name="message">Message</string>
 
     <string name="login_email">kellywong48357@gmail.com</string>
+    <string name="friend_requests">Friend Requests</string>
 
 </resources>

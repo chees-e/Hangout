@@ -271,6 +271,10 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
                         myEventsIntent.putExtra("activity", "myEvent");
                         startActivity(myEventsIntent);
                         break;
+                    case R.id.nav_friend_requests:
+                        Intent friendRequests = new Intent(Profile.this, BrowseUsersActivity.class);
+                        friendRequests.putExtra("activity", "friend_requests");
+                        startActivity(friendRequests);
                     default:
                         break;
                 }

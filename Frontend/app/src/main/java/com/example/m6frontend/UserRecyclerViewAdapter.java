@@ -35,7 +35,7 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         if (viewType == VIEW_TYPE_ITEM) {
             View v;
@@ -43,8 +43,14 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                 v = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.friend_card, parent, false);
             } else {
-                v = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.user_card, parent, false);
+                if (activity.equals("users")) {
+                    v = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.user_card, parent, false);
+                } else {
+                    v = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.friend_request_card, parent, false);
+                }
+
             }
             return new FindUserViewHolder(v, activity);
 
@@ -102,6 +108,8 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
         public TextView profileEmail;
         public TextView profileLocation;
         public ImageView profilePicture;
+        public Button requestConfirm;
+        public Button requestDeny;
 
         public FindUserViewHolder(View itemView, String activity) {
             super(itemView);
@@ -111,6 +119,11 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             if (activity.equals("friends")) {
                 profileEmail = itemView.findViewById(R.id.profileCardEmail);
                 profileLocation = itemView.findViewById(R.id.profileCardLocation);
+            }
+
+            if (activity.equals("friend_requests")) {
+                requestConfirm = itemView.findViewById(R.id.requestConfirm);
+                requestDeny = itemView.findViewById(R.id.requestDeny);
             }
 
         }
@@ -135,6 +148,21 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             if (activity.equals("friends")) {
                 holder.profileLocation.setText("user location"); //mDataSet.get(position).get("location").toString());
                 holder.profileEmail.setText(mDataSet.get(position).get("email").toString());
+            }
+
+            if (activity.equals("friend_requests")) {
+                holder.requestConfirm.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // TODO: confirm friend requests
+                    }
+                });
+                holder.requestDeny.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // TODO: deny friend requests
+                    }
+                });
             }
 
 

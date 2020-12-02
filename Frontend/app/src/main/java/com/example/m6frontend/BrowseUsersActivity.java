@@ -110,6 +110,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
                             dataSet.get(currentSize).put("email", "email" + numUsers);
                             dataSet.get(currentSize).put("location","location"+ numUsers);
                         }
+
                         // TODO: get user picture
                         dataSet.get(currentSize).put("ownerPicture", currentAccount.getPhotoUrl());
                         numUsers++;
@@ -132,6 +133,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
 
         RequestQueue requestQueue = Volley.newRequestQueue(BrowseUsersActivity.this);
 
+        // TODO: get description
         if (activity.equals("friends")) {
             String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail();
 
@@ -143,6 +145,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
                                 JSONArray friends = response.getJSONArray("friends");
 
                                 for (int i = 0; i < friends.length(); i++) {
+                                    // TODO: get location
                                     _dataSet.add(new JSONObject());
                                     _dataSet.get(i).put("name", friends.getJSONObject(i).getString("name"));
                                     _dataSet.get(i).put("email", friends.getJSONObject(i).getString("id"));
@@ -166,69 +169,47 @@ public class BrowseUsersActivity extends AppCompatActivity {
             requestQueue.start();
 
         } else {
-            String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail() + "/findfriends";
+            if (activity.equals("users")) {
+                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail() + "/findfriends";
 
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                JSONArray friends = response.getJSONArray("users");
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                        (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                try {
+                                    JSONArray friends = response.getJSONArray("users");
 
-                                for (int i = 0; i < friends.length(); i++) {
-                                    _dataSet.add(new JSONObject());
-                                    _dataSet.get(i).put("name", friends.getJSONObject(i).getString("name"));
-                                    _dataSet.get(i).put("email", friends.getJSONObject(i).getString("id"));
-                                    _dataSet.get(i).put("ownerPicture", friends.getJSONObject(i).getString("pfp"));
+                                    for (int i = 0; i < friends.length(); i++) {
+                                        _dataSet.add(new JSONObject());
+                                        _dataSet.get(i).put("name", friends.getJSONObject(i).getString("name"));
+                                        _dataSet.get(i).put("email", friends.getJSONObject(i).getString("id"));
+                                        _dataSet.get(i).put("ownerPicture", friends.getJSONObject(i).getString("pfp"));
+                                    }
+                                    initAdapter();
+                                    initScrollListener();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-                                initAdapter();
-                                initScrollListener();
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
-                        }
-                    }, new Response.ErrorListener() {
+                        }, new Response.ErrorListener() {
 
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            // TODO: Handle error
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                // TODO: Handle error
 
-                        }
-                    });
-            requestQueue.add(jsonObjectRequest);
-            requestQueue.start();
+                            }
+                        });
+                requestQueue.add(jsonObjectRequest);
+                requestQueue.start();
+            } else {
+                // friend requests
+                // TODO: get name and picture
+            }
 
         }
 
         return _dataSet;
 
-
-
-/*
-        // debugging code
-        ArrayList<JSONObject> dataSet = new ArrayList<>();
-        for (int i = 0; i < num; i++) {
-            try {
-                dataSet.add(new JSONObject());
-                dataSet.get(i).put("name","name" + numUsers);
-                if (activity.equals("friends")){
-                    dataSet.get(i).put("email", "email" + numUsers);
-                    dataSet.get(i).put("location","location"+ numUsers);
-                }
-                 // TODO: get owner picture
-                dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl());
-                numUsers++;
-                String TAG = "BrowseUsersActivity";
-                Log.d(TAG, "user added");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-
-
-        return dataSet;
-*/
     }
 }
 
