@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class MultiSpinner extends androidx.appcompat.widget.AppCompatSpinner imp
         StringBuffer spinnerBuffer = new StringBuffer();
         boolean someSelected = false;
         for (int i = 0; i < items.size(); i++) {
-            if (selected[i] == true) {
+            if (selected[i]) {
                 spinnerBuffer.append(items.get(i));
                 spinnerBuffer.append(", ");
                 someSelected = true;

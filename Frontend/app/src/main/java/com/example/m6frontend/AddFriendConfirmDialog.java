@@ -10,12 +10,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 public class AddFriendConfirmDialog extends AppCompatDialogFragment {
     private final String TAG = "AddFriendConfirmDialog";
 
     @NonNull
     @Override
     public Dialog onCreateDialog (Bundle savedInstanceState) {
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Confirm Selection")
                 .setMessage("Add Friend?")
@@ -24,6 +28,7 @@ public class AddFriendConfirmDialog extends AppCompatDialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         Log.d(TAG, "Friend Add confirmed");
                         Toast.makeText(getContext(), "Friend Request Sent", Toast.LENGTH_LONG).show();
+
                     }
                 })
                 .setNegativeButton("NO", new DialogInterface.OnClickListener() {

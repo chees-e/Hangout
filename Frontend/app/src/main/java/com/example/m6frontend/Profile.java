@@ -61,8 +61,10 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
 
     private NavigationView navigationView;
     private DrawerLayout drawer;
-    private ImageView imgNavHeaderBg, imgProfile;
-    private TextView textName, textEmail;
+    private ImageView imgNavHeaderBg;
+    private ImageView imgProfile;
+    private TextView textName;
+    private TextView textEmail;
 
     // urls to load navigation header background image
     // and profile image
@@ -88,6 +90,10 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
     Button createEventButton;
     Button findEventButton;
 
+    Calendar calendar = Calendar.getInstance();
+    SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM  d, YYYY");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,10 +113,6 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
                 startActivity(settingsIntent);
             }
         });
-
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM  d, YYYY");
 
         TextView currentDate = findViewById(R.id.currentDate);
         currentDate.setText(dateFormat.format(calendar.getTime()));
@@ -263,6 +265,8 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
                         Intent myEventsIntent = new Intent(Profile.this, DisplayEventActivity.class);
                         myEventsIntent.putExtra("activity", "myEvent");
                         startActivity(myEventsIntent);
+                        break;
+                    default:
                         break;
                 }
 

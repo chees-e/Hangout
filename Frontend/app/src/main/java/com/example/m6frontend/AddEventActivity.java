@@ -13,9 +13,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 /* Server Import
@@ -151,7 +149,7 @@ public class AddEventActivity extends AppCompatActivity {
 
     private View.OnClickListener createAddEventButton() {
         return v -> {
-            final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
 
 
             if (isEmpty(eventName) || isEmpty(locationName) || isEmpty(descriptionName) ||
@@ -160,36 +158,19 @@ public class AddEventActivity extends AppCompatActivity {
                 return;
             }
 
-
-
             Date dateEnd = null;
             Date dateStart = null;
             Date timeEnd = null;
             Date timeStart = null;
 
-
-
             try {
                 dateEnd = dateFormat.parse(endDate.getText().toString());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            try {
                 dateStart = dateFormat.parse(startDate.getText().toString());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            try {
                 timeEnd = timeFormat.parse(endTime.getText().toString());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            try {
                 timeStart = timeFormat.parse(startTime.getText().toString());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-
 
             //Log.i(TAG, dateEnd.toString() + " " +  dateStart.toString() + " " + timeEnd.toString() + " " + timeStart.toString());
             assert dateEnd != null;
@@ -206,64 +187,66 @@ public class AddEventActivity extends AppCompatActivity {
                    }
             }
 
+            sendToServer();
 
-
-
-
-            List<String> attendees = new ArrayList<>();
-            // TODO: add user and added users
-            // TODO: send to backend
-            String jsonString = null;
-            JSONObject jsonObject = null;
-            try {
-
-                 String start = startTime.getText().toString();
-                 if (start.length() < 5) {
-                     start = "0" + start;
-                 }
-                 String end = endTime.getText().toString();
-                 if (end.length() < 5) {
-                     end = "0" + end;
-                 }
-                 jsonString = new JSONObject()
-                         .put("host", currentUser.getEmail())
-                        .put("name", eventName.getText())
-                        .put("location", locationName.getText())
-                        .put("description", descriptionName.getText())
-                        .put("start",startDate.getText() + "T" + start)
-                        .put("end", endDate.getText() + "T" + end)
-                        //.put("attendees", new JSONArray().put("email:" + currentUser.getEmail()))
-                        .toString();
-                Toast.makeText(AddEventActivity.this, jsonString, Toast.LENGTH_LONG).show();
-                jsonObject = new JSONObject(jsonString);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
-            String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event/";
-
-            final JSONObject finalJsonObject = jsonObject;
-            JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    //TODO: handle success
-                    Log.d(TAG, "success" + finalJsonObject.toString());
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    error.printStackTrace();
-                    //TODO: handle failure
-                    Log.e(TAG, "failed" + finalJsonObject.toString());
-                }
-            });
-
-            requestQueue.add(jsonRequest);
-            requestQueue.start();
-
-            finish();
         };
+    }
+
+    private void sendToServer() {
+        final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        List<String> attendees = new ArrayList<>();
+        // TODO: add user and added users
+        // TODO: send to backend
+        String jsonString = null;
+        JSONObject jsonObject = null;
+        try {
+
+            String start = startTime.getText().toString();
+            if (start.length() < 5) {
+                start = "0" + start;
+            }
+            String end = endTime.getText().toString();
+            if (end.length() < 5) {
+                end = "0" + end;
+            }
+            jsonString = new JSONObject()
+                    .put("host", currentUser.getEmail())
+                    .put("name", eventName.getText())
+                    .put("location", locationName.getText())
+                    .put("description", descriptionName.getText())
+                    .put("start",startDate.getText() + "T" + start)
+                    .put("end", endDate.getText() + "T" + end)
+                    //.put("attendees", new JSONArray().put("email:" + currentUser.getEmail()))
+                    .toString();
+            Toast.makeText(AddEventActivity.this, jsonString, Toast.LENGTH_LONG).show();
+            jsonObject = new JSONObject(jsonString);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
+        String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event/";
+
+        final JSONObject finalJsonObject = jsonObject;
+        JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                //TODO: handle success
+                Log.d(TAG, "success" + finalJsonObject.toString());
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                error.printStackTrace();
+                //TODO: handle failure
+                Log.e(TAG, "failed" + finalJsonObject.toString());
+            }
+        });
+
+        requestQueue.add(jsonRequest);
+        requestQueue.start();
+
+        finish();
     }
 
 
