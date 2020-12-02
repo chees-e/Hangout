@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -30,6 +31,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.Status;
 
 import com.google.android.libraries.places.api.Places;
@@ -40,6 +43,7 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -71,12 +75,12 @@ public class AddEventActivity extends AppCompatActivity {
     private EditText endDate;
     private EditText endTime;
 
+    private GoogleSignInAccount currentAccount;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
-
-        Button addEventButton = findViewById(R.id.add_event_button);
 
         eventName = findViewById(R.id.editTextEvent);
 
@@ -97,10 +101,46 @@ public class AddEventActivity extends AppCompatActivity {
         endDate.setInputType(InputType.TYPE_NULL);
         endTime.setInputType(InputType.TYPE_NULL);
 
+        currentAccount = GoogleSignIn.getLastSignedInAccount(this);
+
+        initFriendList(10);
+    }
+
+    private void initFriendList(int max) {
+        RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
         List<String> friendList = new ArrayList<>();
-        // TODO: integrate backend, add friend list
-        friendList.add("friend1");
-        friendList.add("friend2");
+        String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail();
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            JSONArray friends = response.getJSONArray("friends");
+
+                            for (int i = 0; i < friends.length(); i++) {
+                                friendList.add(friends.getJSONObject(i).getString("name"));
+                            }
+                            AfterRequest(friendList);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // TODO: Handle error
+
+                    }
+                });
+        requestQueue.add(jsonObjectRequest);
+        requestQueue.start();
+
+    }
+
+    private void AfterRequest(List<String> friendList) {
+        Button addEventButton = findViewById(R.id.add_event_button);
 
         final MultiSpinner multiSpinner =  findViewById(R.id.addUsersSpinner);
         multiSpinner.setItems(friendList, " ", new MultiSpinner.MultiSpinnerListener() {
@@ -139,8 +179,6 @@ public class AddEventActivity extends AppCompatActivity {
         // gets end time
         endTime.setOnClickListener(createTimeListener(endTime));
 
-
-        // TODO: connect to backend
         // TODO: error checking
 
 
@@ -149,9 +187,6 @@ public class AddEventActivity extends AppCompatActivity {
 
     private View.OnClickListener createAddEventButton() {
         return v -> {
-
-
-
             if (isEmpty(eventName) || isEmpty(locationName) || isEmpty(descriptionName) ||
                     isEmpty(startDate) || isEmpty(startTime) || isEmpty(endDate) || isEmpty(endTime)) {
                 Toast.makeText(AddEventActivity.this, "Please enter the required fields", Toast.LENGTH_LONG).show();
