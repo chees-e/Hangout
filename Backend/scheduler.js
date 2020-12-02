@@ -28,7 +28,7 @@ module.exports.reset = async () => {
 
 	//The mock data base prob doesn't have clear()
 	//So we can't have the following line when testing
-	//data.clear();
+	data.clear();
 	return 0;
 
 };
@@ -61,10 +61,14 @@ async function getUserImpl(_id) {
     if ((!_id) || (!userData)) {
         return null;
     } else {
-        let user = new eventlib.User(userData.id, userData.name);
+        let user = new eventlib.User(userData.id, userData.name, userData.device, userData.pfp);
 		user.name = userData.name;
         user.events = userData.events;
         user.friends = userData.friends;
+        user.requestin = userData.requestin;
+        user.requestout = userData.requestout;
+		user.device = userData.device;
+		user.pfp = userData.pfp;
         return user;
     }
 }
@@ -320,6 +324,7 @@ module.exports.removeEventFromUser = async (_uid, _eid) => {
             return -1;
         }
 
+		//This needs to be updated
         const newUser = new eventlib.User(_uid);
         const newUimpl = new eventlib.EventImpl(_uid);
         newUser.events = user.events;
