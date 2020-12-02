@@ -166,7 +166,37 @@ public class BrowseUsersActivity extends AppCompatActivity {
             requestQueue.start();
 
         } else {
-            //TODO find friends
+            String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail() + "/findfriends";
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                JSONArray friends = response.getJSONArray("users");
+
+                                for (int i = 0; i < friends.length(); i++) {
+                                    _dataSet.add(new JSONObject());
+                                    _dataSet.get(i).put("name", friends.getJSONObject(i).getString("name"));
+                                    _dataSet.get(i).put("email", friends.getJSONObject(i).getString("id"));
+                                    _dataSet.get(i).put("ownerPicture", friends.getJSONObject(i).getString("pfp"));
+                                }
+                                initAdapter();
+                                initScrollListener();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // TODO: Handle error
+
+                        }
+                    });
+            requestQueue.add(jsonObjectRequest);
+            requestQueue.start();
 
         }
 
