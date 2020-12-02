@@ -125,10 +125,8 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
 
             Glide.with(context)
                     .load(mDataSet.get(position).get("ownerPicture"))
-                    .crossFade()
                     .thumbnail(0.5f)
-                    .bitmapTransform(new CircleTransform(context))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .circleCrop()
                     .into(holder.eventOwnerPicture);
 
             holder.eventName.setText(mDataSet.get(position).get("name").toString());
