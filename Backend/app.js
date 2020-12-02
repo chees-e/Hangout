@@ -151,13 +151,23 @@ app.get("/user/:uid/findevent/", function(req, res) {
 });
 
 app.get("/user/:uid/findfriends", function(req, res) {
-    sched.searchFriends().then( (userlist) => {
+    console.log(req)
+	sched.searchFriends(req.params.uid).then( (userlist) => {
         if (userlist.length === 0){
             res.status(404).send({msg:"No users"});
         } else {
+			let rv = [];
+			for (let i = 0; i < userlist.length; i++) {
+				rv.push({
+					id: userlist[i].id,
+					name: userlist[i].name,
+					pfp: userlist[i].pfp
+				});
+			}
+			console.log(rv)
             res.send({
-                length : userlist.length,
-                users: userlist
+                length : rv.length,
+                users: rv
             });
         }
     });
@@ -179,11 +189,11 @@ app.get("/user/", function(req, res) {
 });
 
 app.post("/user/:uid/friend/:fid", function(req, res) {
-	sched.addFriend(req.param.uid, req.param.fid).then((code) => {
+	sched.addFriend(req.params.uid, req.params.fid).then((code) => {
 		if (code < 0) {
 			res.status(404).send({msg:"User/Friend not found"});
 		} else {
-			sched.deleteRequest(req.param.uid, req.param.fid);
+			sched.deleteRequest(req.params.uid, req.params.fid);
         	res.send({msg: "Friend added successfully"});
 		}
 
@@ -191,7 +201,7 @@ app.post("/user/:uid/friend/:fid", function(req, res) {
 });
 
 app.delete("/user/:uid/friend/:fid", function(req, res) {
-	sched.deleteFriend(req.param.uid, req.param.fid).then((code) => {
+	sched.deleteFriend(req.params.uid, req.params.fid).then((code) => {
 		if (code < 0) {
 			res.status(404).send({msg:"User/Friend not found"});
 		} else {
@@ -203,7 +213,7 @@ app.delete("/user/:uid/friend/:fid", function(req, res) {
 
 //from uid to fid
 app.post("/user/:uid/request/:fid", function(req, res) {
-	sched.addRequest(req.param.uid, req.param.fid).then( (code) => {
+	sched.addRequest(req.params.uid, req.params.fid).then( (code) => {
 		if (code < 0) {
 			res.status(404).send({msg:"User/Friend not found"});
 		} else {
@@ -213,7 +223,7 @@ app.post("/user/:uid/request/:fid", function(req, res) {
 });
 
 app.delete("/user/:uid/request/:fid", function(req, res) {
-	sched.deleteRequest(req.param.uid, req.param.fid).then( (code) => {
+	sched.deleteRequest(req.params.uid, req.params.fid).then( (code) => {
 		if (code < 0) {
 			res.status(404).send({msg:"User/Friend not found"});
 		} else {
