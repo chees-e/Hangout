@@ -132,7 +132,7 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                     .into(holder.profilePicture);
 
             if (activity.equals("friends")) {
-                holder.profileLocation.setText(mDataSet.get(position).get("location").toString());
+                holder.profileLocation.setText("user location"); //mDataSet.get(position).get("location").toString());
                 holder.profileEmail.setText(mDataSet.get(position).get("email").toString());
             }
 

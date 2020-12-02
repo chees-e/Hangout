@@ -143,65 +143,135 @@ public class DisplayEventActivity extends AppCompatActivity {
         //Or make the response include whether the user has already participated or not so that
         //it can be displayed differently
         //I will work on it so DW about this part
-        String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/event/";
 
-        //Getting all events
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+        //TODO debug
 
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray events = response.getJSONArray("events");
-                            int length = response.getInt("length");
+        if (activity.equals("myEvent")) {
+            String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail() + "/event/";
 
-                            // TODO: add backend
-                            if (activity == "myEvent") {
-                                // TODO: display my events
-                            } else  {
-                                // TODO: displays all events
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                //Separated into the events you are hosting and events you are attending
+                                //Put in the same data set for now
+                                JSONArray hevents = response.getJSONArray("host");
+                                JSONArray aevents = response.getJSONArray("attendee");
+
+                                System.out.println(response.toString());
+
+                                for (int i = 0; i < hevents.length(); i++) {
+                                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                                    Date startdate = format.parse(hevents.getJSONObject(i).getString("start").substring(0, 10) + " " + hevents.getJSONObject(i).getString("start").substring(11, 17));
+                                    Date enddate = format.parse(hevents.getJSONObject(i).getString("end").substring(0, 10) + " " + hevents.getJSONObject(i).getString("end").substring(11, 17));
+
+                                    String startstr = startdate.toString() + " - ";
+                                    String endstr = enddate.toString();
+
+                                    _dataSet.add(new JSONObject());
+                                    _dataSet.get(i).put("name", hevents.getJSONObject(i).getString("name"));
+                                    _dataSet.get(i).put("host", hevents.getJSONObject(i).getString("host"));
+                                    _dataSet.get(i).put("desc", hevents.getJSONObject(i).getString("desc"));
+                                    _dataSet.get(i).put("location", "Location: " + hevents.getJSONObject(i).getString("location"));
+                                    _dataSet.get(i).put("start", startstr);
+                                    _dataSet.get(i).put("end", endstr);
+                                    _dataSet.get(i).put("attendees", hevents.getJSONObject(i).getString("attendees"));
+                                    _dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl());
+                                    numEvents++;
+                                    Log.d(TAG, "event added");
+
+                                }
+
+                                for (int i = 0; i < aevents.length(); i++) {
+                                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                                    Date startdate = format.parse(aevents.getJSONObject(i).getString("start").substring(0, 10) + " " + aevents.getJSONObject(i).getString("start").substring(11, 17));
+                                    Date enddate = format.parse(aevents.getJSONObject(i).getString("end").substring(0, 10) + " " + aevents.getJSONObject(i).getString("end").substring(11, 17));
+
+                                    String startstr = startdate.toString() + " - ";
+                                    String endstr = enddate.toString();
+
+                                    _dataSet.add(new JSONObject());
+                                    _dataSet.get(i).put("name", aevents.getJSONObject(i).getString("name"));
+                                    _dataSet.get(i).put("host", aevents.getJSONObject(i).getString("host"));
+                                    _dataSet.get(i).put("desc", aevents.getJSONObject(i).getString("desc"));
+                                    _dataSet.get(i).put("location", "Location: " + aevents.getJSONObject(i).getString("location"));
+                                    _dataSet.get(i).put("start", startstr);
+                                    _dataSet.get(i).put("end", endstr);
+                                    _dataSet.get(i).put("attendees", aevents.getJSONObject(i).getString("attendees"));
+                                    _dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl());
+                                    numEvents++;
+                                    Log.d(TAG, "event added");
+
+                                }
+                                initAdapter();
+                                initScrollListener();
+                            } catch (JSONException | ParseException e) {
+                                e.printStackTrace();
                             }
-                            Uri tempurl = currentAccount.getPhotoUrl();
-                            for (int i = 0; i < length; i++) {
-                                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                                Date startdate = format.parse( events.getJSONObject(i).getString("start").substring(0,10) + " " +  events.getJSONObject(i).getString("start").substring(11,17));
-                                Date enddate = format.parse( events.getJSONObject(i).getString("end").substring(0,10) + " " +  events.getJSONObject(i).getString("end").substring(11,17));
-                                //TODO: Formating the date
-                                //So change these two
-                                //Rn for some reason it is displaying start time twice instead of start and end,
-                                //Also there is a big black space in each entry => idk why but it is a problem
-                                String startstr = startdate.toString() + " - ";
-                                String endstr = enddate.toString();
-
-                                _dataSet.add(new JSONObject());
-                                _dataSet.get(i).put("name", events.getJSONObject(i).getString("name"));
-                                _dataSet.get(i).put("desc", events.getJSONObject(i).getString("desc"));
-                                _dataSet.get(i).put("location", "Location: " + events.getJSONObject(i).getString("location"));
-                                _dataSet.get(i).put("start", startstr);
-                                _dataSet.get(i).put("end", endstr);
-                                _dataSet.get(i).put("attendees", "TODO: attendees");
-                                _dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl()); // TODO: get owner picture
-                                numEvents++;
-                                Log.d(TAG, "event added");
-
-                            }
-                            initAdapter();
-                            initScrollListener();
-                        } catch (JSONException | ParseException e) {
-                            e.printStackTrace();
                         }
-                    }
-                }, new Response.ErrorListener() {
+                    }, new Response.ErrorListener() {
 
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // TODO: Handle error
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // TODO: Handle error
 
-                    }
-                });
+                        }
+                    });
+            requestQueue.add(jsonObjectRequest);
+            requestQueue.start();
+        } else {
+            String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail() + "/event/";//"/findevent/";
 
-        requestQueue.add(jsonObjectRequest);
-        requestQueue.start();
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                //TODO this
+                                JSONArray events = response.getJSONArray("events");
+
+                                for (int i = 0; i < events.length(); i++) {
+                                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                                    Date startdate = format.parse(events.getJSONObject(i).getString("start").substring(0, 10) + " " + events.getJSONObject(i).getString("start").substring(11, 17));
+                                    Date enddate = format.parse(events.getJSONObject(i).getString("end").substring(0, 10) + " " + events.getJSONObject(i).getString("end").substring(11, 17));
+
+                                    String startstr = startdate.toString() + " - ";
+                                    String endstr = enddate.toString();
+
+                                    _dataSet.add(new JSONObject());
+                                    _dataSet.get(i).put("name", events.getJSONObject(i).getString("name"));
+                                    _dataSet.get(i).put("host", events.getJSONObject(i).getString("host"));
+                                    _dataSet.get(i).put("desc", events.getJSONObject(i).getString("desc"));
+                                    _dataSet.get(i).put("location", "Location: " + events.getJSONObject(i).getString("location"));
+                                    _dataSet.get(i).put("start", startstr);
+                                    _dataSet.get(i).put("end", endstr);
+                                    _dataSet.get(i).put("attendees", events.getJSONObject(i).getString("attendees"));
+                                    _dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl()); //TODO needs to be replaced
+                                    numEvents++;
+                                    Log.d(TAG, "event added");
+
+                                }
+
+                                initAdapter();
+                                initScrollListener();
+                            } catch (JSONException | ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // TODO: Handle error
+
+                        }
+                    });
+            requestQueue.add(jsonObjectRequest);
+            requestQueue.start();
+        }
 
         return _dataSet;
 
