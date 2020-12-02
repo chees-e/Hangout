@@ -40,7 +40,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
     private boolean isLoading = false;
     private final int numLoad = 10;
     private final int maxUsers = 30;
-    Intent intent;
+    private Intent intent;
     String activity;
 
     @Override

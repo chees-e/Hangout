@@ -105,15 +105,6 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
 
         GoogleSignInAccount currentAccount = GoogleSignIn.getLastSignedInAccount(this);
 
-        ImageButton settingsButton = findViewById(R.id.settings);
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent settingsIntent = new Intent(Profile.this, SettingsActivity.class);
-                startActivity(settingsIntent);
-            }
-        });
-
         TextView currentDate = findViewById(R.id.currentDate);
         currentDate.setText(dateFormat.format(calendar.getTime()));
         TextView currentDay = findViewById(R.id.currentDay);
@@ -128,32 +119,8 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        signOutButton = findViewById(R.id.sign_out_button);
-        signOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signOut();
-            }
-        });
+        initButtons();
 
-        createEventButton = findViewById(R.id.eventButton);
-        createEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent addEventIntent = new Intent(Profile.this, AddEventActivity.class);
-                startActivity(addEventIntent);
-            }
-        });
-
-        findEventButton = findViewById(R.id.find_events_button);
-        findEventButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent findEventIntent = new Intent(Profile.this, DisplayEventActivity.class);
-                findEventIntent.putExtra("activity", "findEvent");
-                startActivity(findEventIntent);
-            }
-        });
         getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
             @Override
             public void onComplete(@NonNull Task<InstanceIdResult> task) {
@@ -192,6 +159,46 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
 
         // initializing navigation menu
         setUpNavigationView();
+
+    }
+
+    private void initButtons() {
+
+        signOutButton = findViewById(R.id.sign_out_button);
+        signOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signOut();
+            }
+        });
+
+        createEventButton = findViewById(R.id.eventButton);
+        createEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent addEventIntent = new Intent(Profile.this, AddEventActivity.class);
+                startActivity(addEventIntent);
+            }
+        });
+
+        findEventButton = findViewById(R.id.find_events_button);
+        findEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent findEventIntent = new Intent(Profile.this, DisplayEventActivity.class);
+                findEventIntent.putExtra("activity", "findEvent");
+                startActivity(findEventIntent);
+            }
+        });
+
+        ImageButton settingsButton = findViewById(R.id.settings);
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent settingsIntent = new Intent(Profile.this, SettingsActivity.class);
+                startActivity(settingsIntent);
+            }
+        });
 
     }
 
@@ -253,8 +260,6 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
                         Intent friendIntent = new Intent(Profile.this, BrowseUsersActivity.class);
                         friendIntent.putExtra("activity", "friends");
                         startActivity(friendIntent);
-                        break;
-                    case R.id.nav_groups:
                         break;
                     case R.id.nav_browse_users:
                         Intent browseUsersIntent = new Intent(Profile.this, BrowseUsersActivity.class);
