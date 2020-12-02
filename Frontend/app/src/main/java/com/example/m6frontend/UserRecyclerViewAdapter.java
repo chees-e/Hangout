@@ -74,15 +74,14 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
             public void onClick(View v) {
                 Intent ViewProfileIntent = new Intent(context, ViewProfileActivity.class);
                 ViewProfileIntent.putExtra("activity", activity);
-                // TODO: send info to ViewProfileIntent
-                if (activity.equals("friends")) {
-                    //position is 0 indexed right
-                    try {
-                        ViewProfileIntent.putExtra("friendid", mDataSet.get(position).getString("email"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    ViewProfileIntent.putExtra("friendid", mDataSet.get(position).getString("email"));
+                    ViewProfileIntent.putExtra("friendname", mDataSet.get(position).getString("name"));
+                    ViewProfileIntent.putExtra("friendpfp", mDataSet.get(position).getString("ownerPicture"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+                System.out.println("BBBBBBB" + mDataSet);
                 context.startActivity(ViewProfileIntent);
             }
         });
