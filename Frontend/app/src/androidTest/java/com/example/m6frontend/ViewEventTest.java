@@ -1,15 +1,8 @@
 package com.example.m6frontend;
 
 
-import android.app.Instrumentation;
-import android.content.Intent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
 
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.Espresso;
-import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 import androidx.test.filters.LargeTest;
@@ -43,7 +36,7 @@ public class ViewEventTest {
     }
 
     @Test
-    public void ViewEventTest() throws UiObjectNotFoundException, InterruptedException {
+    public void viewEventTest() throws UiObjectNotFoundException, InterruptedException {
         Espresso.onView(withId(R.id.sign_in_button)).perform(click());
         UiObject mText = mUiDevice.findObject(new UiSelector().text("kellywong48357@gmail.com"));
         mText.click();

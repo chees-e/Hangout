@@ -43,8 +43,8 @@ public class DisplayEventActivity extends AppCompatActivity {
     private boolean isLoading = false;
     private final int numLoad = 10;
     private final int maxEvents = 30;
-    Intent intent;
-    String activity;
+    private Intent intent;
+    private String activity;
 
 
     @Override
