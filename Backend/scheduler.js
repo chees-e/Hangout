@@ -225,7 +225,7 @@ module.exports.getAttendeeEvents = async (_id) => {
  *  returns: array containing all valid events the user 
  *			 is not attending
  */
-module.exports.getHostEvents = async () => {
+module.exports.searchEvents = async (_id) => {
     var evts = new Array();
     const eventmap = await data.getKeys("events");
     for (const _ of eventmap) {
@@ -236,6 +236,23 @@ module.exports.getHostEvents = async () => {
     }
     return evts;
 };
+
+module.exports.searchFriends = async (_id) => {
+    var friends = new Array();
+    const usermap = await data.getKeys("users");
+    const user = await getUserImpl(_id);
+    for (const _ of usermap) {
+        if (_.id != _id &&
+			!user.isFriend(_.id) &&
+			!user.isRequesting(_.id)) {
+				
+       	 	const value = await getUserImpl(_.id);
+			friends.push(value);
+		}
+    	    
+    }
+    return friends;
+}
 
 /* addUser(_id, _name)
  *  params: _id - user id, must not collide with event ids

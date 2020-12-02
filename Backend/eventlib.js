@@ -179,6 +179,18 @@ class User{
 		}
         return false;
     }
+    /* isRequesting();
+     * 
+     * Returns: whether the user is sending a request to the friend
+    */
+    isFriend(id) {
+		for (let i = 0; i < this.requestout.length; i++) {
+			if (this.requestout[i].id == id) {
+				return true;
+			}
+		}
+        return false;
+    }
     /* getProfile();
      * 
      * Params: none

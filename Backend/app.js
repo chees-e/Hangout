@@ -112,8 +112,9 @@ app.get("/user/:id", function(req, res) {
                 events: user.events,
 				friends: friendlist,
 				requestin: user.requestin,
-				requestout: user.requestout
-            });
+				requestout: user.requestout,
+    			pfp: user.pfp
+	        });
         }
     });
 });
@@ -147,6 +148,20 @@ app.get("/user/:uid/event/", function(req, res) {
 //Detect invalid requests
 app.get("/user/:uid/findevent/", function(req, res) {
 
+});
+
+app.get("/user/:uid/findfriends", function(req, res) {
+    sched.searchFriends().then( (userlist) => {
+        if (userlist.length === 0){
+            res.status(404).send({msg:"No users"});
+        } else {
+            res.send({
+                length : userlist.length,
+                users: userlist
+            });
+        }
+    });
+	
 });
 
 app.get("/user/", function(req, res) {
