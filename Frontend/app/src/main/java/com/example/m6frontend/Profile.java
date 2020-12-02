@@ -207,7 +207,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
 
         if (currentAccount == null) {
             // TODO: get name + email
-            textName.setText("First Last");
+            textName.setText("First Middle Last");
             textEmail.setText("www.test.com");
 
             // Loading profile image

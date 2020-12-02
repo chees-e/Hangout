@@ -75,6 +75,8 @@ public class AddEventActivity extends AppCompatActivity {
     private EditText endDate;
     private EditText endTime;
 
+    private List<String> attendees = new ArrayList<>();
+
     private GoogleSignInAccount currentAccount;
 
     @Override
@@ -109,6 +111,7 @@ public class AddEventActivity extends AppCompatActivity {
     private void initFriendList(int max) {
         RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
         List<String> friendList = new ArrayList<>();
+        List<String> friendids = new ArrayList<>();
         String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail();
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -120,8 +123,9 @@ public class AddEventActivity extends AppCompatActivity {
 
                             for (int i = 0; i < friends.length(); i++) {
                                 friendList.add(friends.getJSONObject(i).getString("name"));
+                                friendids.add(friends.getJSONObject(i).getString("id"));
                             }
-                            AfterRequest(friendList);
+                            AfterRequest(friendList, friendids);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -139,7 +143,11 @@ public class AddEventActivity extends AppCompatActivity {
 
     }
 
-    private void AfterRequest(List<String> friendList) {
+    private void AfterRequest(List<String> friendList, List<String> friendids) {
+        if (friendList.size() <= 0) {
+            friendList.add("Gabe");
+            friendids.add("shawnlu4gd@gmail.com"); //My alt used for testing
+        }
         Button addEventButton = findViewById(R.id.add_event_button);
 
         final MultiSpinner multiSpinner =  findViewById(R.id.addUsersSpinner);
@@ -147,6 +155,11 @@ public class AddEventActivity extends AppCompatActivity {
             @Override
             public void onItemsSelected(boolean[] selected) {
                 Log.i(TAG, String.valueOf(multiSpinner.items));
+                for (int i = 0; i < selected.length; i++) {
+                    if (selected[i]) {
+                        attendees.add(friendids.get(i));
+                    }
+                }
             }
         });
 
@@ -251,7 +264,7 @@ public class AddEventActivity extends AppCompatActivity {
                     .put("description", descriptionName.getText())
                     .put("start",startDate.getText() + "T" + start)
                     .put("end", endDate.getText() + "T" + end)
-                    //.put("attendees", new JSONArray().put("email:" + currentUser.getEmail()))
+                    .put("attendees", attendees)
                     .toString();
             Toast.makeText(AddEventActivity.this, jsonString, Toast.LENGTH_LONG).show();
             jsonObject = new JSONObject(jsonString);
