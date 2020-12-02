@@ -42,11 +42,12 @@ module.exports.reset = async () => {
 async function getEventImpl(_id) {
     const eventData = await data.getData(`events/${_id}`);
     if ((!_id) || (!eventData)) {
-        return new eventlib.Event(null, null, null, null, null, null);
+        return new eventlib.Event(null, null, null, null, null, null, null, []);
     } else {
-        return new eventlib.Event(parseInt(eventData.id, 10), eventData.name,
+        return new eventlib.Event(parseInt(eventData.id, 10), eventData.host, eventData.name,
                                   eventData.desc, new Date(eventData.start),
-                                  new Date(eventData.end), eventData.location);
+                                  new Date(eventData.end), eventData.location,
+									eventData.attendees);
     }
 }
 
@@ -90,7 +91,7 @@ async function getImpl(_id) {
     }
 }
 
-/* addEvent(_name, _id, _desc, _start, _end, _location)
+/* addEvent(_name, _host, _id, _desc, _start, _end, _location, _attendees)
  *  params: 
  *   _name  - string, name of event
  *   _id    - int, unique id of event
@@ -103,7 +104,7 @@ async function getImpl(_id) {
  *
  * If a valid event with the same id already exists, the scheduler is not modified
  */
-module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => {
+module.exports.addEvent = async (_name, _host, _id, _desc, _start, _end, _location, _attendees) => {
     const evnt = await getEventImpl(_id);
     if (evnt.isValid()) {
         return -1;
@@ -113,7 +114,7 @@ module.exports.addEvent = async (_name, _id, _desc, _start, _end, _location) => 
             id = await module.exports.getNextID();
         }
         
-        let newEvent = new eventlib.Event(id, _name, _desc, _start, _end, _location);
+        let newEvent = new eventlib.Event(id, _host, _name, _desc, _start, _end, _location, _attendees);
         let newImpl = new eventlib.EventImpl(id);
         newImpl.importEvent(newEvent);
 
@@ -199,7 +200,7 @@ module.exports.getHostEvents = async (_id) => {
     for (const _ of eventmap) {
         const value = await getEventImpl(_.id);
         if (value.isValid()) {
-			if (value.host.includes("REPLACE THIS")){
+			if (value.host == _id){
             	evts.push(value);
 			}
         }
@@ -218,7 +219,9 @@ module.exports.getAttendeeEvents = async (_id) => {
     for (const _ of eventmap) {
         const value = await getEventImpl(_.id);
         if (value.isValid()) {
-            evts.push(value);
+			if (value.attendees.includes(_id)){
+            	evts.push(value);
+			}
         }
     }
     return evts;
@@ -232,10 +235,22 @@ module.exports.getAttendeeEvents = async (_id) => {
 module.exports.searchEvents = async (_id) => {
     var evts = new Array();
     const eventmap = await data.getKeys("events");
+    const user = await getUserImpl(_id);
     for (const _ of eventmap) {
         const value = await getEventImpl(_.id);
         if (value.isValid()) {
-            evts.push(value);
+			let score1 = value.calculateScore(user);
+			if (score1 >= 0) {	
+				let i = 0;
+				while(i < evts.length) {
+					let score2 = evts[i].calculateScore(user);
+					if (score1 > score2) {
+						break;
+					}
+					i++
+				}
+				evts.splice(2, 0, value);
+			}
         }
     }
     return evts;
@@ -297,10 +312,13 @@ module.exports.addEventToUser = async (_uid, _eid) => {
     } else {
         user.addEvent(evnt);
         uimpl.importEvent(evnt);
+        evnt.attendees.push(user.id);
+        let newEvent = new eventlib.Event(evnt.id, evnt.host, evnt.name, evnt.desc, evnt.start, evnt.end, evnt.location, evnt.attendees);
         
-        await data.setData(`users/${_uid}`, user);
+		await data.setData(`users/${_uid}`, user);
         await data.setData(`impls/${_uid}`, uimpl);
-        return 0;
+        await data.setData(`events/${event.id}`, newEvent);
+		return 0;
     }
 };
 

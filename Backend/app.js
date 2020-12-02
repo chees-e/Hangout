@@ -22,13 +22,13 @@ app.post("/event/", async function(req, res) {
     //Summary = name
     //to be added: host, attendees
     //
-    let evnt = new eventlib.Event(id, req.body.name, req.body.description,
+    let evnt = new eventlib.Event(id, req.body.host, req.body.name, req.body.description,
                                   new Date(req.body.start), new Date(req.body.end),
-                                  req.body.location);
+                                  req.body.location, req.body.attendees);
     if (!evnt.isValid()) {
-        rv = sched.addEvent(null, id, null, new Date(0), new Date(0), null);
+        rv = sched.addEvent(null, null, id, null, new Date(0), new Date(0), null, []);
     } else {
-        rv = sched.addEvent(evnt.name, evnt.id, evnt.desc, evnt.start, evnt.end, evnt.location);
+        rv = sched.addEvent(evnt.name, evnt.host, evnt.id, evnt.desc, evnt.start, evnt.end, evnt.location, evnt.attendees);
     }
     rv.then((code) => {
         if ((!code) || (code <= 0)) {
@@ -69,13 +69,28 @@ app.get("/event/:id", function(req, res) {
         } else if (!evnt.isValid()) {
             res.status(404).send({msg:"Event is invalid"});
         } else {
+			let attendees = [];
+			for (let i = 0; i < attendees.length; i++) {
+				sched.getUser(attendees[i]).then((user) => {
+					/*attendees.push({
+						id: user.id,
+						name: user.name,
+						pfp: user.pfp
+					});*/
+					//only adding name for now because
+					//thats what we need for the frontend
+					attendees.push(user.name);
+				});
+			}
             res.send({  
                 name: evnt.name,
+				host: evnt.host,
                 id: evnt.id,
                 desc: evnt.desc,
                 start: evnt.start,
                 end: evnt.end,
-                location: evnt.location
+                location: evnt.location,
+				attendees: attendees
             });
         }
     });
@@ -143,11 +158,24 @@ app.delete("/user/:uid/event/:eid", function(req, res) {
 
 //TODO
 app.get("/user/:uid/event/", function(req, res) {
-
+	sched.getHostEvents(req.params.uid).then((hevents) => {
+		sched.getAttendeeEvents(req.params.uid).then((aevents) => {
+			console.log(hevents);
+			res.send({
+				host: hevents,
+				attendee: aevents
+			});	
+		});
+	});
 });
 //Detect invalid requests
 app.get("/user/:uid/findevent/", function(req, res) {
-
+	sched.searchEvents(req.params.uid).then((events) => {
+		res.send({
+			length: events.length,
+			events: events
+		});	
+	});
 });
 
 app.get("/user/:uid/findfriends", function(req, res) {
