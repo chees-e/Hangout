@@ -168,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
                     .put("id", account.getEmail())
                     .put("name", account.getDisplayName())
                     .put("device", token)
+                    .put("pfp", account.getPhotoUrl())
                     .toString();
             jsonObject = new JSONObject(jsonString);
         } catch (JSONException e) {
