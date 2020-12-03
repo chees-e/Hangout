@@ -22,9 +22,10 @@ app.post("/event/", async function(req, res) {
     //Summary = name
     //to be added: host, attendees
     //
+	console.log(req)
     let evnt = new eventlib.Event(id, req.body.host, req.body.name, req.body.description,
                                   new Date(req.body.start), new Date(req.body.end),
-                                  req.body.location, req.body.attendees);
+                                  req.body.location, req.body.attendees.split("+"));
     if (!evnt.isValid()) {
         rv = sched.addEvent(null, null, id, null, new Date(0), new Date(0), null, []);
     } else {
