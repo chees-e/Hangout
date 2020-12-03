@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ import org.json.JSONObject;
 public class ViewProfileActivity extends AppCompatActivity {
 
     private String friendid;
+    private final String TAG = "ViewProfileActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +73,7 @@ public class ViewProfileActivity extends AppCompatActivity {
 
                         @Override
                         public void onErrorResponse(VolleyError error) {
-
+                            Log.d(TAG, "error");
 
                         }
                     });

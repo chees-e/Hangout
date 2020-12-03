@@ -78,7 +78,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
-
+                        Log.d(TAG, "error");
                     }
                 });
         requestQueue.add(jsonObjectRequest);
