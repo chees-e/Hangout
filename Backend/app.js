@@ -85,7 +85,7 @@ app.get("/event/:id", function(req, res) {
                 location: evnt.location,
                 attendees: []
             };
-            for (let attendee of attendees) {
+            for (let attendee of toSend.attendees) {
                 sched.getUser(attendee).then((user) => {
                     /*attendees.push({
                         id: user.id,
