@@ -115,7 +115,7 @@ app.get("/user/:id", function(req, res) {
 			let friendids = user.getFriends();
 			let friendlist = [];
 			for (let i = 0; i < friendids.length; i++) {
-				frindlist.push({
+				friendlist.push({
 					id: friendids[i].id,
 					name: friendids[i].name,
 					pfp: friendids[i].pfp
