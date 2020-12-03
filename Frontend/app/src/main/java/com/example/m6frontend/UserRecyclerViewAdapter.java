@@ -1,5 +1,6 @@
 package com.example.m6frontend;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -180,8 +181,7 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                                     @Override
                                     public void onResponse(JSONObject response) {
                                         Log.d(TAG, "Friend Request Accepted");
-
-                                        //TODO: Delete this card
+                                        ((Activity)context).finish();
                                     }
                                 }, new Response.ErrorListener() {
 
@@ -209,8 +209,7 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                                     @Override
                                     public void onResponse(JSONObject response) {
                                         Log.d(TAG, "Friend Request Rejected");
-
-                                        //TODO: Delete this card
+                                        ((Activity)context).finish();
                                     }
                                 }, new Response.ErrorListener() {
 

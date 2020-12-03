@@ -73,6 +73,9 @@ public class ViewProfileActivity extends AppCompatActivity {
 
     private void deleteFriendConfirm() {
         DeleteFriendConfirmDialog dialog = new DeleteFriendConfirmDialog();
+        Bundle args = new Bundle();
+        args.putString("friendid", friendid);
+        dialog.setArguments(args);
         dialog.show(getSupportFragmentManager(), "delete friend confirm button");
     }
 

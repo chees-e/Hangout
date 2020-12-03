@@ -154,6 +154,7 @@ public class AddEventActivity extends AppCompatActivity {
         multiSpinner.setItems(friendList, " ", new MultiSpinner.MultiSpinnerListener() {
             @Override
             public void onItemsSelected(boolean[] selected) {
+                System.out.println("DDDDDDD" + selected.toString());
                 Log.i(TAG, String.valueOf(multiSpinner.items));
                 for (int i = 0; i < selected.length; i++) {
                     if (selected[i]) {

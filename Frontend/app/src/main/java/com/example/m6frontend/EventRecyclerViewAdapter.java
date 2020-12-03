@@ -1,6 +1,7 @@
 package com.example.m6frontend;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -137,14 +138,22 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
                 holder.eventconfirmButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        confirmInterest();
+                        try {
+                            confirmInterest(mDataSet.get(position).getString("id"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
             } else {
                 holder.eventconfirmButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        deleteEvent();
+                        try {
+                            deleteEvent(mDataSet.get(position).getString("id"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
             }
@@ -153,14 +162,20 @@ public class EventRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.
         }
     }
 
-    private void deleteEvent() {
+    private void deleteEvent(String eventid) {
         DeleteEventDialog dialog = new DeleteEventDialog();
+        Bundle args = new Bundle();
+        args.putString("eventid", eventid);
+        dialog.setArguments(args);
         dialog.show(((AppCompatActivity)this.context).getSupportFragmentManager(), " delete event button");
 
     }
 
-    private void confirmInterest() {
+    private void confirmInterest(String eventid) {
         ConfirmInterestDialog dialog = new ConfirmInterestDialog();
+        Bundle args = new Bundle();
+        args.putString("eventid", eventid);
+        dialog.setArguments(args);
         dialog.show(((AppCompatActivity)this.context).getSupportFragmentManager(), " confirm interest button");
     }
 
