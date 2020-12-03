@@ -28,8 +28,11 @@ module.exports.reset = async () => {
 
 	//The mock data base prob doesn't have clear()
 	//So we can't have the following line when testing
-	data.clear();
-	return 0;
+	if (await data.clear()) {
+		return 0;
+	}
+	
+	return -1;
 
 };
 
@@ -319,7 +322,7 @@ module.exports.addEventToUser = async (_uid, _eid) => {
         
 		await data.setData(`users/${_uid}`, user);
         await data.setData(`impls/${_uid}`, uimpl);
-        await data.setData(`events/${event.id}`, newEvent);
+        await data.setData(`events/${newEvent.id}`, newEvent);
 		return 0;
     }
 };
@@ -371,8 +374,15 @@ module.exports.addFriend = async (_uid, _fid) => {
 	if (!user){ return -1; }
 	if (!friend){ return -1; }
 
-	user.addFriend(friend.id, friend.name, friend.device, friend.pfp);
-	friend.addFriend(user.id, user.name, user.device, user.pfp);
+	if (!(user.addFriend(friend.id, friend.name, friend.device, friend.pfp))) {
+		return -2;
+	}
+	
+	if (!(friend.addFriend(user.id, user.name, user.device, user.pfp))) {
+		user.deleteFriend(friend.id);
+		return -2;
+	}
+	
 	friend.sendNotification(`${user.name} has accepted your friend request`);
 	
 

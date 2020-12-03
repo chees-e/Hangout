@@ -41,15 +41,21 @@ const ev3 = {
 };
 const user1 = {
 	id: "TestUser1",
-	name: "TestUser1"
+	name: "TestUser1",
+	device: null,
+	pfp: null
 };
 const user2 = {
 	id: "TestUser2",
-	name: "TestUser2"
+	name: "TestUser2",
+	device: null,
+	pfp: null
 };
 const user3 = {
 	id: "TestUser3",
-	name: "TestUser3"
+	name: "TestUser3",
+	device: null,
+	pfp: null
 };
 
 beforeAll(() => {
@@ -84,6 +90,7 @@ test("Testing Create Event", async () => {
     {
         attendees: [],
         name: "TestEventName1",
+        host: null,
         desc: "TestDesc1",
         start: start1.toISOString(),
         end: end1.toISOString(),
@@ -92,6 +99,7 @@ test("Testing Create Event", async () => {
     {
         attendees: [],
         name: "TestEventName2",
+        host: null,
         desc: "TestDesc2",
         start: start2.toISOString(),
         end: end2.toISOString(),
@@ -216,13 +224,11 @@ test("Testing Friend Requests", async () => {
     expect(friend4.statusCode).toBe(409);
     
     // Test case 5: Adding another user as a friend should succeed
-    const friend5 = await request(app).post("/user/TestUser1/friend/TestUser2");
+    const friend5 = await request(app).post("/user/TestUser1/friend/TestUser3");
     expect(friend5.statusCode).toBe(200);
 
-	// Test case 6: Accepting a friend request should add the friend to your friends list
-    const friend6 = await request(app).post("/user/TestUser2/friend/TestUser1");
+	// Test case 6: Adding a friend should add the friend to your friends list
     const userData = await request(app).get("/user/TestUser1");
-    expect(friend6.statusCode).toBe(200);
     expect(userData.statusCode).toBe(200);
     expect(userData.body.friends.includes("TestUser2"));
 });
@@ -241,16 +247,13 @@ test("Testing Remove Friend", async () => {
     const friend1 = await request(app).post("/user/TestUser1/friend/TestUser2");
     expect(friend1.statusCode).toBe(200);
     
-    const friend2 = await request(app).post("/user/TestUser2/friend/TestUser1");
-    expect(friend2.statusCode).toBe(200);
-    
     // Test case 1: Trying to remove invalid user should fail
     const delete1 = await request(app).delete("/user/TestUser1/friend/InvalidUser");
     expect(delete1.statusCode).toBe(404);
     
     // Test case 2: Trying to remove yourself should fail
     const delete2 = await request(app).delete("/user/TestUser1/friend/TestUser1");
-    expect(delete2.statusCode).toBe(405);
+    expect(delete2.statusCode).toBe(404);
     
     // Test case 3: Trying to remove a user you are not friends with should fail
     const delete3 = await request(app).delete("/user/TestUser1/friend/TestUser3");

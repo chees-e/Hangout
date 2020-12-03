@@ -8,10 +8,20 @@ jest.mock("./database.js", () => {
         ["nextID", { value : 1 } ],
         ["lastID", { value : null} ]
     ]);
-    const datafn = jest
-        .fn()
-        .mockImplementationOnce((path, obj) => (-1))
-        .mockImplementation((path, obj) => {
+    const clearfn = jest.fn()
+		.mockImplementationOnce(() => (false))
+		.mockImplementation(() => {
+			testData = new Map([
+				["events", new Map()],
+				["users", new Map()],
+				["impls", new Map()],
+				["nextID", { value : 1 } ],
+				["lastID", { value : null} ]
+			]);
+			return true;
+		});
+    return {
+        setData: async (path, obj) => {
             let keys = path.split("/");
             let firstVal = testData.get(keys[0]);
             if (firstVal instanceof Map) {
@@ -29,10 +39,6 @@ jest.mock("./database.js", () => {
                 testData.set(keys[0], { value : obj });
                 return 0;
             }
-        });
-    return {
-        setData: async (path, obj) => {
-            return datafn(path, obj);
         },
         getData: async (path) => {
             let keys = path.split("/");
@@ -50,6 +56,9 @@ jest.mock("./database.js", () => {
                 return testData.get(keys[0]);
             }
         },
+        clear: async () => {
+			return clearfn();
+		},
         getKeys: async (path) => {
             let firstVal = testData.get(path);
             if (firstVal instanceof Map) {
@@ -148,6 +157,9 @@ jest.mock("./eventlib.js", () => {
             isFriend(_id) {
                 return this.friends.includes(_id);
             }
+            updateDevice(_device) {
+				this.device = _device;
+			}
         },
         EventImpl : class EventImpl {
             constructor(_id) {
@@ -199,13 +211,13 @@ test("Testing addEvent", async () => {
     expect(defEvent.equals(invalidEvent)).toBe(true);
 
     // Add a valid event
-    expect(await scheduler.addEvent("Test", evid, "TestDesc", start1, end1, location)).toBe(evid);
+    expect(await scheduler.addEvent("Test", null, evid, "TestDesc", start1, end1, location)).toBe(evid);
     
     // Add the same event twice, should indicate a conflict
-    expect(await scheduler.addEvent("Test", evid, "TestDesc", start1, end1, location)).toBe(-1);
+    expect(await scheduler.addEvent("Test", null, evid, "TestDesc", start1, end1, location)).toBe(-1);
 
     // Add an event which was predetermined to fail in the mock
-    expect(await scheduler.addEvent("Test", 10, "testDesc", start1, end1, location)).toBe(-1);
+    expect(await scheduler.addEvent("Test", null, 10, "testDesc", start1, end1, location)).toBe(-1);
 
     // getEvent with no argument should return the last added event
     let evnt1 = await scheduler.getEvent();
@@ -241,15 +253,15 @@ test("Testing AddEventToUser", async () => {
 
     // Add an event with start start1 and end end1
     const EID = await scheduler.getNextID();
-    const ev = new eventlib.Event(EID, null, null, start1, end1, location);
-    expect(await scheduler.addEvent(null, EID, null, start1, end1, location)).toBe(EID);
+    const ev = new eventlib.Event(EID, null, null, null, start1, end1, location);
+    expect(await scheduler.addEvent(null, null, EID, null, start1, end1, location)).toBe(EID);
 
     // Add an event with start start2 and end end2
     const EID2 = await scheduler.getNextID();
     expect(EID !== EID2).toBe(true);
     const ev2 = new eventlib.Event(EID2);    
-    expect(await scheduler.addEvent(null, EID2, null, start2, end2, location)).toBe(EID2);
-    expect(await scheduler.addEvent(null, 3, null, start2, end2, location)).toBe(3);
+    expect(await scheduler.addEvent(null, null, EID2, null, start2, end2, location)).toBe(EID2);
+    expect(await scheduler.addEvent(null, null, 3, null, start2, end2, location)).toBe(3);
 
     // Add a user with id UID
     expect(await scheduler.addUser(UID)).toBe(UID);
@@ -287,14 +299,14 @@ test("Testing deleteEvent", async () => {
     expect(await scheduler.deleteEvent(evid)).toBe(-1);
     
     // Adding an event and then deleting it should work
-    expect(await scheduler.addEvent(null, evid, null, start1, end1, location)).toBe(evid);
+    expect(await scheduler.addEvent(null, null, evid, null, start1, end1, location)).toBe(evid);
     expect(await scheduler.deleteEvent(evid)).toBe(0);
     
     // At this point the event should not exist
     expect(await scheduler.deleteEvent(evid)).toBe(-1);
     
     // Adding an event and then deleting another event should not work
-    expect(await scheduler.addEvent(null, evid, null, start1, end1, location)).toBe(evid);
+    expect(await scheduler.addEvent(null, null, evid, null, start1, end1, location)).toBe(evid);
     expect(await scheduler.deleteEvent(-2)).toBe(-1);
     expect(await scheduler.deleteEvent(evid)).toBe(0);
 });

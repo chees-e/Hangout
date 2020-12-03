@@ -97,7 +97,7 @@ app.get("/event/:id", function(req, res) {
 });
 
 app.post("/user/", function(req, res) {
-	console.log(req)
+//	console.log(req)
     sched.addUser(req.body.id, req.body.name, req.body.device, req.body.pfp).then((code) => {
         if (code < 0) {
             res.status(409).send({msg:"User already exists"});
@@ -160,7 +160,7 @@ app.delete("/user/:uid/event/:eid", function(req, res) {
 app.get("/user/:uid/event/", function(req, res) {
 	sched.getHostEvents(req.params.uid).then((hevents) => {
 		sched.getAttendeeEvents(req.params.uid).then((aevents) => {
-			console.log(hevents);
+//			console.log(hevents);
 			res.send({
 				host: hevents,
 				attendee: aevents
@@ -179,7 +179,7 @@ app.get("/user/:uid/findevent/", function(req, res) {
 });
 
 app.get("/user/:uid/findfriends", function(req, res) {
-    console.log(req)
+//    console.log(req)
 	sched.searchFriends(req.params.uid).then( (userlist) => {
         if (userlist.length === 0){
             res.status(404).send({msg:"No users"});
@@ -192,7 +192,7 @@ app.get("/user/:uid/findfriends", function(req, res) {
 					pfp: userlist[i].pfp
 				});
 			}
-			console.log(rv)
+//			console.log(rv)
             res.send({
                 length : rv.length,
                 users: rv
@@ -218,7 +218,9 @@ app.get("/user/", function(req, res) {
 
 app.post("/user/:uid/friend/:fid", function(req, res) {
 	sched.addFriend(req.params.uid, req.params.fid).then((code) => {
-		if (code < 0) {
+		if (code === -2) {
+			res.status(409).send({msg:"A conflict was detected"});
+		} else if (code === -1) {
 			res.status(404).send({msg:"User/Friend not found"});
 		} else {
 			sched.deleteRequest(req.params.uid, req.params.fid);
@@ -230,7 +232,9 @@ app.post("/user/:uid/friend/:fid", function(req, res) {
 
 app.delete("/user/:uid/friend/:fid", function(req, res) {
 	sched.deleteFriend(req.params.uid, req.params.fid).then((code) => {
-		if (code < 0) {
+		if (code === -2) {
+			res.status(409).send({msg:"A conflict was detected"});
+		} else if (code < 0) {
 			res.status(404).send({msg:"User/Friend not found"});
 		} else {
         	res.send({msg: "Friend deleted successfully"});

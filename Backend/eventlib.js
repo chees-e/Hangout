@@ -46,6 +46,9 @@ class Event{
         }
         this.location = location;
         this.attendees = attendees;
+        if (!attendees) {
+			this.attendees = [];
+		}
     }
     
     // Check if event is valid
@@ -142,9 +145,13 @@ class User{
      * 
      */
     addFriend(id, name, device, pfp){
+		if (id === this.id) {
+			return false;
+		}
+		
 		for (let i = 0; i < this.friends.length; i++) {
-			if (this.friends[i].id == id) {
-				return false
+			if (this.friends[i].id === id) {
+				return false;
 			}
 		}
         this.friends.push(new Friend(id, name, device, pfp));
@@ -178,7 +185,11 @@ class User{
      * Returns: a list of (ids of) friends the user have
     */
     getFriends() {
-        return this.friends.slice();
+		let arr = []
+		for (let friend of this.friends) {
+			arr.push(new Friend(friend.id, friend.name, friend.device, friend.pfp));
+		}
+        return arr;
     }
     /* isFriend();
      * 
@@ -355,25 +366,6 @@ function advance(initial, iter, loopcond, exitcond) {
     return initial;
 }
 
-// If slot2 is a subset of slot1
-// slot1 and slot2 must be sorted by start
-function subset(slot1, slot2) {
-    const sl1iter = slot1.values();
-    let sl1 = sl1iter.next();
-    for (let sl2 of slot2) {
-        sl1 = advance(sl1, sl1iter, (initial) => (((sl2.start + sl2.length) < initial.value.start)),
-                                    (initial) => (initial.done));
-        if (sl1.done) {
-// There exists at least one event in slot2 which occurs after the end of all events in slot1
-            return false;
-        }
-        if (!contains(sl1.value, sl2)) {
-            return false;
-        }
-    }
-    return true;
-}
-
 // If slot1 conflicts with slot2
 function conflicts(slot1, slot2) {
     const sl2iter = slot2.values();
@@ -478,21 +470,11 @@ class EventImpl{
         const thiskeys = Array.from(this.timeslots.keys());
         const sharedkeys = thiskeys.filter( (key) => other.timeslots.has(key) );
         
-        if (behav === "any") {
-            return sharedkeys.some( (key) => {
-                return func(this.timeslots.get(key), other.timeslots.get(key));
-            });
-        } else if (behav === "all") {
-            return sharedkeys.every( (key) => {
-                return func(this.timeslots.get(key), other.timeslots.get(key));
-            });
-        }
+        return sharedkeys.some( (key) => {
+            return func(this.timeslots.get(key), other.timeslots.get(key));
+        });
     }
     
-    // Check if EventImpl other is a subset of this
-    attends(other){
-        return this.apply((thisSlot, otherSlot) => subset(thisSlot, otherSlot), other , "all");
-    }
     // Equality operator
     equals(other){
         if (!(other instanceof EventImpl)) {
@@ -510,7 +492,7 @@ class EventImpl{
     }
     // Check if other can be added to this
     conflicts(other){
-        return this.apply((thisSlot, otherSlot) => conflicts(thisSlot, otherSlot), other, "any");
+        return this.apply((thisSlot, otherSlot) => conflicts(thisSlot, otherSlot), other);
     }
     // Serialization for MongoDB
     serialize(){

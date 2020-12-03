@@ -13,7 +13,9 @@ module.exports.init = async (uri, dbname) => {
 module.exports.clear = async () => {
     if (db) {
         await db.dropDatabase();
+        return true;
     }
+    return false;
 };
 
 module.exports.close = async () => {
