@@ -37,7 +37,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
     private boolean isLoading = false;
     private final int numLoad = 10;
     private final int maxUsers = 30;
-    String activity;
+    private String activity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

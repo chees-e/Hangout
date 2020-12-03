@@ -89,7 +89,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
     private Button createEventButton;
     private Button findEventButton;
 
-    Calendar calendar = Calendar.getInstance();
+    private  Calendar calendar = Calendar.getInstance();
     private SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM  d, YYYY");
 
