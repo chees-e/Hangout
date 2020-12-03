@@ -46,9 +46,9 @@ class Event{
             this.end = start;
         }
         this.location = location;
-        if (typeof this.location === "string") {
+        /*if (typeof this.location === "string") {
             this._location = longlat.calculateLongLat(this.location);
-        }
+        }*/
         this.attendees = attendees;
         if (!attendees) {
             this.attendees = [];
