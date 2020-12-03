@@ -24,9 +24,20 @@
  * in equals
 */
 
+const request = require('request');
+const geourl = "https://maps.googleapis.com/maps/api/geocode/json?address=";
+const token = process.env.TOKEN;
 const ATTENDEE_WEIGHT = 1;
 const FRIEND_WEIGHT = 20;
 const longlat = require("./longlat.js");
+const admin = require("firebase-admin");
+let serviceAccount = require("./firebase.json");
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "https://m6frontend-1603068531105.firebaseio.com/"
+});
+
 
 class Event{
     constructor(id, host, name, desc, start, end, location, attendees){
@@ -254,8 +265,10 @@ class User{
             return removeif(this.requestin, id);
         }
     }
+    
     //TODO
     sendNotification(msg) {
+        sendNotif(msg, this.device);
         return;
     }
 
@@ -278,8 +291,28 @@ class Friend {
     }
 
     sendNotification(msg) {
+        sendNotif(msg, this.device);
         return;
     }
+}
+
+function sendNotif(msg, token) {
+    let options = {
+        priority: "high",
+        timeToLive: 60 * 60 * 24
+    };
+
+    let message = {
+        notification: {
+            title: "Hangout",
+            body: msg
+        }
+    }
+    admin.messaging().sendToDevice(token, message, options).then( response => {
+        return 0;    
+    }).catch( error => {
+        return -1;
+    });
 }
 
 /* Class EventImpl: Represents the "Design 2" format of an event or a user.
