@@ -382,12 +382,12 @@ module.exports.addFriend = async (_uid, _fid) => {
     if (!user){ return -1; }
     if (!friend){ return -1; }
 
-    if (!(user.addFriend(friend.id, friend.name, friend.device, friend.pfp))) {
-        return -2;
-    }
-    
-    friend.addFriend(user.id, user.name, user.device, user.pfp);    
-    friend.sendNotification(`${user.name} has accepted your friend request`);
+	if (!(user.addFriend(friend.id, friend.name, friend.device, friend.pfp))) {
+		return -2;
+	}
+	
+	friend.addFriend(user.id, user.name, user.device, user.pfp);	
+	user.sendNotification(`${friend.name} has accepted your friend request`);
 
     await data.setData(`users/${_uid}`, user);
     await data.setData(`users/${_fid}`, friend);

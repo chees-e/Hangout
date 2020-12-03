@@ -24,20 +24,10 @@
  * in equals
 */
 
-const request = require('request');
-const geourl = "https://maps.googleapis.com/maps/api/geocode/json?address=";
-const token = process.env.TOKEN;
 const ATTENDEE_WEIGHT = 1;
 const FRIEND_WEIGHT = 20;
 const longlat = require("./longlat.js");
-const admin = require("firebase-admin");
-let serviceAccount = require("./firebase.json");
-
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://m6frontend-1603068531105.firebaseio.com/"
-});
-
+const firebase = require("./firebase.js");
 
 class Event{
     constructor(id, host, name, desc, start, end, location, attendees){
@@ -53,9 +43,9 @@ class Event{
             this.end = start;
         }
         this.location = location;
-        if (typeof this.location === "string") {
+        /*if (typeof this.location === "string") {
             this._location = longlat.calculateLongLat(this.location);
-        }
+        }*/
         this.attendees = attendees;
         if (!attendees) {
             this.attendees = [];
@@ -108,6 +98,23 @@ class Event{
 }
 
 
+/* TODO: add a description
+ *
+ * THis is added to avoid circular objects
+ * */
+class Friend {
+    constructor(id, name, device, pfp){
+        this.id = id;
+        this.name = name;
+        this.device = device;
+        this.pfp = pfp;
+    }
+
+    sendNotification(msg) {
+        firebase.sendNotif(msg, this.device);
+        return;
+    }
+}
 
 /* Class User: Represents the "Design 1" format of a person, as used in the scheduler.
  * 
@@ -268,7 +275,7 @@ class User{
     
     //TODO
     sendNotification(msg) {
-        sendNotif(msg, this.device);
+        firebase.sendNotif(msg, this.device);
         return;
     }
 
@@ -278,57 +285,20 @@ class User{
     }
 }
 
-/* TODO: add a description
- *
- * THis is added to avoid circular objects
- * */
-class Friend {
-    constructor(id, name, device, pfp){
-        this.id = id;
-        this.name = name;
-        this.device = device;
-        this.pfp = pfp;
-    }
-
-    sendNotification(msg) {
-        sendNotif(msg, this.device);
-        return;
-    }
-}
-
-function sendNotif(msg, token) {
-    let options = {
-        priority: "high",
-        timeToLive: 60 * 60 * 24
-    };
-
-    let message = {
-        notification: {
-            title: "Hangout",
-            body: msg
-        }
-    }
-    admin.messaging().sendToDevice(token, message, options).then( response => {
-        return 0;    
-    }).catch( error => {
-        return -1;
-    });
-}
-
 /* Class EventImpl: Represents the "Design 2" format of an event or a user.
  * 
  * This is the internal format that the scheduling subsystem uses to represent
  * both events and users. Every EventImpl contains a sorted array of time slots,
- * each of which have a standard length.
- */
+ach of which have a standard length.
+*/ 
  
 // 10 minutes, the length of a single time slot
-const TSLength = 10; 
 
 /* Number of time slots in a day
  * The current implementation processes event conflicts per day, or time
  * period where events can conflict
  */
+const TSLength = 10; 
 const dayLength = 24 * 60 / TSLength;
 
 function getDayEncoding(date) {

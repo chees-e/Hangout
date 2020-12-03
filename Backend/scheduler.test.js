@@ -106,7 +106,7 @@ jest.mock("./eventlib.js", () => {
             return true;
         }
     };
-    return {
+    return new Object({
         Event : class Event{
             constructor(_id, host, name, desc, start, end, location, attendees) {
                 this.id = _id;
@@ -252,7 +252,7 @@ jest.mock("./eventlib.js", () => {
             }
         },
         Friend
-    };
+    });
 });
 
 const eventlib = require("./eventlib.js");

@@ -21,6 +21,7 @@ module.exports.clear = async () => {
 module.exports.close = async () => {
     if (client) {
         await client.close();
+        client = null;
     }
 };
 
