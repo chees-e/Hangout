@@ -30,7 +30,7 @@ import java.util.List;
 
 public class ProfileSettingsActivity extends AppCompatActivity {
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
-    EditText profileLocation;
+    private EditText profileLocation;
     private static final String TAG = "ProfileSettingsActivity";
 
     @Override

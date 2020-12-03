@@ -261,11 +261,13 @@ module.exports.searchFriends = async (_id) => {
     const usermap = await data.getKeys("users");
     const user = await getUserImpl(_id);
     for (const _ of usermap) {
+       	const value = await getUserImpl(_.id);
         if (_.id != _id &&
 			!user.isFriend(_.id) &&
-			!user.isRequesting(_.id)) {
+			!user.isRequesting(_.id) &&
+			!value.isRequesting(_id)
+			) {
 				
-       	 	const value = await getUserImpl(_.id);
 			friends.push(value);
 		}
     	    
@@ -375,7 +377,7 @@ module.exports.addFriend = async (_uid, _fid) => {
 	
 
     await data.setData(`users/${_uid}`, user);
-    await data.setData(`users/${_pid}`, friend);
+    await data.setData(`users/${_fid}`, friend);
 	return 0;
 }
 
@@ -388,11 +390,11 @@ module.exports.deleteFriend = async (_uid, _fid) => {
 	let rv = true;
 	rv = user.deleteFriend(friend.id);
 	if (!rv) { return -1; }
-	rv = friend.delteFriend(user.id);
+	rv = friend.deleteFriend(user.id);
 	if (!rv) { return -1; }
 
     await data.setData(`users/${_uid}`, user);
-    await data.setData(`users/${_pid}`, friend);
+    await data.setData(`users/${_fid}`, friend);
 	return 0;
 	
 }
@@ -409,7 +411,7 @@ module.exports.addRequest = async (_uid, _fid) => {
 	
 
     await data.setData(`users/${_uid}`, user);
-    await data.setData(`users/${_pid}`, friend);
+    await data.setData(`users/${_fid}`, friend);
 	return 0;
 }
 
@@ -422,11 +424,11 @@ module.exports.deleteRequest = async (_uid, _fid) => {
 	let rv = true;
 	rv = user.deleteRequest(friend.id, true);
 	if (!rv) { return -1; }
-	rv = friend.delteRequest(user.id, false);
+	rv = friend.deleteRequest(user.id, false);
 	if (!rv) { return -1; }
 
     await data.setData(`users/${_uid}`, user);
-    await data.setData(`users/${_pid}`, friend);
+    await data.setData(`users/${_fid}`, friend);
 	return 0;
 	
 }

@@ -9,36 +9,30 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
-import org.w3c.dom.Text;
+
 
 public class ViewProfileActivity extends AppCompatActivity {
 
-    private Intent intent;
-    private String activity;
     private String friendid;
-    private String friendname;
-    private String friendpfp;
     // private static final String TAG = "ProfileSettingsActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        intent = getIntent();
-        activity = intent.getStringExtra("activity");
+        Intent intent = getIntent();
+        String activity = intent.getStringExtra("activity");
         // TODO: get profile picture
 
-        GoogleSignInAccount currentAccount =  GoogleSignIn.getLastSignedInAccount(this);
+        //GoogleSignInAccount currentAccount =  GoogleSignIn.getLastSignedInAccount(this);
         friendid = intent.getStringExtra("friendid");
-        friendname = intent.getStringExtra("friendname");
-        friendpfp = intent.getStringExtra("friendpfp");
+        String friendname = intent.getStringExtra("friendname");
+        String friendpfp = intent.getStringExtra("friendpfp");
         System.out.println("AAAAAAAA" + friendid);
         System.out.println("AAAAAAAA" + friendname);
         System.out.println("AAAAAAAA" + friendpfp);
 
-        TextView profileDescription = findViewById(R.id.profileDescription);
+        //TextView profileDescription = findViewById(R.id.profileDescription);
         // TODO: get profile description
 
         if (activity.equals("friends")) {
@@ -46,7 +40,7 @@ public class ViewProfileActivity extends AppCompatActivity {
             Button deleteFriend = findViewById(R.id.deleteFriendButton);
             deleteFriend.setOnClickListener(v -> deleteFriendConfirm());
             TextView profileEmail = (TextView) findViewById(R.id.profileEmail);
-            TextView profileLocation = (TextView) findViewById(R.id.profileLocation);
+            //TextView profileLocation = (TextView) findViewById(R.id.profileLocation);
             profileEmail.setText(friendid);
         } else {
             setContentView(R.layout.view_user_profile);

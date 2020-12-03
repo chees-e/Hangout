@@ -41,7 +41,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
 
@@ -86,13 +85,13 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
 
-    Button signOutButton;
-    Button createEventButton;
-    Button findEventButton;
+    private Button signOutButton;
+    private Button createEventButton;
+    private Button findEventButton;
 
-    Calendar calendar = Calendar.getInstance();
-    SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
-    SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM  d, YYYY");
+    private  Calendar calendar = Calendar.getInstance();
+    private SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM  d, YYYY");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -275,6 +274,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
                         Intent friendRequests = new Intent(Profile.this, BrowseUsersActivity.class);
                         friendRequests.putExtra("activity", "friend_requests");
                         startActivity(friendRequests);
+                        break;
                     default:
                         break;
                 }

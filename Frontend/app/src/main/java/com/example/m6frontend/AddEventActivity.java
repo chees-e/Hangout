@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -105,10 +104,10 @@ public class AddEventActivity extends AppCompatActivity {
 
         currentAccount = GoogleSignIn.getLastSignedInAccount(this);
 
-        initFriendList(10);
+        initFriendList();
     }
 
-    private void initFriendList(int max) {
+    private void initFriendList() {
         RequestQueue requestQueue = Volley.newRequestQueue(AddEventActivity.this);
         List<String> friendList = new ArrayList<>();
         List<String> friendids = new ArrayList<>();
@@ -125,7 +124,7 @@ public class AddEventActivity extends AppCompatActivity {
                                 friendList.add(friends.getJSONObject(i).getString("name"));
                                 friendids.add(friends.getJSONObject(i).getString("id"));
                             }
-                            AfterRequest(friendList, friendids);
+                            afterRequest(friendList, friendids);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -143,7 +142,7 @@ public class AddEventActivity extends AppCompatActivity {
 
     }
 
-    private void AfterRequest(List<String> friendList, List<String> friendids) {
+    private void afterRequest(List<String> friendList, List<String> friendids) {
         if (friendList.size() <= 0) {
             friendList.add("Gabe");
             friendids.add("shawnlu4gd@gmail.com"); //My alt used for testing

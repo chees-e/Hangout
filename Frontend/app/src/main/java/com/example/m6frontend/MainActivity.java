@@ -180,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
         JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
+                Log.d(TAG, "update success");
             }
         }, new Response.ErrorListener() {
             @Override
