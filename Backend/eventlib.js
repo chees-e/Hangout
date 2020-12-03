@@ -31,7 +31,7 @@ const longlat = require("./longlat.js");
 class Event{
     constructor(id, host, name, desc, start, end, location, attendees){
         this.id = `${id}`;
-		this.host = host;
+        this.host = host;
         this.name = name;
         this.desc = desc;
         if (start < end) {
@@ -43,18 +43,18 @@ class Event{
         }
         this.location = location;
         if (typeof this.location === "string") {
-			this._location = longlat.calculateLongLat(this.location);
-		}
+            this._location = longlat.calculateLongLat(this.location);
+        }
         this.attendees = attendees;
         if (!attendees) {
-			this.attendees = [];
-		}
+            this.attendees = [];
+        }
     }
     
     // Check if event is valid
     isValid() {
         return ((this.start instanceof Date) && (this.end instanceof Date)
-             && (this.id >= 1) && (this.location) && true);
+             && (this.id >= 1) && (this.location));
     }
     
     // Two events are equal if their hashes are equal
@@ -75,7 +75,8 @@ class Event{
     }
 
     calculateScore(user) {
-        if (this.attendees.includes(user.id) || this.host == user.id) {
+        let possibleIDs = [this.host, ...this.attendees];
+        if (possibleIDs.includes(user.id)) {
             //User already attends this event, no need for recommendation
             return -1;
         }
@@ -107,13 +108,13 @@ class Event{
 class User{
     constructor(id, name, device, pfp){
         this.id = id;
-		this.name = name;
-		this.device = device;
-		this.pfp = pfp;
+        this.name = name;
+        this.device = device;
+        this.pfp = pfp;
         this.events = [];
         this.friends = [];
-		this.requestin = [];
-		this.requestout = [];
+        this.requestin = [];
+        this.requestout = [];
     }
     /* addEvent(event);
      *
@@ -137,15 +138,11 @@ class User{
      * 
      */
     addFriend(id, name, device, pfp){
-		if (id === this.id) {
-			return false;
-		}
-		
-		for (let i = 0; i < this.friends.length; i++) {
-			if (this.friends[i].id === id) {
-				return false;
-			}
-		}
+        let possibleIDs = [{id : this.id}, ...this.friends];
+        if (possibleIDs.some((elem) => (id === elem.id))) {
+            return false;
+        }
+
         this.friends.push(new Friend(id, name, device, pfp));
         return true;
     }
@@ -156,13 +153,14 @@ class User{
      * 
      */
     deleteFriend(id){
-		for (let i = 0; i < this.friends.length; i++) {
-			if (this.friends[i].id == id) {
-				
-            	this.friends.splice(i, 1);
-				return true;
-			}
-		}
+        let idx = 0;
+        for (let friend of this.friends) {
+            if (friend.id === id) {
+                this.friends.splice(idx, 1);
+                return true;
+            }
+            idx++;
+        }
         return false;
     }
     /* getEvents();
@@ -177,10 +175,10 @@ class User{
      * Returns: a list of (ids of) friends the user have
     */
     getFriends() {
-		let arr = []
-		for (let friend of this.friends) {
-			arr.push(new Friend(friend.id, friend.name, friend.device, friend.pfp));
-		}
+        let arr = [];
+        for (let friend of this.friends) {
+            arr.push(new Friend(friend.id, friend.name, friend.device, friend.pfp));
+        }
         return arr;
     }
     /* isFriend();
@@ -189,11 +187,11 @@ class User{
      * used when determining the score of an event
     */
     isFriend(id) {
-		for (let i = 0; i < this.friends.length; i++) {
-			if (this.friends[i].id == id) {
-				return true;
-			}
-		}
+        for (let friend of this.friends) {
+            if (friend.id === id) {
+                return true;
+            }
+        }
         return false;
     }
     /* isRequesting();
@@ -201,11 +199,11 @@ class User{
      * Returns: whether the user is sending a request to the friend
     */
     isRequesting(id) {
-		for (let i = 0; i < this.requestout.length; i++) {
-			if (this.requestout[i].id === id) {
-				return true;
-			}
-		}
+        for (let request of this.requestout) {
+            if (request.id === id) {
+                return true;
+            }
+        }
         return false;
     }
     /* getProfile();
@@ -219,55 +217,52 @@ class User{
         return JSON.stringify(this);
     }
 
-	//0 => in, 1 => out
-	//have to ensure friend is valid
-	addRequest(id, name, device, pfp, out) {
-		if (id === this.id) {
-			return false;
-		}
-		
-		if (out) {
-			if (this.isRequesting(id)) {
-				return false;
-			}
-			this.requestout.push(new Friend(id, name, device, pfp));
-			return true;
-		} else {
-			this.requestin.push(new Friend(id, name, device, pfp));
-			return true;
-		}
-	}
-	
-	deleteRequest(id, out) {
-		if (out) {
-			for (let i = 0; i < this.requestout.length; i++) {
-				if (this.requestout[i].id == id) {
-					
-					this.requestout.splice(i, 1);
-					return true;
-				}
-			}
-			return false;
-		} else {
-			for (let i = 0; i < this.requestin.length; i++) {
-				if (this.requestin[i].id == id) {
-					
-					this.requestin.splice(i, 1);
-					return true;
-				}
-			}
-			return false;
-		}
-	}
-	//TODO
-	sendNotification(msg) {
-		return
-	}
+    //0 => in, 1 => out
+    //have to ensure friend is valid
+    addRequest(id, name, device, pfp, out) {
+        if (id === this.id) {
+            return false;
+        }
+        
+        if (out) {
+            if (this.isRequesting(id)) {
+                return false;
+            }
+            this.requestout.push(new Friend(id, name, device, pfp));
+            return true;
+        } else {
+            this.requestin.push(new Friend(id, name, device, pfp));
+            return true;
+        }
+    }
+    
+    deleteRequest(id, out) {
+        let removeif = (arr, id) => {
+            let idx = 0;
+            for (let obj of arr) {
+                if (obj.id === id) {
+                    arr.splice(idx, 1);
+                    return true;
+                }
+                idx++;
+            }
+            return false;
+        };
+        if (out) {
+            return removeif(this.requestout, id);
+        } else {
+            return removeif(this.requestin, id);
+        }
+    }
+    //TODO
+    sendNotification(msg) {
+        return;
+    }
 
-	updateDevice(device) {
-		this.device = device;
-		return;
-	}
+    updateDevice(device) {
+        this.device = device;
+        return;
+    }
 }
 
 /* TODO: add a description
@@ -277,14 +272,14 @@ class User{
 class Friend {
     constructor(id, name, device, pfp){
         this.id = id;
-		this.name = name;
-		this.device = device;
-		this.pfp = pfp;
-	}
+        this.name = name;
+        this.device = device;
+        this.pfp = pfp;
+    }
 
-	sendNotification(msg) {
-		return
-	}
+    sendNotification(msg) {
+        return;
+    }
 }
 
 /* Class EventImpl: Represents the "Design 2" format of an event or a user.

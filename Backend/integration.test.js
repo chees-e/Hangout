@@ -40,22 +40,22 @@ const ev3 = {
     location: {"lat":0, "long":0}
 };
 const user1 = {
-	id: "TestUser1",
-	name: "TestUser1",
-	device: null,
-	pfp: null
+    id: "TestUser1",
+    name: "TestUser1",
+    device: null,
+    pfp: null
 };
 const user2 = {
-	id: "TestUser2",
-	name: "TestUser2",
-	device: null,
-	pfp: null
+    id: "TestUser2",
+    name: "TestUser2",
+    device: null,
+    pfp: null
 };
 const user3 = {
-	id: "TestUser3",
-	name: "TestUser3",
-	device: null,
-	pfp: null
+    id: "TestUser3",
+    name: "TestUser3",
+    device: null,
+    pfp: null
 };
 
 beforeAll(() => {
@@ -197,8 +197,8 @@ test("Testing Remove Event From User", async () => {
 });
 
 test("Testing Friend Requests", async () => {
-	// Preparation: Add 3 users
-	const post1 = await request(app).post("/user/").send(user1);
+    // Preparation: Add 3 users
+    const post1 = await request(app).post("/user/").send(user1);
     expect(post1.statusCode).toBe(201);
     
     const post2 = await request(app).post("/user/").send(user2);
@@ -227,15 +227,15 @@ test("Testing Friend Requests", async () => {
     const friend5 = await request(app).post("/user/TestUser1/friend/TestUser3");
     expect(friend5.statusCode).toBe(200);
 
-	// Test case 6: Adding a friend should add the friend to your friends list
+    // Test case 6: Adding a friend should add the friend to your friends list
     const userData = await request(app).get("/user/TestUser1");
     expect(userData.statusCode).toBe(200);
     expect(userData.body.friends.includes("TestUser2"));
 });
 
 test("Testing Remove Friend", async () => {
-	// Preparation: Add 3 users and add TestUser1 as friend to TestUser2
-	const post1 = await request(app).post("/user/").send(user1);
+    // Preparation: Add 3 users and add TestUser1 as friend to TestUser2
+    const post1 = await request(app).post("/user/").send(user1);
     expect(post1.statusCode).toBe(201);
     
     const post2 = await request(app).post("/user/").send(user2);
