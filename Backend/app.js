@@ -23,11 +23,11 @@ app.post("/event/", async function(req, res) {
     //to be added: host, attendees
     //
     //
-   	let attendeearray = []
+    let attendeearray = [];
 
-	if (req.body.attendees) {
-		attendeearray = req.body.attendees.split("+");
-	}
+    if (req.body.attendees) {
+        attendeearray = req.body.attendees.split("+");
+    }
     let evnt = new eventlib.Event(id, req.body.host, req.body.name, req.body.description,
                                   new Date(req.body.start), new Date(req.body.end),
                                   req.body.location, attendeearray);
@@ -75,35 +75,35 @@ app.get("/event/:id", function(req, res) {
         } else if (!evnt.isValid()) {
             res.status(404).send({msg:"Event is invalid"});
         } else {
-			let attendees = [];
-			for (let i = 0; i < attendees.length; i++) {
-				sched.getUser(attendees[i]).then((user) => {
-					/*attendees.push({
-						id: user.id,
-						name: user.name,
-						pfp: user.pfp
-					});*/
-					//only adding name for now because
-					//thats what we need for the frontend
-					attendees.push(user.name);
-				});
-			}
-            res.send({  
+            let toSend = {  
                 name: evnt.name,
-				host: evnt.host,
+                host: evnt.host,
                 id: evnt.id,
                 desc: evnt.desc,
                 start: evnt.start,
                 end: evnt.end,
                 location: evnt.location,
-				attendees: attendees
-            });
+                attendees: []
+            };
+            for (let attendee of attendees) {
+                sched.getUser(attendee).then((user) => {
+                    /*attendees.push({
+                        id: user.id,
+                        name: user.name,
+                        pfp: user.pfp
+                    });*/
+                    //only adding name for now because
+                    //thats what we need for the frontend
+                    toSend.attendees.push(user.name);
+                });
+            }
+            res.send(toSend);
         }
     });
 });
 
 app.post("/user/", function(req, res) {
-//	console.log(req)
+//  console.log(req)
     sched.addUser(req.body.id, req.body.name, req.body.device, req.body.pfp).then((code) => {
         if (code < 0) {
             res.status(409).send({msg:"User already exists"});
@@ -118,24 +118,24 @@ app.get("/user/:id", function(req, res) {
         if (!user) {
             res.status(404).send({msg:"User not found"});
         } else {
-			let friendids = user.getFriends();
-			let friendlist = [];
-			for (let i = 0; i < friendids.length; i++) {
-				friendlist.push({
-					id: friendids[i].id,
-					name: friendids[i].name,
-					pfp: friendids[i].pfp
-				});
-			}
+            let friendids = user.getFriends();
+            let friendlist = [];
+            for (let friend of friendids) {
+                friendlist.push({
+                    id: friend.id,
+                    name: friend.name,
+                    pfp: friend.pfp
+                });
+            }
             res.send({
                 id: user.id,
-				name: user.name,
+                name: user.name,
                 events: user.events,
-				friends: friendlist,
-				requestin: user.requestin,
-				requestout: user.requestout,
-    			pfp: user.pfp
-	        });
+                friends: friendlist,
+                requestin: user.requestin,
+                requestout: user.requestout,
+                pfp: user.pfp
+            });
         }
     });
 });
@@ -164,48 +164,48 @@ app.delete("/user/:uid/event/:eid", function(req, res) {
 
 //TODO
 app.get("/user/:uid/event/", function(req, res) {
-	sched.getHostEvents(req.params.uid).then((hevents) => {
-		sched.getAttendeeEvents(req.params.uid).then((aevents) => {
-//			console.log(hevents);
-			res.send({
-				host: hevents,
-				attendee: aevents
-			});	
-		});
-	});
+    sched.getHostEvents(req.params.uid).then((hevents) => {
+        sched.getAttendeeEvents(req.params.uid).then((aevents) => {
+//          console.log(hevents);
+            res.send({
+                host: hevents,
+                attendee: aevents
+            }); 
+        });
+    });
 });
 //Detect invalid requests
 app.get("/user/:uid/findevent/", function(req, res) {
-	sched.searchEvents(req.params.uid).then((events) => {
-		res.send({
-			length: events.length,
-			events: events
-		});	
-	});
+    sched.searchEvents(req.params.uid).then((events) => {
+        res.send({
+            length: events.length,
+            events: events
+        }); 
+    });
 });
 
 app.get("/user/:uid/findfriends", function(req, res) {
 //    console.log(req)
-	sched.searchFriends(req.params.uid).then( (userlist) => {
+    sched.searchFriends(req.params.uid).then( (userlist) => {
         if (userlist.length === 0){
             res.status(404).send({msg:"No users"});
         } else {
-			let rv = [];
-			for (let i = 0; i < userlist.length; i++) {
-				rv.push({
-					id: userlist[i].id,
-					name: userlist[i].name,
-					pfp: userlist[i].pfp
-				});
-			}
-//			console.log(rv)
+            let rv = [];
+            for (let user of userlist) {
+                rv.push({
+                    id: user.id,
+                    name: user.name,
+                    pfp: user.pfp
+                });
+            }
+//          console.log(rv)
             res.send({
                 length : rv.length,
                 users: rv
             });
         }
     });
-	
+    
 });
 
 app.get("/user/", function(req, res) {
@@ -219,62 +219,62 @@ app.get("/user/", function(req, res) {
             });
         }
     });
-	
+    
 });
 
 app.post("/user/:uid/friend/:fid", function(req, res) {
-	sched.addFriend(req.params.uid, req.params.fid).then((code) => {
-		if (code === -2) {
-			res.status(409).send({msg:"A conflict was detected"});
-		} else if (code === -1) {
-			res.status(404).send({msg:"User/Friend not found"});
-		} else {
-			sched.deleteRequest(req.params.uid, req.params.fid);
-        	res.send({msg: "Friend added successfully"});
-		}
+    sched.addFriend(req.params.uid, req.params.fid).then((code) => {
+        if (code === -2) {
+            res.status(409).send({msg:"A conflict was detected"});
+        } else if (code === -1) {
+            res.status(404).send({msg:"User/Friend not found"});
+        } else {
+            sched.deleteRequest(req.params.uid, req.params.fid);
+            res.send({msg: "Friend added successfully"});
+        }
 
-	});
+    });
 });
 
 app.delete("/user/:uid/friend/:fid", function(req, res) {
-	sched.deleteFriend(req.params.uid, req.params.fid).then((code) => {
-		if (code === -2) {
-			res.status(409).send({msg:"A conflict was detected"});
-		} else if (code < 0) {
-			res.status(404).send({msg:"User/Friend not found"});
-		} else {
-        	res.send({msg: "Friend deleted successfully"});
-		}
+    sched.deleteFriend(req.params.uid, req.params.fid).then((code) => {
+        if (code === -2) {
+            res.status(409).send({msg:"A conflict was detected"});
+        } else if (code < 0) {
+            res.status(404).send({msg:"User/Friend not found"});
+        } else {
+            res.send({msg: "Friend deleted successfully"});
+        }
 
-	});
+    });
 });
 
 //from uid to fid
 app.post("/user/:uid/request/:fid", function(req, res) {
-	sched.addRequest(req.params.uid, req.params.fid).then( (code) => {
-		if (code < 0) {
-			res.status(404).send({msg:"User/Friend not found"});
-		} else {
-        	res.send({msg:"Request added successfully"});
-		}
-	});
+    sched.addRequest(req.params.uid, req.params.fid).then( (code) => {
+        if (code < 0) {
+            res.status(404).send({msg:"User/Friend not found"});
+        } else {
+            res.send({msg:"Request added successfully"});
+        }
+    });
 });
 
 app.delete("/user/:uid/request/:fid", function(req, res) {
-	sched.deleteRequest(req.params.uid, req.params.fid).then( (code) => {
-		if (code < 0) {
-			res.status(404).send({msg:"User/Friend not found"});
-		} else {
-        	res.send({msg:"Request deleted successfully"});
-		}
-	});
+    sched.deleteRequest(req.params.uid, req.params.fid).then( (code) => {
+        if (code < 0) {
+            res.status(404).send({msg:"User/Friend not found"});
+        } else {
+            res.send({msg:"Request deleted successfully"});
+        }
+    });
 });
 
 //To be removed
 app.get("/reset/confirm", function(req, res) {
     sched.reset().then((code) => {
-    	if (code >= 0) { res.send({msg:"Everythin deleted successfully"}); }
-	});
+        if (code >= 0) { res.send({msg:"Everythin deleted successfully"}); }
+    });
 });
 
 

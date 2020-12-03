@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,7 +16,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,25 +23,20 @@ import org.json.JSONObject;
 public class ViewProfileActivity extends AppCompatActivity {
 
     private String friendid;
-    private String friendname;
-    private String friendpfp;
-    // private static final String TAG = "ProfileSettingsActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         String activity = intent.getStringExtra("activity");
-        // TODO: get profile picture
 
-        //GoogleSignInAccount currentAccount =  GoogleSignIn.getLastSignedInAccount(this);
+
         friendid = intent.getStringExtra("friendid");
-        friendname = intent.getStringExtra("friendname");
-        friendpfp = intent.getStringExtra("friendpfp");
+        String friendname = intent.getStringExtra("friendname");
+        String friendpfp = intent.getStringExtra("friendpfp");
 
 
-        //TextView profileDescription = findViewById(R.id.profileDescription);
-        // TODO: get profile description
+
 
         if (activity.equals("friends")) {
             setContentView(R.layout.view_friend_profile);
@@ -68,7 +61,7 @@ public class ViewProfileActivity extends AppCompatActivity {
                                 profileFriendsCount.setText("" + friendsl);
                                 profileEventsCount.setText("" + eventsl);
 
-                                //TextView profileLocation = (TextView) findViewById(R.id.profileLocation);
+
                                 profileEmail.setText(friendid);
                             } catch (JSONException e) {
                                 e.printStackTrace();

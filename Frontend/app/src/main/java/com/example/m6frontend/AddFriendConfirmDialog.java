@@ -43,6 +43,7 @@ public class AddFriendConfirmDialog extends AppCompatDialogFragment {
                         sendRequest(friendid);
                         Log.d(TAG, "Friend Add confirmed " + friendid);
                         Toast.makeText(getContext(), "Friend Request Sent: " + friendid, Toast.LENGTH_LONG).show();
+                        getActivity().finish();
                     }
                 })
                 .setNegativeButton("NO", new DialogInterface.OnClickListener() {

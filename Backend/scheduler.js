@@ -12,11 +12,11 @@ const data = require("./database.js");
  * 
 */
 module.exports.reset = async () => {
-	if (await data.clear()) {
-		return 0;
-	}
-	
-	return -1;
+    if (await data.clear()) {
+        return 0;
+    }
+    
+    return -1;
 
 };
 
@@ -34,7 +34,7 @@ async function getEventImpl(_id) {
         return new eventlib.Event(parseInt(eventData.id, 10), eventData.host, eventData.name,
                                   eventData.desc, new Date(eventData.start),
                                   new Date(eventData.end), eventData.location,
-									eventData.attendees);
+                                    eventData.attendees);
     }
 }
 
@@ -50,13 +50,13 @@ async function getUserImpl(_id) {
         return null;
     } else {
         let user = new eventlib.User(userData.id, userData.name, userData.device, userData.pfp);
-		user.name = userData.name;
+        user.name = userData.name;
         user.events = userData.events;
         user.friends = userData.friends;
         user.requestin = userData.requestin;
         user.requestout = userData.requestout;
-		user.device = userData.device;
-		user.pfp = userData.pfp;
+        user.device = userData.device;
+        user.pfp = userData.pfp;
         return user;
     }
 }
@@ -78,6 +78,22 @@ async function getImpl(_id) {
     }
 }
 
+async function getNewID(id) {
+    if (id) {
+        return id;
+    } else {
+        return await module.exports.getNextID();
+    }
+}
+
+async function addEvToUser(uid, event) {
+    let user = await getUserImpl(uid);
+    if (user) {
+        user.addEvent(event);                                                   
+        await data.setData(`users/${uid}`, user); 
+    }
+}
+
 /* addEvent(_name, _host, _id, _desc, _start, _end, _location, _attendees)
  *  params: 
  *   _name  - string, name of event
@@ -96,32 +112,18 @@ module.exports.addEvent = async (_name, _host, _id, _desc, _start, _end, _locati
     if (evnt.isValid()) {
         return -1;
     } else {
-        let id = _id;
-        if (!_id) {
-            id = await module.exports.getNextID();
-        }
-		let attendees = _attendees; //JSON.parse(_attendees);
+        let id = await getNewID(_id);
+        let attendees = _attendees; //JSON.parse(_attendees);
 
         let newEvent = new eventlib.Event(id, _host, _name, _desc, _start, _end, _location, attendees);
         let newImpl = new eventlib.EventImpl(id);
         newImpl.importEvent(newEvent);
 
         if (await data.setData(`events/${id}`, newEvent) === 0) {
-        	let user = await getUserImpl(_host);                                              
-       	 	if (user) {
-				user.addEvent(newEvent);                                                       
-        		await data.setData(`users/${_host}`, user); 
-			}
-			if (attendees) {	
-				for (let i = 0; i < attendees.length; i++) {
-					
-					let user = await getUserImpl(attendees[i]);    
-					if (user) {
-						user.addEvent(newEvent);                                                       
-						await data.setData(`users/${attendees[i]}`, user); 
-					}
-				}
-			}
+            await addEvToUser(_host, newEvent);
+            for (let _user of newEvent.attendees) {
+                await addEvToUser(_user, newEvent);
+            }
             await data.setData("lastID", id);
             let nextID = await module.exports.getNextID();
             let tmp = Math.max(nextID - 1, id) + 1;
@@ -195,7 +197,7 @@ module.exports.getAllEvents = async () => {
 /* getHostEvents()
  *  params: id
  *  returns: array containing all valid events the user 
- *			 is hosting
+ *           is hosting
  */
 module.exports.getHostEvents = async (_id) => {
     var evts = new Array();
@@ -203,9 +205,9 @@ module.exports.getHostEvents = async (_id) => {
     for (const _ of eventmap) {
         const value = await getEventImpl(_.id);
         if (value.isValid()) {
-			if (value.host === _id){
-            	evts.push(value);
-			}
+            if (value.host === _id){
+                evts.push(value);
+            }
         }
     }
     return evts;
@@ -214,7 +216,7 @@ module.exports.getHostEvents = async (_id) => {
 /* getAttendeeEvents()
  *  params: id
  *  returns: array containing all valid events the user 
- *			 is attending
+ *           is attending
  */
 module.exports.getAttendeeEvents = async (_id) => {
     var evts = new Array();
@@ -222,61 +224,67 @@ module.exports.getAttendeeEvents = async (_id) => {
     for (const _ of eventmap) {
         const value = await getEventImpl(_.id);
         if (value.isValid()) {
-			if (value.attendees.includes(_id)){
-            	evts.push(value);
-			}
+            if (value.attendees.includes(_id)){
+                evts.push(value);
+            }
         }
     }
     return evts;
 };
+
+async function getValidEvents() {
+    let evts = [];
+    const eventmap = await data.getKeys("events");
+    for (const _ of eventmap) {
+        const value = await getEventImpl(_.id);
+        if (value.isValid()) {
+            evts.push(value);
+        }
+    }
+    return evts;
+}
 
 /* SearchEvents()
  *  params: id
  *  returns: array containing all valid events the user 
- *			 is not attending
+ *           is not attending
  */
 module.exports.searchEvents = async (_id) => {
-    var evts = new Array();
-    const eventmap = await data.getKeys("events");
+    const eventmap = await getValidEvents();
     const user = await getUserImpl(_id);
-    for (const _ of eventmap) {
-        const value = await getEventImpl(_.id);
-        if (value.isValid()) {
-			let score1 = value.calculateScore(user);
-			if (score1 >= 0) {	
-				let i = 0;
-				while(i < evts.length) {
-					let score2 = evts[i].calculateScore(user);
-					if (score1 > score2) {
-						break;
-					}
-					i++
-				}
-				evts.splice(2, 0, value);
-			}
+    eventmap.sort( (elem1, elem2) => {
+        elem1.calculateScore(user) < elem2.calculateScore(user);
+    });
+    return eventmap.filter( (elem) => (!elem.attendees.includes(_id) && !(elem.host === _id)));
+};
+
+async function canBeFriend(user, _id) {
+    return !user.isFriend(_id) &&
+           !user.isRequesting(_id);
+}
+
+function removeAll(arr, _id) {
+    let arr2 = [];
+    for (let val of arr) {
+        if (val.id !== _id) {
+            arr2.push(val);
         }
     }
-    return evts;
-};
+    return arr2;
+}
 
 module.exports.searchFriends = async (_id) => {
     var friends = new Array();
-    const usermap = await data.getKeys("users");
+    const usermap = removeAll(await data.getKeys("users"), _id);
     const user = await getUserImpl(_id);
     for (const _ of usermap) {
-       	const value = await getUserImpl(_.id);
-        if (_.id != _id &&
-			!user.isFriend(_.id) &&
-			!user.isRequesting(_.id) &&
-			!value.isRequesting(_id)
-			) {
-				
-			friends.push(value);
-		}
-    	    
+        const value = await getUserImpl(_.id);
+        if (await canBeFriend(user, _.id) && await canBeFriend(value, _.id)) {
+            friends.push(value);
+        }
     }
     return friends;
-}
+};
 
 /* addUser(_id, _name)
  *  params: _id - user id, must not collide with event ids
@@ -286,9 +294,9 @@ module.exports.searchFriends = async (_id) => {
 module.exports.addUser = async (_id, _name, _device, _pfp) => {
     let has = await data.hasKey(`users/${_id}`);
     if (has) {
-    	const user = await getUserImpl(_id);
-       	user.updateDevice(_device); 
-		await data.setData(`users/${_id}`, user);
+        const user = await getUserImpl(_id);
+        user.updateDevice(_device); 
+        await data.setData(`users/${_id}`, user);
         return -1;
     } else {
         await data.setData(`users/${_id}`, new eventlib.User(_id, _name, _device, _pfp));
@@ -320,10 +328,10 @@ module.exports.addEventToUser = async (_uid, _eid) => {
         evnt.attendees.push(user.id);
         let newEvent = new eventlib.Event(evnt.id, evnt.host, evnt.name, evnt.desc, evnt.start, evnt.end, evnt.location, evnt.attendees);
         
-		await data.setData(`users/${_uid}`, user);
+        await data.setData(`users/${_uid}`, user);
         await data.setData(`impls/${_uid}`, uimpl);
         await data.setData(`events/${newEvent.id}`, newEvent);
-		return 0;
+        return 0;
     }
 };
 
@@ -347,7 +355,7 @@ module.exports.removeEventFromUser = async (_uid, _eid) => {
             return -1;
         }
 
-		//This needs to be updated
+        //This needs to be updated
         const newUser = new eventlib.User(_uid);
         const newUimpl = new eventlib.EventImpl(_uid);
         newUser.events = user.events;
@@ -371,8 +379,8 @@ module.exports.removeEventFromUser = async (_uid, _eid) => {
 module.exports.addFriend = async (_uid, _fid) => {
     const user = await getUserImpl(_uid);
     const friend = await getUserImpl(_fid);
-	if (!user){ return -1; }
-	if (!friend){ return -1; }
+    if (!user){ return -1; }
+    if (!friend){ return -1; }
 
 	if (!(user.addFriend(friend.id, friend.name, friend.device, friend.pfp))) {
 		return -2;
@@ -383,60 +391,60 @@ module.exports.addFriend = async (_uid, _fid) => {
 
     await data.setData(`users/${_uid}`, user);
     await data.setData(`users/${_fid}`, friend);
-	return 0;
-}
+    return 0;
+};
 
 module.exports.deleteFriend = async (_uid, _fid) => {
     const user = await getUserImpl(_uid);
     const friend = await getUserImpl(_fid);
-	if (!user){ return -1; }
-	if (!friend){ return -1; }
+    if (!user){ return -1; }
+    if (!friend){ return -1; }
 
-	let rv = true;
-	rv = user.deleteFriend(friend.id);
-	if (!rv) { return -1; }
-	friend.deleteFriend(user.id);
+    let rv = true;
+    rv = user.deleteFriend(friend.id);
+    if (!rv) { return -1; }
+    friend.deleteFriend(user.id);
 
     await data.setData(`users/${_uid}`, user);
     await data.setData(`users/${_fid}`, friend);
-	return 0;
-	
-}
+    return 0;
+    
+};
 
 module.exports.addRequest = async (_uid, _fid) => {
     const user = await getUserImpl(_uid);
     const friend = await getUserImpl(_fid);
-	if (!user){ return -1; }
-	if (!friend){ return -1; }
+    if (!user){ return -1; }
+    if (!friend){ return -1; }
 
-	if (!user.addRequest(friend.id, friend.name, friend.device, friend.pfp, true)) {
-		return -1;
-	}
+    if (!user.addRequest(friend.id, friend.name, friend.device, friend.pfp, true)) {
+        return -1;
+    }
 
-	friend.addRequest(user.id, user.name, user.device, user.pfp, false);
-	friend.sendNotification(`${user.name} has sent you a friend request`);	
+    friend.addRequest(user.id, user.name, user.device, user.pfp, false);
+    friend.sendNotification(`${user.name} has sent you a friend request`);  
 
     await data.setData(`users/${_uid}`, user);
     await data.setData(`users/${_fid}`, friend);
-	return 0;
-}
+    return 0;
+};
 
 module.exports.deleteRequest = async (_uid, _fid) => {
     const user = await getUserImpl(_uid);
     const friend = await getUserImpl(_fid);
-	if (!user){ return -1; }
-	if (!friend){ return -1; }
+    if (!user){ return -1; }
+    if (!friend){ return -1; }
 
-	let rv = true;
-	rv = user.deleteRequest(friend.id, true);
-	if (!rv) { return -1; }
-	friend.deleteRequest(user.id, false);
+    let rv = true;
+    rv = user.deleteRequest(friend.id, true);
+    if (!rv) { return -1; }
+    friend.deleteRequest(user.id, false);
 
     await data.setData(`users/${_uid}`, user);
     await data.setData(`users/${_fid}`, friend);
-	return 0;
-	
-}
+    return 0;
+    
+};
 
 /* getUser(id)
  *  params:
