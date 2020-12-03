@@ -153,7 +153,6 @@ public class AddEventActivity extends AppCompatActivity {
         multiSpinner.setItems(friendList, " ", new MultiSpinner.MultiSpinnerListener() {
             @Override
             public void onItemsSelected(boolean[] selected) {
-                System.out.println("DDDDDDD" + selected.toString());
                 Log.i(TAG, String.valueOf(multiSpinner.items));
                 for (int i = 0; i < selected.length; i++) {
                     if (selected[i]) {
@@ -242,9 +241,6 @@ public class AddEventActivity extends AppCompatActivity {
 
     private void sendToServer() {
         final FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        List<String> attendees = new ArrayList<>();
-        // TODO: add user and added users
-        // TODO: send to backend
         String jsonString = null;
         JSONObject jsonObject = null;
         try {

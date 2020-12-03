@@ -84,7 +84,13 @@ public class BrowseUsersActivity extends AppCompatActivity {
 
     private void loadMoreEvents() {
         dataSet.add(null);
-        recyclerViewAdapter.notifyItemInserted(dataSet.size() - 1);
+        recyclerView.post(new Runnable() {
+                              @Override
+                              public void run() {
+                                  recyclerViewAdapter.notifyItemInserted(dataSet.size() - 1);
+                              }
+                          });
+
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
