@@ -400,7 +400,6 @@ module.exports.addFriend = async (_uid, _fid) => {
 	}
 	
 	friend.sendNotification(`${user.name} has accepted your friend request`);
-	
 
     await data.setData(`users/${_uid}`, user);
     await data.setData(`users/${_fid}`, friend);
