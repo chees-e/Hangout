@@ -30,14 +30,7 @@ const token = process.env.TOKEN;
 const ATTENDEE_WEIGHT = 1;
 const FRIEND_WEIGHT = 20;
 const longlat = require("./longlat.js");
-const admin = require("firebase-admin");
-let serviceAccount = require("./firebase.json");
-
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://m6frontend-1603068531105.firebaseio.com/"
-});
-
+const firebase = require("./firebase.js");
 
 class Event{
     constructor(id, host, name, desc, start, end, location, attendees){
@@ -121,7 +114,7 @@ class Friend {
     }
 
     sendNotification(msg) {
-        sendNotif(msg, this.device);
+        firebase.sendNotif(msg, this.device);
         return;
     }
 }
@@ -285,7 +278,7 @@ class User{
     
     //TODO
     sendNotification(msg) {
-        sendNotif(msg, this.device);
+        firebase.sendNotif(msg, this.device);
         return;
     }
 
@@ -295,40 +288,20 @@ class User{
     }
 }
 
-
-function sendNotif(msg, token) {
-    let options = {
-        priority: "high",
-        timeToLive: 60 * 60 * 24
-    };
-
-    let message = {
-        notification: {
-            title: "Hangout",
-            body: msg
-        }
-    };
-    admin.messaging().sendToDevice(token, message, options).then((response) => {
-        return 0;    
-    }).catch((error) => {
-        return -1;
-    });
-}
-
 /* Class EventImpl: Represents the "Design 2" format of an event or a user.
  * 
  * This is the internal format that the scheduling subsystem uses to represent
  * both events and users. Every EventImpl contains a sorted array of time slots,
- * each of which have a standard length.
- */
+ach of which have a standard length.
+*/ 
  
 // 10 minutes, the length of a single time slot
-const TSLength = 10; 
 
 /* Number of time slots in a day
  * The current implementation processes event conflicts per day, or time
  * period where events can conflict
  */
+const TSLength = 10; 
 const dayLength = 24 * 60 / TSLength;
 
 function getDayEncoding(date) {
