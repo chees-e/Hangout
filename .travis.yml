@@ -12,3 +12,5 @@ cache:
   - "$HOME/.npm"
 script:
 - npm test
+services:
+- mongodb
