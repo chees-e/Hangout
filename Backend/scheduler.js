@@ -100,12 +100,28 @@ module.exports.addEvent = async (_name, _host, _id, _desc, _start, _end, _locati
         if (!_id) {
             id = await module.exports.getNextID();
         }
-        
-        let newEvent = new eventlib.Event(id, _host, _name, _desc, _start, _end, _location, _attendees);
+		let attendees = _attendees; //JSON.parse(_attendees);
+
+        let newEvent = new eventlib.Event(id, _host, _name, _desc, _start, _end, _location, attendees);
         let newImpl = new eventlib.EventImpl(id);
         newImpl.importEvent(newEvent);
 
         if (await data.setData(`events/${id}`, newEvent) === 0) {
+        	let user = await getUserImpl(_host);                                              
+       	 	if (user) {
+				user.addEvent(newEvent);                                                       
+        		await data.setData(`users/${_host}`, user); 
+			}
+			if (attendees) {	
+				for (let i = 0; i < attendees.length; i++) {
+					
+					let user = await getUserImpl(attendees[i]);    
+					if (user) {
+						user.addEvent(newEvent);                                                       
+						await data.setData(`users/${attendees[i]}`, user); 
+					}
+				}
+			}
             await data.setData("lastID", id);
             let nextID = await module.exports.getNextID();
             let tmp = Math.max(nextID - 1, id) + 1;

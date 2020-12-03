@@ -45,6 +45,7 @@ import com.google.firebase.auth.FirebaseUser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -191,7 +192,6 @@ public class AddEventActivity extends AppCompatActivity {
         // gets end time
         endTime.setOnClickListener(createTimeListener(endTime));
 
-        // TODO: error checking
 
 
         addEventButton.setOnClickListener(createAddEventButton());
@@ -260,7 +260,7 @@ public class AddEventActivity extends AppCompatActivity {
                     .put("description", descriptionName.getText())
                     .put("start",startDate.getText() + "T" + start)
                     .put("end", endDate.getText() + "T" + end)
-                    .put("attendees", attendees)
+                    .put("attendees", TextUtils.join("+", attendees))
                     .toString();
             Toast.makeText(AddEventActivity.this, jsonString, Toast.LENGTH_LONG).show();
             jsonObject = new JSONObject(jsonString);
