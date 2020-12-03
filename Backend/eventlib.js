@@ -230,6 +230,10 @@ class User{
 	//0 => in, 1 => out
 	//have to ensure friend is valid
 	addRequest(id, name, device, pfp, out) {
+		if (id === this.id) {
+			return false;
+		}
+		
 		if (out) {
 			this.requestout.push(new Friend(id, name, device, pfp));
 			return true;
