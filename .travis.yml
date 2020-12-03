@@ -1,7 +1,7 @@
 before_install:
  - cd Backend
  - npm install
- - openssl aes-256-cbc -K  -iv  -in .env.enc -out .env -d
+ - openssl aes-256-cbc -K  -iv  -in ../.env.enc -out .env -d
 language: node_js
 node_js:
   - "stable"
