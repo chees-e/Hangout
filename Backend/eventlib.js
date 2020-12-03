@@ -1,5 +1,4 @@
 "use strict";
-require("dotenv").config()
 /* Eventlib: The backend's scheduling code, used to generate user profiles.
  * Right now, it is events are suggested and conflicts are resolved as if
  * all events occur on the same day.
@@ -25,11 +24,9 @@ require("dotenv").config()
  * in equals
 */
 
-const request = require('request');
-const geourl = "https://maps.googleapis.com/maps/api/geocode/json?address=";
-const token = process.env.TOKEN;
 const ATTENDEE_WEIGHT = 1;
 const FRIEND_WEIGHT = 20;
+const longlat = require("./longlat.js");
 
 class Event{
     constructor(id, host, name, desc, start, end, location, attendees){
@@ -45,6 +42,9 @@ class Event{
             this.end = start;
         }
         this.location = location;
+        if (typeof this.location === "string") {
+			this._location = longlat.calculateLongLat(this.location);
+		}
         this.attendees = attendees;
         if (!attendees) {
 			this.attendees = [];
@@ -54,7 +54,7 @@ class Event{
     // Check if event is valid
     isValid() {
         return ((this.start instanceof Date) && (this.end instanceof Date)
-             && (this.id >= 1) && (this.location instanceof Object));
+             && (this.id >= 1) && (this.location) && true);
     }
     
     // Two events are equal if their hashes are equal
@@ -93,14 +93,6 @@ class Event{
         return score;
 
     }
-
-	calculateLongLat(){
-		let url = geourl + this.location.split(" ").join("+") + "key=" + token;
-		request({url:geourl, qs:{address: this.location.split(" ").join("+"), key: token}}, function (error, response, body) {
-  			if (error) return null;	
-			else return body["results"]["geometry"]["location"];
-		});
-	}
 }
 
 
@@ -210,7 +202,7 @@ class User{
     */
     isRequesting(id) {
 		for (let i = 0; i < this.requestout.length; i++) {
-			if (this.requestout[i].id == id) {
+			if (this.requestout[i].id === id) {
 				return true;
 			}
 		}
@@ -235,6 +227,9 @@ class User{
 		}
 		
 		if (out) {
+			if (this.isRequesting(id)) {
+				return false;
+			}
 			this.requestout.push(new Friend(id, name, device, pfp));
 			return true;
 		} else {
