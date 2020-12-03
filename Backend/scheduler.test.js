@@ -10,17 +10,17 @@ jest.mock("./database.js", () => {
     ]);
     const invalidpaths = [ "events/10" ];
     const clearfn = jest.fn()
-		.mockImplementationOnce(() => (false))
-		.mockImplementation(() => {
-			testData = new Map([
-				["events", new Map()],
-				["users", new Map()],
-				["impls", new Map()],
-				["nextID", { value : 0 } ],
-				["lastID", { value : null} ]
-			]);
-			return true;
-		});
+        .mockImplementationOnce(() => (false))
+        .mockImplementation(() => {
+            testData = new Map([
+                ["events", new Map()],
+                ["users", new Map()],
+                ["impls", new Map()],
+                ["nextID", { value : 0 } ],
+                ["lastID", { value : null} ]
+            ]);
+            return true;
+        });
     return {
         setData: async (path, obj) => {
             let keys = path.split("/");
@@ -58,8 +58,8 @@ jest.mock("./database.js", () => {
             }
         },
         clear: async () => {
-			return clearfn();
-		},
+            return clearfn();
+        },
         getKeys: async (path) => {
             let firstVal = testData.get(path);
             if (firstVal instanceof Map) {
@@ -98,24 +98,24 @@ jest.mock("./database.js", () => {
 });
 
 jest.mock("./eventlib.js", () => {
-	let Friend = class Friend {
-		constructor(id){
-			this.id = id;
-		}
-		sendNotification(msg) {
-			return true;
-		}
-	};
+    let Friend = class Friend {
+        constructor(id){
+            this.id = id;
+        }
+        sendNotification(msg) {
+            return true;
+        }
+    };
     return {
         Event : class Event{
             constructor(_id, host, name, desc, start, end, location, attendees) {
                 this.id = _id;
                 this.host = host;
                 if (attendees) {
-					this.attendees = attendees;
-				} else {
-					this.attendees = [];
-				}
+                    this.attendees = attendees;
+                } else {
+                    this.attendees = [];
+                }
             }
             isValid() {
                 return this.id !== null;
@@ -143,13 +143,13 @@ jest.mock("./eventlib.js", () => {
         User : class User {
             constructor(_id, name, device, pfp) {
                 this.id = _id;
-				this.name = name;
-				this.device = device;
-				this.pfp = pfp;
+                this.name = name;
+                this.device = device;
+                this.pfp = pfp;
                 this.events = [];
                 this.friends = [];
-				this.requestin = [];
-				this.requestout = [];
+                this.requestin = [];
+                this.requestout = [];
             }
             addEvent(event) {
                 if (this.events.includes(event.id)) {
@@ -160,32 +160,32 @@ jest.mock("./eventlib.js", () => {
                 }
             }
             addFriend(_id) {
-				if (_id === this.id) {
-					return false;
-				}
-				for (let friend of this.friends) {
-					if (friend.id === _id) {
-						return false;
-					}
-				}
-				this.friends.push(new Friend(_id));
-				return true;
+                if (_id === this.id) {
+                    return false;
+                }
+                for (let friend of this.friends) {
+                    if (friend.id === _id) {
+                        return false;
+                    }
+                }
+                this.friends.push(new Friend(_id));
+                return true;
             }
             deleteFriend(_id) {
-				if (this.isFriend(_id)) {
-					const idx = 0;
-					for (let friend of this.friends) {
-						if (friend.id === _id) {
-							this.friends.splice(idx, 1);
-							break;
-						}
-						idx++;
-					}
-					return true;
-				} else {
-					return false;
-				}
-			}
+                if (this.isFriend(_id)) {
+                    let idx = 0;
+                    for (let friend of this.friends) {
+                        if (friend.id === _id) {
+                            this.friends.splice(idx, 1);
+                            break;
+                        }
+                        idx++;
+                    }
+                    return true;
+                } else {
+                    return false;
+                }
+            }
             getEvents(){
                 return this.events.slice();
             }
@@ -193,49 +193,49 @@ jest.mock("./eventlib.js", () => {
                 return this.friends.slice();
             }
             isFriend(_id) {
-				for (let friend of this.friends) {
-					if (friend.id === _id) {
-						return true;
-					}
-				}
+                for (let friend of this.friends) {
+                    if (friend.id === _id) {
+                        return true;
+                    }
+                }
                 return false;
             }
-           	addRequest(id, name, device, pfp, out) {
-				if (id === this.id) {
-					return false;
-				}
-				
-				if (out) {
-					this.requestout.push(id);
-				} else {
-					this.requestin.push(id);
-				}
-				return true;
-			}
-			deleteRequest(id, out) {
-				if (out) {
-					if (this.requestout.includes(id)) {
-						this.requestout.splice(this.requestout.indexOf(id), 1);
-						return true;
-					}
-					return false;
-				} else {
-					if (this.requestin.includes(id)) {
-						this.requestin.splice(this.requestout.indexOf(id), 1);
-						return true;
-					}
-					return false;
-				}
-			}
-			isRequesting(_id) {
-				return (this.requestin.includes(_id) || this.requestout.includes(_id));
-			}
+            addRequest(id, name, device, pfp, out) {
+                if (id === this.id) {
+                    return false;
+                }
+                
+                if (out) {
+                    this.requestout.push(id);
+                } else {
+                    this.requestin.push(id);
+                }
+                return true;
+            }
+            deleteRequest(id, out) {
+                if (out) {
+                    if (this.requestout.includes(id)) {
+                        this.requestout.splice(this.requestout.indexOf(id), 1);
+                        return true;
+                    }
+                    return false;
+                } else {
+                    if (this.requestin.includes(id)) {
+                        this.requestin.splice(this.requestout.indexOf(id), 1);
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            isRequesting(_id) {
+                return (this.requestin.includes(_id) || this.requestout.includes(_id));
+            }
             updateDevice(_device) {
-				this.device = _device;
-			}
-			sendNotification(msg) {
-				return;
-			}
+                this.device = _device;
+            }
+            sendNotification(msg) {
+                return;
+            }
         },
         EventImpl : class EventImpl {
             constructor(_id) {
@@ -251,8 +251,8 @@ jest.mock("./eventlib.js", () => {
                 return other.id >= this.id;
             }
         },
-        Friend: Friend
-	}
+        Friend
+    };
 });
 
 const eventlib = require("./eventlib.js");
@@ -276,8 +276,8 @@ test("Testing addEvent", async () => {
     // Reset should fail the first time because of the mock
     expect(await scheduler.reset()).toBe(-1);
 
-	// If nextID has no value, getNextID should return 1.
-	expect(await scheduler.getNextID()).toBe(1);
+    // If nextID has no value, getNextID should return 1.
+    expect(await scheduler.getNextID()).toBe(1);
 
     // Restore scheduler to known state
     expect(await scheduler.reset()).toBe(0);
@@ -320,21 +320,21 @@ test("Testing addEvent", async () => {
 });
 
 test("Testing addUser", async () => {
-	// Restore scheduler to known state
-	expect(await scheduler.reset()).toBe(0);
-	
-	// Case 1: Adding user to scheduler with no users works
-	expect(await scheduler.addUser("testUser", "name", "dev", "pfp")).toBe("testUser");
-	// Case 2: Adding the same user twice does not work
-	expect(await scheduler.addUser("testUser", "name", "dev2", "pfp")).toBe(-1);
-	// Case 3: Adding another user should work
-	expect(await scheduler.addUser("testUser2", "name", "dev", "pfp")).toBe("testUser2");
-	// Case 4: Users should actually be added to the scheduler
-	const users = await scheduler.getAllUsers();
-	expect(users).toEqual([
-		new eventlib.User("testUser", "name", "dev2", "pfp"),
-		new eventlib.User("testUser2", "name", "dev", "pfp")
-	]);
+    // Restore scheduler to known state
+    expect(await scheduler.reset()).toBe(0);
+    
+    // Case 1: Adding user to scheduler with no users works
+    expect(await scheduler.addUser("testUser", "name", "dev", "pfp")).toBe("testUser");
+    // Case 2: Adding the same user twice does not work
+    expect(await scheduler.addUser("testUser", "name", "dev2", "pfp")).toBe(-1);
+    // Case 3: Adding another user should work
+    expect(await scheduler.addUser("testUser2", "name", "dev", "pfp")).toBe("testUser2");
+    // Case 4: Users should actually be added to the scheduler
+    const users = await scheduler.getAllUsers();
+    expect(users).toEqual([
+        new eventlib.User("testUser", "name", "dev2", "pfp"),
+        new eventlib.User("testUser2", "name", "dev", "pfp")
+    ]);
 });
 
 test("Testing AddEventToUser", async () => {
@@ -412,19 +412,19 @@ test("Testing removeEventFromUser", async () => {
     expect(await scheduler.addEventToUser(UID, EID)).toBe(0);
     expect(await scheduler.addEventToUser(UID, EID2)).toBe(0);
 
-	// Case 1: Remove event from user which doesn't exist, should fail
-	expect(await scheduler.removeEventFromUser(-1, -1)).toBe(-1);
-	// Case 2: Remove event which doesn't exist, should fail
-	expect(await scheduler.removeEventFromUser(UID, -1)).toBe(-1);
-	// Case 3: Remove event which the user attends, should succeed
-	expect(await scheduler.removeEventFromUser(UID, EID)).toBe(0);
-	// Case 4: Remove the same event twice, should fail
-	expect(await scheduler.removeEventFromUser(UID, EID)).toBe(-1);
-	// Case 5: Adding the event back should not produce a conflict
+    // Case 1: Remove event from user which doesn't exist, should fail
+    expect(await scheduler.removeEventFromUser(-1, -1)).toBe(-1);
+    // Case 2: Remove event which doesn't exist, should fail
+    expect(await scheduler.removeEventFromUser(UID, -1)).toBe(-1);
+    // Case 3: Remove event which the user attends, should succeed
+    expect(await scheduler.removeEventFromUser(UID, EID)).toBe(0);
+    // Case 4: Remove the same event twice, should fail
+    expect(await scheduler.removeEventFromUser(UID, EID)).toBe(-1);
+    // Case 5: Adding the event back should not produce a conflict
     expect(await scheduler.addEventToUser(UID, EID)).toBe(0);
     // Case 6: Removing all events should leave the user with no events
     expect(await scheduler.removeEventFromUser(UID, EID)).toBe(0);
-	expect(await scheduler.removeEventFromUser(UID, EID2)).toBe(0);	
+    expect(await scheduler.removeEventFromUser(UID, EID2)).toBe(0); 
 
     let user = await scheduler.getUser(UID);
     expect(user.events).toEqual([]);
@@ -457,124 +457,127 @@ test("Testing deleteEvent", async () => {
 });
 
 test("Testing Friend Functionality", async () => {
-	const UID1 = 1;
-	const UID2 = 2;
-	const UID3 = 3;
-	
+    const UID1 = 1;
+    const UID2 = 2;
+    const UID3 = 3;
+    
     // Restore scheduler to known state
     expect(await scheduler.reset()).toBe(0);
 
-	// Add 3 users
-	expect(await scheduler.addUser(UID1)).toBe(UID1);
-	expect(await scheduler.addUser(UID2)).toBe(UID2);
-	expect(await scheduler.addUser(UID3)).toBe(UID3);
-	
-	// Case 1: Adding yourself as a friend should not work
-	expect(await scheduler.addFriend(UID1, UID1)).toBe(-2);
-	// Case 2: An invalid user cannot add another user as a friend
-	expect(await scheduler.addFriend(-1, UID1)).toBe(-1);
-	// Case 3: Adding an invalid user as a friend should not work
-	expect(await scheduler.addFriend(UID1, -1)).toBe(-1);
-	// Case 4: Adding another user as a friend should work
-	expect(await scheduler.addFriend(UID1, UID2)).toBe(0);
-	
-	const U1 = await scheduler.getUser(UID1);
-	expect(U1.friends.length).toBe(1);
-	expect(U1.friends[0].id).toBe(UID2);
-	
-	// Case 5: Removing invalid friend from a user should not work
-	expect(await scheduler.deleteFriend(UID1, -1)).toBe(-1);
-	// Case 6: Removing invalid friend from an invalid user should not work
-	expect(await scheduler.deleteFriend(-1, -1)).toBe(-1);
-	// Case 7: Removing user you are not friends with should not work
-	expect(await scheduler.deleteFriend(UID1, UID3)).toBe(-1);
-	// Case 8: Removing user you are friends with should work
-	expect(await scheduler.deleteFriend(UID1, UID2)).toBe(0);
-	// Case 9: Removing friend should remove friend for the other user
-	expect(await scheduler.deleteFriend(UID2, UID1)).toBe(-1);
+    // Add 3 users
+    expect(await scheduler.addUser(UID1)).toBe(UID1);
+    expect(await scheduler.addUser(UID2)).toBe(UID2);
+    expect(await scheduler.addUser(UID3)).toBe(UID3);
+    
+    // Case 1: Adding yourself as a friend should not work
+    expect(await scheduler.addFriend(UID1, UID1)).toBe(-2);
+    // Case 2: An invalid user cannot add another user as a friend
+    expect(await scheduler.addFriend(-1, UID1)).toBe(-1);
+    // Case 3: Adding an invalid user as a friend should not work
+    expect(await scheduler.addFriend(UID1, -1)).toBe(-1);
+    // Case 4: Adding another user as a friend should work
+    expect(await scheduler.addFriend(UID1, UID2)).toBe(0);
+    
+    const U1 = await scheduler.getUser(UID1);
+    expect(U1.friends.length).toBe(1);
+    expect(U1.friends[0].id).toBe(UID2);
+    
+    // Case 5: Removing invalid friend from a user should not work
+    expect(await scheduler.deleteFriend(UID1, -1)).toBe(-1);
+    // Case 6: Removing invalid friend from an invalid user should not work
+    expect(await scheduler.deleteFriend(-1, -1)).toBe(-1);
+    // Case 7: Removing user you are not friends with should not work
+    expect(await scheduler.deleteFriend(UID1, UID3)).toBe(-1);
+    // Case 8: Removing user you are friends with should work
+    expect(await scheduler.deleteFriend(UID1, UID2)).toBe(0);
+    // Case 9: Removing friend should remove friend for the other user
+    expect(await scheduler.deleteFriend(UID2, UID1)).toBe(-1);
 
-	const U2 = await scheduler.getUser(UID1);
-	expect(U2.friends).toEqual([]);
+    const U2 = await scheduler.getUser(UID1);
+    expect(U2.friends).toEqual([]);
 });
 
 test("Testing Request Functionality", async () => {
-	const UID1 = 1;
-	const UID2 = 2;
-	const UID3 = 3;
-	
+    const UID1 = 1;
+    const UID2 = 2;
+    const UID3 = 3;
+    
     // Restore scheduler to known state
     expect(await scheduler.reset()).toBe(0);
 
-	// Add 3 users
-	expect(await scheduler.addUser(UID1)).toBe(UID1);
-	expect(await scheduler.addUser(UID2)).toBe(UID2);
-	expect(await scheduler.addUser(UID3)).toBe(UID3);
-	
-	// Case 1: Requesting yourself should not work
-	expect(await scheduler.addRequest(UID1, UID1)).toBe(-1);
-	// Case 2: An invalid user cannot add another user as a request
-	expect(await scheduler.addRequest(-1, UID1)).toBe(-1);
-	// Case 3: Adding an invalid user as a request should not work
-	expect(await scheduler.addRequest(UID1, -1)).toBe(-1);
-	// Case 4: Adding another user as a request should work
-	expect(await scheduler.addRequest(UID1, UID2)).toBe(0);
-	
-	const U1 = await scheduler.getUser(UID1);
-	expect(U1.requestout.length).toBe(1);
-	expect(U1.requestout[0]).toBe(UID2);
-	
-	// Case 5: Removing invalid request from a user should not work
-	expect(await scheduler.deleteRequest(UID1, -1)).toBe(-1);
-	// Case 6: Removing invalid request from an invalid user should not work
-	expect(await scheduler.deleteRequest(-1, -1)).toBe(-1);
-	// Case 7: Removing user you have not requested should not work
-	expect(await scheduler.deleteRequest(UID1, UID3)).toBe(-1);
-	// Case 8: Removing user you have requested should work
-	expect(await scheduler.deleteRequest(UID1, UID2)).toBe(0);
+    // Add 3 users
+    expect(await scheduler.addUser(UID1)).toBe(UID1);
+    expect(await scheduler.addUser(UID2)).toBe(UID2);
+    expect(await scheduler.addUser(UID3)).toBe(UID3);
+    
+    // Case 1: Requesting yourself should not work
+    expect(await scheduler.addRequest(UID1, UID1)).toBe(-1);
+    // Case 2: An invalid user cannot add another user as a request
+    expect(await scheduler.addRequest(-1, UID1)).toBe(-1);
+    // Case 3: Adding an invalid user as a request should not work
+    expect(await scheduler.addRequest(UID1, -1)).toBe(-1);
+    // Case 4: Adding another user as a request should work
+    expect(await scheduler.addRequest(UID1, UID2)).toBe(0);
+    
+    const U1 = await scheduler.getUser(UID1);
+    expect(U1.requestout.length).toBe(1);
+    expect(U1.requestout[0]).toBe(UID2);
+    
+    // Case 5: Removing invalid request from a user should not work
+    expect(await scheduler.deleteRequest(UID1, -1)).toBe(-1);
+    // Case 6: Removing invalid request from an invalid user should not work
+    expect(await scheduler.deleteRequest(-1, -1)).toBe(-1);
+    // Case 7: Removing user you have not requested should not work
+    expect(await scheduler.deleteRequest(UID1, UID3)).toBe(-1);
+    // Case 8: Removing user you have requested should work
+    expect(await scheduler.deleteRequest(UID1, UID2)).toBe(0);
 
-	const U2 = await scheduler.getUser(UID1);
-	expect(U2.friends).toEqual([]);
+    const U2 = await scheduler.getUser(UID1);
+    expect(U2.friends).toEqual([]);
 });
 
 test("Test Other Functions", async () => {
-	const UID1 = "TestUser";
-	const UID2 = "TestUser2";
-	const UID3 = "TestUser3";
-	const evid1 = 1;
-	const evid2 = 2;
-	const evid3 = 3;
+    const UID1 = "TestUser";
+    const UID2 = "TestUser2";
+    const UID3 = "TestUser3";
+    const evid1 = 1;
+    const evid2 = 2;
+    const evid3 = 3;
     const start1 = new Date(2020, 10, 24, 10, 45);
     const end1 = new Date(2020, 10, 24, 13, 50);
     const location = {"lat":0, "long":0};
-	
+    
     // Restore scheduler to known state
     expect(await scheduler.reset()).toBe(0);
 
-	// Add 3 users and 3 events
-	expect(await scheduler.addUser(UID1)).toBe(UID1);
-	expect(await scheduler.addUser(UID2)).toBe(UID2);
-	expect(await scheduler.addFriend(UID1, UID2)).toBe(0);
-	expect(await scheduler.addUser(UID3)).toBe(UID3);
-	expect(await scheduler.addEvent(null, null, evid1, null, start1, end1, location, [UID1])).toBe(evid1);
-	expect(await scheduler.addEvent(null, UID1, evid2, null, start1, end1, location)).toBe(evid2);
-	expect(await scheduler.addEvent(null, null, evid3, null, start1, end1, location, [UID2])).toBe(evid3);
+    // Add 3 users and 3 events
+    expect(await scheduler.addUser(UID1)).toBe(UID1);
+    expect(await scheduler.addUser(UID2)).toBe(UID2);
+    expect(await scheduler.addFriend(UID1, UID2)).toBe(0);
+    expect(await scheduler.addUser(UID3)).toBe(UID3);
+    expect(await scheduler.addEvent(null, null, evid1, null, start1, end1, location, [UID1])).toBe(evid1);
+    expect(await scheduler.addEvent(null, UID1, evid2, null, start1, end1, location)).toBe(evid2);
+    expect(await scheduler.addEvent(null, null, evid3, null, start1, end1, location, [UID2])).toBe(evid3);
 
-	const list1 = await scheduler.getHostEvents(UID1);
-	expect(list1.length).toBe(1);
-	
-	const list2 = await scheduler.getAttendeeEvents(UID1);
-	expect(list2.length).toBe(1);
-	
-	const list3 = await scheduler.searchEvents(UID1);
-	expect(list3[0]).toEqual(list2[0]);
-	expect(list3[1]).toEqual(list1[0]);
-	
-	const list4 = await scheduler.searchFriends(UID1);
-	let ids = [];
-	for (let user of list4) {
-		ids.push(user.id);
-	}
-	expect(ids.includes(UID1)).toBe(false);
-	expect(ids.includes(UID2)).toBe(false);
-	expect(ids.includes(UID3)).toBe(true);
+    const list1 = await scheduler.getHostEvents(UID1);
+    expect(list1.length).toBe(1);
+    
+    const list2 = await scheduler.getAttendeeEvents(UID1);
+    expect(list2.length).toBe(1);
+    
+    const list3 = await scheduler.searchEvents(UID1);
+    expect(list3[0]).toEqual({
+        attendees: [UID2],
+        host: null,
+        id: evid3
+    });
+    
+    const list4 = await scheduler.searchFriends(UID1);
+    let ids = [];
+    for (let user of list4) {
+        ids.push(user.id);
+    }
+    expect(ids.includes(UID1)).toBe(false);
+    expect(ids.includes(UID2)).toBe(false);
+    expect(ids.includes(UID3)).toBe(true);
 });

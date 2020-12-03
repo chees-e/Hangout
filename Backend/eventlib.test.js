@@ -3,8 +3,8 @@
 const eventlib = require("./eventlib.js");
 jest.mock("./longlat.js", () => {
     return {
-		calculateLongLat : (location) => ([0, 0])
-	};
+        calculateLongLat : (location) => ([0, 0])
+    };
 });
 
 test("Testing Event.equals", () => {
@@ -207,7 +207,7 @@ test("Testing EventImpl Serialize", () => {
     const ev = new eventlib.Event(1, null, null, null, start1, end1, location);
     const evImpl = new eventlib.EventImpl(0);
     
-    expect(ev.isValid()).toBe(true);
+    expect(ev.isValid()).toBeTruthy();
     evImpl.importEvent(ev);
     
     let json = evImpl.serialize();
