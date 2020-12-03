@@ -4,17 +4,29 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class ViewProfileActivity extends AppCompatActivity {
 
     private String friendid;
+    private String friendname;
+    private String friendpfp;
     // private static final String TAG = "ProfileSettingsActivity";
 
     @Override
@@ -26,22 +38,52 @@ public class ViewProfileActivity extends AppCompatActivity {
 
         //GoogleSignInAccount currentAccount =  GoogleSignIn.getLastSignedInAccount(this);
         friendid = intent.getStringExtra("friendid");
-        String friendname = intent.getStringExtra("friendname");
-        String friendpfp = intent.getStringExtra("friendpfp");
-        System.out.println("AAAAAAAA" + friendid);
-        System.out.println("AAAAAAAA" + friendname);
-        System.out.println("AAAAAAAA" + friendpfp);
+        friendname = intent.getStringExtra("friendname");
+        friendpfp = intent.getStringExtra("friendpfp");
+
 
         //TextView profileDescription = findViewById(R.id.profileDescription);
         // TODO: get profile description
 
         if (activity.equals("friends")) {
             setContentView(R.layout.view_friend_profile);
-            Button deleteFriend = findViewById(R.id.deleteFriendButton);
-            deleteFriend.setOnClickListener(v -> deleteFriendConfirm());
-            TextView profileEmail = (TextView) findViewById(R.id.profileEmail);
-            //TextView profileLocation = (TextView) findViewById(R.id.profileLocation);
-            profileEmail.setText(friendid);
+
+            RequestQueue requestQueue = Volley.newRequestQueue(ViewProfileActivity.this);
+
+            String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + friendid;
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                System.out.println(response.toString());
+                                int friendsl = response.getJSONArray("friends").length();
+                                int eventsl = response.getJSONArray("events").length();
+
+                                Button deleteFriend = findViewById(R.id.deleteFriendButton);
+                                deleteFriend.setOnClickListener(v -> deleteFriendConfirm());
+                                TextView profileEmail = (TextView) findViewById(R.id.profileEmail);
+                                TextView profileFriendsCount = (TextView) findViewById(R.id.friend_friends_count);
+                                TextView profileEventsCount = (TextView) findViewById(R.id.friend_events_count);
+                                profileFriendsCount.setText("" + friendsl);
+                                profileEventsCount.setText("" + eventsl);
+
+                                //TextView profileLocation = (TextView) findViewById(R.id.profileLocation);
+                                profileEmail.setText(friendid);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            // TODO: Handle error
+
+                        }
+                    });
+            requestQueue.add(jsonObjectRequest);
+            requestQueue.start();
         } else {
             setContentView(R.layout.view_user_profile);
             Button profileViewConfirm = findViewById(R.id.profileViewConfirm);
