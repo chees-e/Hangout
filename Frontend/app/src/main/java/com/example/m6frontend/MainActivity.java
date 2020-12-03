@@ -35,8 +35,7 @@ import org.json.JSONObject;
 
 
 
-// TODO: fix the visual issue when signing in
-// TODO: fix visual issue when pressing the back button
+
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = "MainActivity";
     private GoogleSignInClient mGoogleSignInClient;

@@ -115,7 +115,7 @@ public class DisplayEventActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            //TODO this
+
                             JSONArray events = response.getJSONArray("events");
 
                             for (int i = 0; i < events.length(); i++) {
@@ -134,7 +134,7 @@ public class DisplayEventActivity extends AppCompatActivity {
                                 _dataSet.get(i).put("start", startstr);
                                 _dataSet.get(i).put("end", endstr);
                                 _dataSet.get(i).put("attendees", events.getJSONObject(i).getString("attendees"));
-                                _dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl()); //TODO needs to be replaced
+                                _dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl());
                                 Log.d(TAG, "event added");
 
                             }
@@ -149,8 +149,7 @@ public class DisplayEventActivity extends AppCompatActivity {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO: Handle error
-
+                        Log.d(TAG, "error");
                     }
                 });
         requestQueue.add(jsonObjectRequest);
@@ -225,7 +224,7 @@ public class DisplayEventActivity extends AppCompatActivity {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO: Handle error
+                        Log.d(TAG, "error");
 
                     }
                 });

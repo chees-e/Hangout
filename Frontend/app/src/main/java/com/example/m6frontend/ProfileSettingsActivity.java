@@ -45,7 +45,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
             profileEmail.setText(currentAccount.getEmail());
         }
 
-        // TODO: get profile picture
+
         ImageView profilePicture = findViewById(R.id.profileViewPicture);
         Glide.with(this)
                 .load(currentAccount.getPhotoUrl())
@@ -77,7 +77,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO: Handle error
+
 
                     }
                 });
@@ -91,7 +91,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Log.i(TAG, "success");
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                // TODO: Handle the error.
+
                 Status status = Autocomplete.getStatusFromIntent(data);
                 Log.i(TAG, status.getStatusMessage());
             } else if (resultCode == RESULT_CANCELED) {

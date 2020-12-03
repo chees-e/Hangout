@@ -48,10 +48,6 @@ import java.util.Date;
 import java.util.List;
 
 
-// TODO: implement adding additional users
-// TODO: check if users are valid
-// TODO: fix tap responsiveness of time/date selectors
-// TODO: improve location selector (maps integration?)
 public class AddEventActivity extends AppCompatActivity {
     private final String TAG = "AddEventActivity";
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
@@ -125,7 +121,7 @@ public class AddEventActivity extends AppCompatActivity {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO: Handle error
+                        Log.d(TAG, "error");
 
                     }
                 });
@@ -253,7 +249,7 @@ public class AddEventActivity extends AppCompatActivity {
                     .put("end", endDate.getText() + "T" + end)
                     .put("attendees", TextUtils.join("+", attendees))
                     .toString();
-            Toast.makeText(AddEventActivity.this, jsonString, Toast.LENGTH_LONG).show();
+
             jsonObject = new JSONObject(jsonString);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -266,14 +262,14 @@ public class AddEventActivity extends AppCompatActivity {
         JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                //TODO: handle success
+
                 Log.d(TAG, "success" + finalJsonObject.toString());
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 error.printStackTrace();
-                //TODO: handle failure
+
                 Log.e(TAG, "failed" + finalJsonObject.toString());
             }
         });
@@ -319,7 +315,7 @@ public class AddEventActivity extends AppCompatActivity {
                 Place place = Autocomplete.getPlaceFromIntent(data);
                 locationName.setText(place.getAddress());
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                // TODO: Handle the error.
+
                 Status status = Autocomplete.getStatusFromIntent(data);
                 Log.i(TAG, status.getStatusMessage());
             } else if (resultCode == RESULT_CANCELED) {

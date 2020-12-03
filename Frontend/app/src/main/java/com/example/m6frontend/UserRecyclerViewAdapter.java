@@ -104,7 +104,7 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mDataSet.size(); // TODO: fix
+        return mDataSet.size();
     }
 
 
@@ -131,7 +131,6 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
             if (activity.equals("friends")) {
                 profileEmail = itemView.findViewById(R.id.profileCardEmail);
-                profileLocation = itemView.findViewById(R.id.profileCardLocation);
             }
 
             if (activity.equals("friend_requests")) {
@@ -185,7 +184,7 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
                                     @Override
                                     public void onErrorResponse(VolleyError error) {
-                                        // TODO: Handle error
+
 
                                     }
                                 });
@@ -213,7 +212,7 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
 
                                     @Override
                                     public void onErrorResponse(VolleyError error) {
-                                        // TODO: Handle error
+
 
                                     }
                                 });

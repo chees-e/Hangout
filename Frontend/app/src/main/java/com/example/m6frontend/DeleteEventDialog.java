@@ -70,7 +70,6 @@ public class DeleteEventDialog extends AppCompatDialogFragment {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO: Handle error
 
                     }
                 });

@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -31,6 +32,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
     private GoogleSignInAccount currentAccount;
     private boolean isLoading = false;
     private String activity;
+    private final String TAG = "BrowseUsersActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +81,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
 
         RequestQueue requestQueue = Volley.newRequestQueue(BrowseUsersActivity.this);
 
-        // TODO: get description
+
         if (activity.equals("users")) {
                 String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail() + "/findfriends";
 
@@ -106,7 +108,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
 
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                // TODO: Handle error
+                                Log.d(TAG, "error");
 
                             }
                         });
@@ -127,7 +129,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
                                     }
 
                                     for (int i = 0; i < friends.length(); i++) {
-                                        // TODO: get location
+
                                         _dataSet.add(new JSONObject());
                                         _dataSet.get(i).put("name", friends.getJSONObject(i).getString("name"));
                                         _dataSet.get(i).put("email", friends.getJSONObject(i).getString("id"));
@@ -143,7 +145,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
 
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                // TODO: Handle error
+                                Log.d(TAG, "error");
 
                             }
                         });

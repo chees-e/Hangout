@@ -73,7 +73,7 @@ public class AddFriendConfirmDialog extends AppCompatDialogFragment {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO: Handle error
+                        Log.d(TAG, "error");
 
                     }
                 });

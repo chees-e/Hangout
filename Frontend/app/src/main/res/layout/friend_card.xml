@@ -42,14 +42,7 @@
                 android:layout_below="@id/profileCardName"
                 android:layout_alignParentStart="true"
                 android:textSize="30sp"/>
-
-            <TextView
-                android:id="@+id/profileCardLocation"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/profileCardEmail"
-                android:layout_alignParentStart="true"
-                android:textSize="30sp"/>
+            />
 
         </RelativeLayout>
     </androidx.cardview.widget.CardView>

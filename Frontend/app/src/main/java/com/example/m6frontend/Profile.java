@@ -49,8 +49,7 @@ import java.util.Calendar;
 import static com.google.firebase.iid.FirebaseInstanceId.getInstance;
 
 
-// TODO: add user settings
-// TODO: add permission checks
+
 public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
     private final static String TAG = "Profile";
 
@@ -129,8 +128,6 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
                 String token = task.getResult().getToken();
                 String message = getString(R.string.token_prefix, token);
                 Log.d(TAG, message);
-                // TODO: change message to something meaningful
-                // Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -195,7 +192,6 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
 
 
         if (currentAccount == null) {
-            // TODO: get name + email
             textName.setText("First Middle Last");
             textEmail.setText("www.test.com");
 
@@ -309,7 +305,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
 
         if (status != ConnectionResult.SUCCESS) {
             Log.e(TAG, "Error");
-            // TODO: ask user to update google play services and manage the error
+
             return false;
         } else {
             Log.i(TAG, "Google play services updated");

@@ -71,7 +71,7 @@ public class DeleteFriendConfirmDialog extends AppCompatDialogFragment {
 
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        // TODO: Handle error
+                        Log.d(TAG, "error");
 
                     }
                 });
