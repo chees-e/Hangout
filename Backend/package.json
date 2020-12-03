@@ -9,7 +9,10 @@
     "start": "node server.js",
     "devstart": "nodemon server.js",
     "test": "jest --runInBand",
-    "coverage": "jest --runInBand --coverage"
+    "coverage": "jest --runInBand --coverage",
+    "evcov": "jest --coverage eventlib.test.js",
+    "schedcov": "jest --coverage scheduler.test.js",
+    "intcov": "jest --runInBand --coverage integration.test.js"
   },
   "dependencies": {
     "dotenv": "^8.2.0",

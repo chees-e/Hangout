@@ -54,7 +54,7 @@ class Event{
     // Check if event is valid
     isValid() {
         return ((this.start instanceof Date) && (this.end instanceof Date)
-             && (this.id >= 1) && (this.location));
+             && (this.id >= 1) && (this.location instanceof Object));
     }
     
     // Two events are equal if their hashes are equal
@@ -348,13 +348,6 @@ function compare(slot1, slot2) {
     }
 }
 
-// If slot1 contains slot2
-function contains(slot1, slot2) {
-    return (slot2.start >= slot1.start)
-        && ((slot2.start + slot2.length) <= (slot1.start + slot1.length))
-        && (slot1.id === slot2.id);
-}
-
 // Advance initial according to iter, loopcond, and exitcond
 function advance(initial, iter, loopcond, exitcond) {
     while (loopcond(initial)) {
@@ -382,16 +375,6 @@ function conflicts(slot1, slot2) {
         }
     }
     return false;
-}
-
-function mapEquals(map1, map2, func) {
-    for (let [key, val] of map1) {
-        let val2 = map2.get(key);
-        if (!(val2 && func(val, val2))) {
-            return false;
-        }
-    }
-    return true;
 }
 
 class EventImpl{
@@ -475,21 +458,6 @@ class EventImpl{
         });
     }
     
-    // Equality operator
-    equals(other){
-        if (!(other instanceof EventImpl)) {
-            return false;
-        }
-        return mapEquals(this.timeslots, other.timeslots, (val1, val2) => {
-            return (val1.length === val2.length) && val1.every((elem, idx) => {
-                let other = val2.slice(idx, idx+1)[0];
-                return other && ((elem.start === other.start)
-                    && (elem.length === other.length)
-                    && (elem.id === other.id));
-            });
-        });
-        
-    }
     // Check if other can be added to this
     conflicts(other){
         return this.apply((thisSlot, otherSlot) => conflicts(thisSlot, otherSlot), other);
