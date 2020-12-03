@@ -6,10 +6,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -24,10 +22,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
-import java.util.Date;
+
 
 public class BrowseUsersActivity extends AppCompatActivity {
     // private final String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
@@ -40,7 +37,6 @@ public class BrowseUsersActivity extends AppCompatActivity {
     private boolean isLoading = false;
     private final int numLoad = 10;
     private final int maxUsers = 30;
-    private Intent intent;
     String activity;
 
     @Override
@@ -50,11 +46,10 @@ public class BrowseUsersActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.userRecyclerView);
         numUsers = 0;
         currentAccount = GoogleSignIn.getLastSignedInAccount(this);
-        intent = getIntent();
+        Intent intent = getIntent();
         activity = intent.getStringExtra("activity");
 
-        int startUsers = 10;
-        dataSet = initUserData(startUsers);
+        dataSet = initUserData();
     }
 
     private void initAdapter() {
@@ -128,7 +123,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
     }
 
 
-    private ArrayList<JSONObject> initUserData(int num) {
+    private ArrayList<JSONObject> initUserData() {
         final ArrayList<JSONObject> _dataSet = new ArrayList<>();
 
         RequestQueue requestQueue = Volley.newRequestQueue(BrowseUsersActivity.this);

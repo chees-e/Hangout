@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -43,7 +42,6 @@ public class DisplayEventActivity extends AppCompatActivity {
     private boolean isLoading = false;
     private final int numLoad = 10;
     private final int maxEvents = 30;
-    private Intent intent;
     private String activity;
 
 
@@ -51,7 +49,7 @@ public class DisplayEventActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_event);
-        intent = getIntent();
+        Intent intent = getIntent();
         activity = intent.getStringExtra("activity");
 
         recyclerView =  findViewById(R.id.recyclerView);
@@ -59,8 +57,7 @@ public class DisplayEventActivity extends AppCompatActivity {
         currentAccount = GoogleSignIn.getLastSignedInAccount(this);
 
 
-        int startEvents = 10;
-        dataSet = initEventData(startEvents);
+        dataSet = initEventData();
 
     }
 
@@ -135,7 +132,7 @@ public class DisplayEventActivity extends AppCompatActivity {
     }
 
 
-    private ArrayList<JSONObject> initEventData(int num) {
+    private ArrayList<JSONObject> initEventData() {
         final ArrayList<JSONObject> _dataSet = new ArrayList<>();
 
         RequestQueue requestQueue = Volley.newRequestQueue(DisplayEventActivity.this);

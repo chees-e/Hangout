@@ -19,11 +19,9 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
+
 
 public class AddFriendConfirmDialog extends AppCompatDialogFragment {
     private final String TAG = "AddFriendConfirmDialog";
