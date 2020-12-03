@@ -7,6 +7,12 @@ jest.mock("./longlat.js", () => {
     };
 });
 
+jest.mock("./firebase.js", () => {
+    return {
+        sendNotif : (msg, token) => 0
+    };
+});
+
 test("Testing Event.equals", () => {
     let ev = new eventlib.Event(null, null, null, null, null, null, null, null);
     let ev2 = new eventlib.Event(null, null, null, null, null, null, null, null);
@@ -67,6 +73,7 @@ test("Testing User Friend handling", () => {
     
     expect(u1.deleteFriend(-1)).toBe(false);
     expect(u1.deleteFriend(2)).toBe(true);
+	u1.sendNotification("test");
 });
 
 test("Testing Friend Request handling", () => {
@@ -96,7 +103,8 @@ test("Testing Friend Request handling", () => {
     expect(u1.deleteRequest(2, true)).toBe(true);
     expect(u1.deleteRequest(2, true)).toBe(false);
 
-	u1.updateDevice("new device")
+	u1.sendNotification("test");
+	u1.updateDevice("new device");
 });
 
 test("Testing User Event handling", () => {
