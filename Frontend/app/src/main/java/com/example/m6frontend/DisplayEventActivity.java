@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -32,10 +31,7 @@ import java.util.Date;
 public class DisplayEventActivity extends AppCompatActivity {
 
     private final String TAG = "DisplayEventActivity";
-    // private final String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
-    // RequestQueue queue;
     private RecyclerView recyclerView;
-    private EventRecyclerViewAdapter recyclerViewAdapter;
     private ArrayList<JSONObject> dataSet;
     private GoogleSignInAccount currentAccount;
     private boolean isLoading = false;
@@ -59,7 +55,7 @@ public class DisplayEventActivity extends AppCompatActivity {
 
     private void initAdapter() {
 
-        recyclerViewAdapter = new EventRecyclerViewAdapter(dataSet, this, activity);
+        EventRecyclerViewAdapter recyclerViewAdapter = new EventRecyclerViewAdapter(dataSet, this, activity);
         recyclerView.setAdapter(recyclerViewAdapter);
 
     }
@@ -96,12 +92,7 @@ public class DisplayEventActivity extends AppCompatActivity {
         final ArrayList<JSONObject> _dataSet = new ArrayList<>();
 
         RequestQueue requestQueue = Volley.newRequestQueue(DisplayEventActivity.this);
-        //This url needs to be changed so that it gets the events that users are not in
-        //Or make the response include whether the user has already participated or not so that
-        //it can be displayed differently
-        //I will work on it so DW about this part
 
-        //TODO debug
 
         if (activity.equals("myEvent")) {
             initMyEventData(_dataSet, requestQueue);

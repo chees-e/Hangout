@@ -13,17 +13,18 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        handleMessage();
+        String message = remoteMessage.getNotification().getBody();
+        handleMessage(message);
         Log.d(TAG, "Notification Received!");
     }
 
-    private void handleMessage() {
+    private void handleMessage(String message) {
         Handler handler = new Handler(Looper.getMainLooper());
         handler.post(new Runnable() {
             @Override
             public void run() {
 
-                Toast.makeText(getBaseContext(), "Friend Request Received",
+                Toast.makeText(getBaseContext(), message,
                         Toast.LENGTH_LONG).show();
             }
         });

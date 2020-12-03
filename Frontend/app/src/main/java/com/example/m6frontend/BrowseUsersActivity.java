@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -27,10 +26,7 @@ import java.util.ArrayList;
 
 
 public class BrowseUsersActivity extends AppCompatActivity {
-    // private final String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
-    // RequestQueue queue;
     private RecyclerView recyclerView;
-    private UserRecyclerViewAdapter recyclerViewAdapter;
     private ArrayList<JSONObject> dataSet;
     private GoogleSignInAccount currentAccount;
     private boolean isLoading = false;
@@ -49,7 +45,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
     }
 
     private void initAdapter() {
-        recyclerViewAdapter = new UserRecyclerViewAdapter(dataSet, this, activity );
+        UserRecyclerViewAdapter recyclerViewAdapter = new UserRecyclerViewAdapter(dataSet, this, activity);
         recyclerView.setAdapter(recyclerViewAdapter);
     }
 
