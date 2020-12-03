@@ -22,8 +22,8 @@ public class FirebaseMessagingService extends com.google.firebase.messaging.Fire
         handler.post(new Runnable() {
             @Override
             public void run() {
-                // TODO: handle notifications
-                Toast.makeText(getBaseContext(), getString(R.string.handle_notification_now),
+
+                Toast.makeText(getBaseContext(), "Friend Request Received",
                         Toast.LENGTH_LONG).show();
             }
         });

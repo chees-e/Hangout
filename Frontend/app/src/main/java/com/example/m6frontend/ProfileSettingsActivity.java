@@ -39,7 +39,6 @@ import java.util.List;
 
 public class ProfileSettingsActivity extends AppCompatActivity {
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
-    private EditText profileLocation;
     private static final String TAG = "ProfileSettingsActivity";
 
     @Override
@@ -50,38 +49,11 @@ public class ProfileSettingsActivity extends AppCompatActivity {
         GoogleSignInAccount currentAccount = GoogleSignIn.getLastSignedInAccount(this);
         TextView profileName = findViewById(R.id.profileName);
         TextView profileEmail = findViewById(R.id.profileEmail);
-        profileLocation = findViewById(R.id.profileLocation);
-        profileLocation.setInputType(InputType.TYPE_NULL);
-
-        // gets location
-        Places.initialize(getApplicationContext(), getResources().getString(R.string.GOOGLE_MAPS_API_KEY));
-
-        profileLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS);
-
-                // Start the autocomplete intent.
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
-                        .build(getApplicationContext());
-                startActivityForResult(intent,AUTOCOMPLETE_REQUEST_CODE );
-            }
-        });
-
 
         if (currentAccount != null) {
             profileName.setText(currentAccount.getGivenName() + " " + currentAccount.getFamilyName());
             profileEmail.setText(currentAccount.getEmail());
         }
-
-
-        Button profileConfirm = findViewById(R.id.profileConfirm);
-        profileConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(ProfileSettingsActivity.this, "Profile Saved", Toast.LENGTH_LONG).show();
-            }
-        });
 
         // TODO: get profile picture
         ImageView profilePicture = findViewById(R.id.profileViewPicture);
@@ -127,8 +99,7 @@ public class ProfileSettingsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                profileLocation.setText(place.getAddress());
+
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 // TODO: Handle the error.
                 Status status = Autocomplete.getStatusFromIntent(data);
