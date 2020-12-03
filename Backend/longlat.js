@@ -7,9 +7,9 @@ module.exports.calculateLongLat = (location) => {
     let url = geourl + location.split(" ").join("+") + "key=" + token;
     request({url:geourl, qs:{address: location.split(" ").join("+"), key: token}}, function (error, response, body) {
         if (error) {
-			return null; 
-		} else {
-			return body["results"]["geometry"]["location"];
-   		}
-	});
+            return null; 
+        } else {
+            return body["results"]["geometry"]["location"];
+        }
+    });
 };

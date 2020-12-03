@@ -24,9 +24,6 @@
  * in equals
 */
 
-const request = require("request");
-const geourl = "https://maps.googleapis.com/maps/api/geocode/json?address=";
-const token = process.env.TOKEN;
 const ATTENDEE_WEIGHT = 1;
 const FRIEND_WEIGHT = 20;
 const longlat = require("./longlat.js");
