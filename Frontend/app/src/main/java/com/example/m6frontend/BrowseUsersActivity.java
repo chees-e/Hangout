@@ -29,14 +29,11 @@ import java.util.ArrayList;
 public class BrowseUsersActivity extends AppCompatActivity {
     // private final String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
     // RequestQueue queue;
-    private int numUsers;
     private RecyclerView recyclerView;
     private UserRecyclerViewAdapter recyclerViewAdapter;
     private ArrayList<JSONObject> dataSet;
     private GoogleSignInAccount currentAccount;
     private boolean isLoading = false;
-    private final int numLoad = 10;
-    private final int maxUsers = 30;
     private String activity;
 
     @Override
@@ -44,7 +41,6 @@ public class BrowseUsersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse_users);
         recyclerView = findViewById(R.id.userRecyclerView);
-        numUsers = 0;
         currentAccount = GoogleSignIn.getLastSignedInAccount(this);
         Intent intent = getIntent();
         activity = intent.getStringExtra("activity");
@@ -74,58 +70,11 @@ public class BrowseUsersActivity extends AppCompatActivity {
 
                 if (!isLoading && linearLayoutManager != null
                         && linearLayoutManager.findLastCompletelyVisibleItemPosition() == dataSet.size() - 1) {
-                    loadMoreEvents();
                     isLoading = true;
                 }
 
             }
         });
-    }
-
-    private void loadMoreEvents() {
-        dataSet.add(null);
-        recyclerView.post(new Runnable() {
-                              @Override
-                              public void run() {
-                                  recyclerViewAdapter.notifyItemInserted(dataSet.size() - 1);
-                              }
-                          });
-
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                dataSet.remove(dataSet.size() - 1);
-                int scrollPosition = dataSet.size();
-                recyclerViewAdapter.notifyItemRemoved(scrollPosition);
-                int currentSize = scrollPosition;
-                int nextLimit = currentSize + numLoad;
-
-                while (currentSize - 1 < nextLimit && currentSize - 1 < maxUsers) {
-                    dataSet.add(new JSONObject());
-                    try {
-
-                        dataSet.get(currentSize).put("name","name" + numUsers);
-                        if (activity.equals("friends")) {
-                            dataSet.get(currentSize).put("email", "email" + numUsers);
-                            dataSet.get(currentSize).put("location","location"+ numUsers);
-                        }
-
-                        // TODO: get user picture
-                        dataSet.get(currentSize).put("ownerPicture", currentAccount.getPhotoUrl());
-                        numUsers++;
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    currentSize++;
-                }
-                recyclerViewAdapter.notifyDataSetChanged();
-                isLoading = false;
-
-            }
-        }, 200);
     }
 
 

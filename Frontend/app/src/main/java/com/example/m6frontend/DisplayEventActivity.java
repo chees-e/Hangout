@@ -34,14 +34,11 @@ public class DisplayEventActivity extends AppCompatActivity {
     private final String TAG = "DisplayEventActivity";
     // private final String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/getEvent";
     // RequestQueue queue;
-    private int numEvents;
     private RecyclerView recyclerView;
     private EventRecyclerViewAdapter recyclerViewAdapter;
     private ArrayList<JSONObject> dataSet;
     private GoogleSignInAccount currentAccount;
     private boolean isLoading = false;
-    private final int numLoad = 10;
-    private final int maxEvents = 30;
     private String activity;
 
 
@@ -53,7 +50,6 @@ public class DisplayEventActivity extends AppCompatActivity {
         activity = intent.getStringExtra("activity");
 
         recyclerView =  findViewById(R.id.recyclerView);
-        numEvents = 0;
         currentAccount = GoogleSignIn.getLastSignedInAccount(this);
 
 
@@ -85,7 +81,7 @@ public class DisplayEventActivity extends AppCompatActivity {
 
                 if (!isLoading && linearLayoutManager != null
                         && linearLayoutManager.findLastCompletelyVisibleItemPosition() == dataSet.size() - 1) {
-                    loadMoreEvents();
+
                     isLoading = true;
                 }
 
@@ -93,43 +89,7 @@ public class DisplayEventActivity extends AppCompatActivity {
         });
     }
 
-    private void loadMoreEvents() {
-        dataSet.add(null);
-        recyclerViewAdapter.notifyItemInserted(dataSet.size() - 1);
 
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                dataSet.remove(dataSet.size() - 1);
-                int scrollPosition = dataSet.size();
-                recyclerViewAdapter.notifyItemRemoved(scrollPosition);
-                int currentSize = scrollPosition;
-                int nextLimit = currentSize + numLoad;
-
-                while (currentSize - 1 < nextLimit && currentSize - 1 < maxEvents) {
-                    dataSet.add(new JSONObject());
-                    try {
-                        dataSet.get(currentSize).put("name","name" + numEvents);
-                        dataSet.get(currentSize).put("desc","desc"+ numEvents);
-                        dataSet.get(currentSize).put("location","location"+ numEvents);
-                        dataSet.get(currentSize).put("start","start"+ numEvents);
-                        dataSet.get(currentSize).put("end","end"+ numEvents);
-                        dataSet.get(currentSize).put("attendees","attendees"+ numEvents);
-                        dataSet.get(currentSize).put("ownerPicture", currentAccount.getPhotoUrl()); // TODO: get owner picture
-                        numEvents++;
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    currentSize++;
-                }
-                recyclerViewAdapter.notifyDataSetChanged();
-                isLoading = false;
-
-            }
-        }, 200);
-    }
 
 
     private ArrayList<JSONObject> initEventData() {
@@ -184,7 +144,6 @@ public class DisplayEventActivity extends AppCompatActivity {
                                 _dataSet.get(i).put("end", endstr);
                                 _dataSet.get(i).put("attendees", events.getJSONObject(i).getString("attendees"));
                                 _dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl()); //TODO needs to be replaced
-                                numEvents++;
                                 Log.d(TAG, "event added");
 
                             }
@@ -240,7 +199,7 @@ public class DisplayEventActivity extends AppCompatActivity {
                                 _dataSet.get(i).put("end", endstr);
                                 _dataSet.get(i).put("attendees", hevents.getJSONObject(i).getString("attendees"));
                                 _dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl());
-                                numEvents++;
+
                                 Log.d(TAG, "event added");
 
                             }
@@ -262,7 +221,6 @@ public class DisplayEventActivity extends AppCompatActivity {
                                 _dataSet.get(i).put("end", endstr);
                                 _dataSet.get(i).put("attendees", aevents.getJSONObject(i).getString("attendees"));
                                 _dataSet.get(i).put("ownerPicture", currentAccount.getPhotoUrl());
-                                numEvents++;
                                 Log.d(TAG, "event added");
 
                             }
