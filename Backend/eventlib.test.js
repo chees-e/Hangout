@@ -1,11 +1,16 @@
 "use strict";
 
 const eventlib = require("./eventlib.js");
+jest.mock("./longlat.js", () => {
+    return {
+		calculateLongLat : (location) => ([0, 0])
+	};
+});
 
 test("Testing Event.equals", () => {
     let ev = new eventlib.Event(null, null, null, null, null, null, null, null);
     let ev2 = new eventlib.Event(null, null, null, null, null, null, null, null);
-    let location = { "lat" : 0, "long" : 0 };
+    let location = "A location";
     expect(ev.equals(ev2)).toBe(false); // Invalid events
     expect(ev.hash()).toBe(null);       // Hash of invalid event
 
@@ -34,6 +39,9 @@ test("Testing User Friend handling", () => {
     const u1 = new eventlib.User(1);
     const u2 = new eventlib.User(2);
     
+    // U1 should not be able to add itself
+    expect(u1.addFriend(1)).toBe(false);
+    
     // U1 becomes friends with U2
     expect(u1.addFriend(2)).toBe(true);
     expect(u1.isFriend(2)).toBe(true);
@@ -44,6 +52,7 @@ test("Testing User Friend handling", () => {
     // U2 adding U1 should work
     expect(u2.addFriend(1)).toBe(true);
     expect(u2.isFriend(1)).toBe(true);
+    u2.friends[0].sendNotification();
     
     // U1 adding U2 again should not work
     expect(u1.addFriend(2)).toBe(false);
@@ -56,6 +65,40 @@ test("Testing User Friend handling", () => {
     // getFriends should return a copy, not a reference
     u1f[0].id = 42;
     expect(u1.getFriends()[0].id).toBe(2);
+    
+    expect(u1.deleteFriend(-1)).toBe(false);
+    expect(u1.deleteFriend(2)).toBe(true);
+});
+
+test("Testing Friend Request handling", () => {
+    const u1 = new eventlib.User(1);
+    const u2 = new eventlib.User(2);
+    
+    // U1 should not be able to add itself
+    expect(u1.addRequest(1, null, null, null, true)).toBe(false);
+    
+    // U1 becomes friends with U2
+    expect(u1.addRequest(2, null, null, null, true)).toBe(true);
+    expect(u1.isRequesting(2, null, null, null, true)).toBe(true);
+
+    // addFriend should not change U2
+    expect(u2.isRequesting(1, null, null, null, true)).toBe(false);
+
+    // U2 adding U1 should work
+    expect(u2.addRequest(1, null, null, null, true)).toBe(true);
+    expect(u2.isRequesting(1, null, null, null, true)).toBe(true);
+    
+    // U1 adding U2 again should not work
+    expect(u1.addRequest(2, null, null, null, true)).toBe(false);
+    
+    expect(u1.deleteRequest(2)).toBe(false);
+    expect(u1.addRequest(2)).toBe(true);
+    expect(u1.deleteRequest(2)).toBe(true);
+    expect(u1.deleteRequest(2, true)).toBe(true);
+    expect(u1.deleteRequest(2, true)).toBe(false);
+    
+    u1.sendNotification();
+    u1.updateDevice();
 });
 
 test("Testing User Event handling", () => {

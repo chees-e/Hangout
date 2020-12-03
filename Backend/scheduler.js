@@ -12,22 +12,6 @@ const data = require("./database.js");
  * 
 */
 module.exports.reset = async () => {
-    /*let initialState = new Map([
-        ["events", new Map()],
-        ["users", new Map()],
-        ["impls", new Map()],
-        ["nextID", 1],
-        ["lastID", null]
-    ]);
-    for (let [key, val] of initialState) {
-        if (await data.setData(key, val) !== 0) {
-            return -1;
-        }
-    }
-    return 0;*/
-
-	//The mock data base prob doesn't have clear()
-	//So we can't have the following line when testing
 	if (await data.clear()) {
 		return 0;
 	}
@@ -219,7 +203,7 @@ module.exports.getHostEvents = async (_id) => {
     for (const _ of eventmap) {
         const value = await getEventImpl(_.id);
         if (value.isValid()) {
-			if (value.host == _id){
+			if (value.host === _id){
             	evts.push(value);
 			}
         }
@@ -394,11 +378,7 @@ module.exports.addFriend = async (_uid, _fid) => {
 		return -2;
 	}
 	
-	if (!(friend.addFriend(user.id, user.name, user.device, user.pfp))) {
-		user.deleteFriend(friend.id);
-		return -2;
-	}
-	
+	friend.addFriend(user.id, user.name, user.device, user.pfp);	
 	friend.sendNotification(`${user.name} has accepted your friend request`);
 
     await data.setData(`users/${_uid}`, user);
@@ -415,8 +395,7 @@ module.exports.deleteFriend = async (_uid, _fid) => {
 	let rv = true;
 	rv = user.deleteFriend(friend.id);
 	if (!rv) { return -1; }
-	rv = friend.deleteFriend(user.id);
-	if (!rv) { return -1; }
+	friend.deleteFriend(user.id);
 
     await data.setData(`users/${_uid}`, user);
     await data.setData(`users/${_fid}`, friend);
@@ -430,10 +409,12 @@ module.exports.addRequest = async (_uid, _fid) => {
 	if (!user){ return -1; }
 	if (!friend){ return -1; }
 
-	user.addRequest(friend.id, friend.name, friend.device, friend.pfp, true);
+	if (!user.addRequest(friend.id, friend.name, friend.device, friend.pfp, true)) {
+		return -1;
+	}
+
 	friend.addRequest(user.id, user.name, user.device, user.pfp, false);
-	friend.sendNotification(`${user.name} has sent you a friend request`);
-	
+	friend.sendNotification(`${user.name} has sent you a friend request`);	
 
     await data.setData(`users/${_uid}`, user);
     await data.setData(`users/${_fid}`, friend);
@@ -449,8 +430,7 @@ module.exports.deleteRequest = async (_uid, _fid) => {
 	let rv = true;
 	rv = user.deleteRequest(friend.id, true);
 	if (!rv) { return -1; }
-	rv = friend.deleteRequest(user.id, false);
-	if (!rv) { return -1; }
+	friend.deleteRequest(user.id, false);
 
     await data.setData(`users/${_uid}`, user);
     await data.setData(`users/${_fid}`, friend);
