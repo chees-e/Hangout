@@ -195,7 +195,7 @@ test("Testing Remove Event From User", async () => {
     const post3 = await request(app).post(`/user/TestUser1/event/${EV1Res.body.id}`);
     expect(post3.statusCode).toBe(200);
 });
-
+/*
 test("Testing Friend Requests", async () => {
 	// Preparation: Add 3 users
 	const post1 = await request(app).post("/user/").send(user1);
@@ -232,7 +232,6 @@ test("Testing Friend Requests", async () => {
     expect(userData.statusCode).toBe(200);
     expect(userData.body.friends.includes("TestUser2"));
 });
-
 test("Testing Remove Friend", async () => {
 	// Preparation: Add 3 users and add TestUser1 as friend to TestUser2
 	const post1 = await request(app).post("/user/").send(user1);
@@ -270,4 +269,4 @@ test("Testing Remove Friend", async () => {
     expect(get2.statusCode).toBe(200);
     expect(!get1.body.friends.includes("TestUser2"));
     expect(!get2.body.friends.includes("TestUser1"));
-});
+});*/
