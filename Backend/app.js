@@ -179,7 +179,7 @@ app.get("/user/:uid/findevent/", function(req, res) {
     sched.searchEvents(req.params.uid).then((events) => {
         res.send({
             length: events.length,
-            events: events
+            events
         }); 
     });
 });

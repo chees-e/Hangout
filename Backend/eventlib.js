@@ -24,7 +24,7 @@
  * in equals
 */
 
-const request = require('request');
+const request = require("request");
 const geourl = "https://maps.googleapis.com/maps/api/geocode/json?address=";
 const token = process.env.TOKEN;
 const ATTENDEE_WEIGHT = 1;
@@ -108,6 +108,23 @@ class Event{
 }
 
 
+/* TODO: add a description
+ *
+ * THis is added to avoid circular objects
+ * */
+class Friend {
+    constructor(id, name, device, pfp){
+        this.id = id;
+        this.name = name;
+        this.device = device;
+        this.pfp = pfp;
+    }
+
+    sendNotification(msg) {
+        sendNotif(msg, this.device);
+        return;
+    }
+}
 
 /* Class User: Represents the "Design 1" format of a person, as used in the scheduler.
  * 
@@ -278,23 +295,6 @@ class User{
     }
 }
 
-/* TODO: add a description
- *
- * THis is added to avoid circular objects
- * */
-class Friend {
-    constructor(id, name, device, pfp){
-        this.id = id;
-        this.name = name;
-        this.device = device;
-        this.pfp = pfp;
-    }
-
-    sendNotification(msg) {
-        sendNotif(msg, this.device);
-        return;
-    }
-}
 
 function sendNotif(msg, token) {
     let options = {
@@ -307,10 +307,10 @@ function sendNotif(msg, token) {
             title: "Hangout",
             body: msg
         }
-    }
-    admin.messaging().sendToDevice(token, message, options).then( response => {
+    };
+    admin.messaging().sendToDevice(token, message, options).then((response) => {
         return 0;    
-    }).catch( error => {
+    }).catch((error) => {
         return -1;
     });
 }
