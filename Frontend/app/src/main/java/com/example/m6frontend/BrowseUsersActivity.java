@@ -129,42 +129,7 @@ public class BrowseUsersActivity extends AppCompatActivity {
         RequestQueue requestQueue = Volley.newRequestQueue(BrowseUsersActivity.this);
 
         // TODO: get description
-        if (activity.equals("friends")) {
-            String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail();
-
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                JSONArray friends = response.getJSONArray("friends");
-
-                                for (int i = 0; i < friends.length(); i++) {
-                                    // TODO: get location
-                                    _dataSet.add(new JSONObject());
-                                    _dataSet.get(i).put("name", friends.getJSONObject(i).getString("name"));
-                                    _dataSet.get(i).put("email", friends.getJSONObject(i).getString("id"));
-                                    _dataSet.get(i).put("ownerPicture", friends.getJSONObject(i).getString("pfp"));
-                                }
-                                initAdapter();
-                                initScrollListener();
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            // TODO: Handle error
-
-                        }
-                    });
-            requestQueue.add(jsonObjectRequest);
-            requestQueue.start();
-
-        } else {
-            if (activity.equals("users")) {
+        if (activity.equals("users")) {
                 String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail() + "/findfriends";
 
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
@@ -196,12 +161,44 @@ public class BrowseUsersActivity extends AppCompatActivity {
                         });
                 requestQueue.add(jsonObjectRequest);
                 requestQueue.start();
-            } else {
-                // friend requests
-                // TODO: get name and picture
-            }
+        } else {
+                String url = "http://ec2-52-91-35-204.compute-1.amazonaws.com:8081/user/" + currentAccount.getEmail();
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                        (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                try {
+                                    JSONArray friends;
+                                    if (activity.equals("friends")) {
+                                        friends = response.getJSONArray("friends");
+                                    } else {
+                                        friends = response.getJSONArray("requestin");
+                                    }
 
-        }
+                                    for (int i = 0; i < friends.length(); i++) {
+                                        // TODO: get location
+                                        _dataSet.add(new JSONObject());
+                                        _dataSet.get(i).put("name", friends.getJSONObject(i).getString("name"));
+                                        _dataSet.get(i).put("email", friends.getJSONObject(i).getString("id"));
+                                        _dataSet.get(i).put("ownerPicture", friends.getJSONObject(i).getString("pfp"));
+                                    }
+                                    initAdapter();
+                                    initScrollListener();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                // TODO: Handle error
+
+                            }
+                        });
+                requestQueue.add(jsonObjectRequest);
+                requestQueue.start();
+            }
 
         return _dataSet;
 
