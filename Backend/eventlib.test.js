@@ -115,57 +115,6 @@ test("Testing Event suggestion", () => {
     expect(e1.calculateScore(u1)).toBe(-1);
 });
 
-test("Testing EventImpl equals", () => {
-    const start1 = new Date(2020, 10, 24, 10, 45);
-    const end1 = new Date(2020, 10, 24, 13, 50);
-
-    const start2 = new Date(2020, 10, 24, 15, 20);
-    const end2 = new Date(2020, 10, 24, 16, 30);
-    
-    const location = { lat : 0, long : 0 };
-    
-    const ev = new eventlib.Event(1, null, null, null, start1, end1, location);
-    const ev2 = new eventlib.Event(2, null, null, null, start1, end1, location);
-    const ev3 = new eventlib.Event(3, null, null, null, start2, end2, location);
-    
-    const evImpl = new eventlib.EventImpl(0);
-    let evImpl2 = new eventlib.EventImpl(0);
-    
-    evImpl.importEvent(ev);
-    evImpl2.importEvent(ev);
-    
-    // Equal to self
-    expect(evImpl.equals(evImpl)).toBe(true);
-    
-    // Identical events
-    expect(evImpl.equals(evImpl2)).toBe(true);
-    expect(evImpl2.equals(evImpl)).toBe(true);
-
-    // Not an EventImpl
-    expect(evImpl.equals(null)).toBe(false);
-    
-    // Different IDs
-    evImpl2 = new eventlib.EventImpl(0);
-    evImpl2.importEvent(ev2);
-    
-    expect(evImpl.equals(evImpl2)).toBe(false);
-    expect(evImpl2.equals(evImpl)).toBe(false);
-    
-    // Non-intersecting events
-    evImpl2 = new eventlib.EventImpl(0);
-    evImpl2.importEvent(ev3);
-    expect(evImpl.equals(evImpl2)).toBe(false);
-    expect(evImpl2.equals(evImpl)).toBe(false);
-    
-    // evImpl is a subset of evImpl2
-    evImpl2 = new eventlib.EventImpl(0);
-    evImpl2.importEvent(ev);
-    evImpl2.importEvent(ev3);
-    
-    expect(evImpl.equals(evImpl2)).toBe(false);
-    expect(evImpl2.equals(evImpl)).toBe(false);
-});
-
 test("Testing EventImpl conflicts", () => {
     const start1 = new Date(2020, 10, 24, 10, 45);
     const end1 = new Date(2020, 10, 24, 13, 50);
@@ -210,10 +159,12 @@ test("Testing EventImpl conflicts", () => {
 
 test("Testing EventImpl Serialize", () => {
     const start1 = new Date(2020, 10, 24, 10, 45);
-    const end1 = new Date(2020, 10, 24, 13, 50);
+    const end1 = new Date(2020, 10, 30, 13, 50);
     const location = { lat : 0, long : 0 };
-    const ev = new eventlib.Event(1, null, null, start1, end1, location);
+    const ev = new eventlib.Event(1, null, null, null, start1, end1, location);
     const evImpl = new eventlib.EventImpl(0);
+    
+    expect(ev.isValid()).toBe(true);
     evImpl.importEvent(ev);
     
     let json = evImpl.serialize();

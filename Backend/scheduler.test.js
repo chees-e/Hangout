@@ -5,7 +5,7 @@ jest.mock("./database.js", () => {
         ["events", new Map()],
         ["users", new Map()],
         ["impls", new Map()],
-        ["nextID", { value : 1 } ],
+        ["nextID", null ],
         ["lastID", { value : null} ]
     ]);
     const clearfn = jest.fn()
@@ -15,7 +15,7 @@ jest.mock("./database.js", () => {
 				["events", new Map()],
 				["users", new Map()],
 				["impls", new Map()],
-				["nextID", { value : 1 } ],
+				["nextID", { value : 0 } ],
 				["lastID", { value : null} ]
 			]);
 			return true;
@@ -199,6 +199,9 @@ test("Testing addEvent", async () => {
     // Reset should fail the first time because of the mock
     expect(await scheduler.reset()).toBe(-1);
 
+	// If nextID has no value, getNextID should return 1.
+	expect(await scheduler.getNextID()).toBe(1);
+
     // Restore scheduler to known state
     expect(await scheduler.reset()).toBe(0);
 
@@ -253,20 +256,16 @@ test("Testing AddEventToUser", async () => {
 
     // Add an event with start start1 and end end1
     const EID = await scheduler.getNextID();
-    const ev = new eventlib.Event(EID, null, null, null, start1, end1, location);
     expect(await scheduler.addEvent(null, null, EID, null, start1, end1, location)).toBe(EID);
 
     // Add an event with start start2 and end end2
     const EID2 = await scheduler.getNextID();
     expect(EID !== EID2).toBe(true);
-    const ev2 = new eventlib.Event(EID2);    
     expect(await scheduler.addEvent(null, null, EID2, null, start2, end2, location)).toBe(EID2);
     expect(await scheduler.addEvent(null, null, 3, null, start2, end2, location)).toBe(3);
 
     // Add a user with id UID
     expect(await scheduler.addUser(UID)).toBe(UID);
-    // Cannot add the same user twice
-    expect(await scheduler.addUser(UID)).toBe(-1);
 
     // Case 1: UID valid, EID valid, no conflict: expects 0
     expect(await scheduler.addEventToUser(UID, EID)).toBe(0);
@@ -283,6 +282,57 @@ test("Testing AddEventToUser", async () => {
     expect(user.events.length).toBe(2);
     expect(user.events[0].toString()).toBe(EID.toString());
     expect(user.events[1].toString()).toBe(EID2.toString());
+});
+
+test("Testing removeEventFromUser", async () => {
+
+    const start1 = new Date(2020, 10, 24, 10, 45);
+    const end1 = new Date(2020, 10, 24, 13, 50);
+    const start2 = new Date(2020, 10, 24, 15, 20);
+    const end2 = new Date(2020, 10, 24, 16, 30);
+    const UID = 3;
+    const location = {"lat":0, "long":0};
+
+    // Restore scheduler to known state
+    expect(await scheduler.reset()).toBe(0);
+
+    // Add an event with start start1 and end end1
+    const EID = await scheduler.getNextID();
+    const ev = new eventlib.Event(EID, null, null, null, start1, end1, location);
+    expect(await scheduler.addEvent(null, null, EID, null, start1, end1, location)).toBe(EID);
+
+    // Add an event with start start2 and end end2
+    const EID2 = await scheduler.getNextID();
+    expect(EID !== EID2).toBe(true);
+    const ev2 = new eventlib.Event(EID2);    
+    expect(await scheduler.addEvent(null, null, EID2, null, start2, end2, location)).toBe(EID2);
+    expect(await scheduler.addEvent(null, null, 3, null, start2, end2, location)).toBe(3);
+
+    // Add a user with id UID
+    expect(await scheduler.addUser(UID)).toBe(UID);
+    // Cannot add the same user twice
+    expect(await scheduler.addUser(UID)).toBe(-1);
+
+    // Add events EID and EID2 to scheduler
+    expect(await scheduler.addEventToUser(UID, EID)).toBe(0);
+    expect(await scheduler.addEventToUser(UID, EID2)).toBe(0);
+
+	// Case 1: Remove event from user which doesn't exist, should fail
+	expect(await scheduler.removeEventFromUser(-1, -1)).toBe(-1);
+	// Case 2: Remove event which doesn't exist, should fail
+	expect(await scheduler.removeEventFromUser(UID, -1)).toBe(-1);
+	// Case 3: Remove event which the user attends, should succeed
+	expect(await scheduler.removeEventFromUser(UID, EID)).toBe(0);
+	// Case 4: Remove the same event twice, should fail
+	expect(await scheduler.removeEventFromUser(UID, EID)).toBe(-1);
+	// Case 5: Adding the event back should not produce a conflict
+    expect(await scheduler.addEventToUser(UID, EID)).toBe(0);
+    // Case 6: Removing all events should leave the user with no events
+    expect(await scheduler.removeEventFromUser(UID, EID)).toBe(0);
+	expect(await scheduler.removeEventFromUser(UID, EID2)).toBe(0);	
+
+    let user = await scheduler.getUser(UID);
+    expect(user.events).toEqual([]);
 });
 
 test("Testing deleteEvent", async () => {
