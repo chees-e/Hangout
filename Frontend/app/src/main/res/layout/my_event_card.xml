@@ -30,7 +30,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentBottom="true"
                 android:contentDescription="@string/eventInterestButton"
-                android:src="@drawable/ic_baseline_add_24" />
+                android:src="@drawable/ic_delete" />
 
             <TextView
                 android:id="@+id/eventName"

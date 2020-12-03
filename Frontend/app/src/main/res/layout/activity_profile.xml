@@ -11,14 +11,14 @@
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:elevation="2dp"
         android:fitsSystemWindows="true"
         android:foregroundGravity="top"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:openDrawer="start"
-        android:elevation="2dp">
+        tools:openDrawer="start">
 
         <include
             layout="@layout/tool_bar"
@@ -33,7 +33,6 @@
             android:fitsSystemWindows="true"
             app:headerLayout="@layout/nav_header_main"
             app:menu="@menu/main_drawer">
-
 
 
         </com.google.android.material.navigation.NavigationView>
@@ -57,14 +56,14 @@
 
     <Button
         android:id="@+id/eventButton"
-        android:layout_width="210dp"
+        android:layout_width="200dp"
         android:layout_height="60dp"
         android:layout_weight="1"
         android:backgroundTint="#6603A9F4"
         android:foregroundGravity="top"
         android:text="@string/add_event_btn_caption"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/find_events_button"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -72,7 +71,7 @@
 
     <Button
         android:id="@+id/find_events_button"
-        android:layout_width="210dp"
+        android:layout_width="200dp"
         android:layout_height="60dp"
         android:layout_weight="1"
         android:backgroundTint="#662196F3"
@@ -81,6 +80,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/drawer_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.91" />
@@ -89,8 +89,8 @@
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="384dp"
-        android:layout_height="572dp"
-        app:layout_constraintBottom_toBottomOf="@+id/sign_out_button"
+        android:layout_height="577dp"
+        app:layout_constraintBottom_toTopOf="@+id/sign_out_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.473"
         app:layout_constraintStart_toStartOf="parent"
