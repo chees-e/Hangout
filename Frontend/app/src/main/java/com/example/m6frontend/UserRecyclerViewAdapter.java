@@ -223,7 +223,7 @@ public class UserRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.V
                 });
             }
 
-            ((Activity)context).finish();
+
 
 
         } catch (JSONException e) {

@@ -65,14 +65,6 @@ public class ProfileSettingsActivity extends AppCompatActivity {
             profileEmail.setText(currentAccount.getEmail());
         }
 
-        ImageButton settingsButton = findViewById(R.id.settingsButton);
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent settingsIntent = new Intent(ProfileSettingsActivity.this, SettingsActivity.class);
-                startActivity(settingsIntent);
-            }
-        });
 
         Button profileConfirm = findViewById(R.id.profileConfirm);
         profileConfirm.setOnClickListener(new View.OnClickListener() {

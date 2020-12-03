@@ -191,7 +191,6 @@ public class AddEventActivity extends AppCompatActivity {
         // gets end time
         endTime.setOnClickListener(createTimeListener(endTime));
 
-        // TODO: error checking
 
 
         addEventButton.setOnClickListener(createAddEventButton());

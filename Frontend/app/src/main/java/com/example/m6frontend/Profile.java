@@ -47,7 +47,7 @@ import com.google.firebase.iid.InstanceIdResult;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import static com.google.firebase.iid.FirebaseInstanceId.*;
+import static com.google.firebase.iid.FirebaseInstanceId.getInstance;
 
 
 // TODO: add user settings
@@ -89,7 +89,7 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
     private Button createEventButton;
     private Button findEventButton;
 
-    private  Calendar calendar = Calendar.getInstance();
+    private final Calendar calendar = Calendar.getInstance();
     private SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
     private SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM  d, YYYY");
 
@@ -187,15 +187,6 @@ public class Profile extends AppCompatActivity implements OnMapReadyCallback  {
                 Intent findEventIntent = new Intent(Profile.this, DisplayEventActivity.class);
                 findEventIntent.putExtra("activity", "findEvent");
                 startActivity(findEventIntent);
-            }
-        });
-
-        ImageButton settingsButton = findViewById(R.id.settings);
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent settingsIntent = new Intent(Profile.this, SettingsActivity.class);
-                startActivity(settingsIntent);
             }
         });
 
